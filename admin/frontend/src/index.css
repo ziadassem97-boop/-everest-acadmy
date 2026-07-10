@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: "Cairo", sans-serif;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900;
+}
+
+.rtl {
+  direction: rtl;
+}
+
+.table-data th, .table-data td {
+  @apply px-4 py-3 text-right text-sm;
+}

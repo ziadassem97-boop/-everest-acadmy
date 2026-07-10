@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+*.db
+uploads/
+auth
+auth-wal
+help
+help-wal
+.vscode/
+pro/
