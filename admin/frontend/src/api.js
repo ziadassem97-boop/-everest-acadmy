@@ -22,11 +22,17 @@ export async function api(path, opts = {}) {
 }
 
 export async function uploadApi(formData) {
-  const headers = {};
+  const file = formData.get("file");
+  const base64 = await new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
+  const headers = { "Content-Type": "application/json" };
   const s = getAdminSession();
   if (s.userId) headers["x-user-id"] = s.userId;
   if (s.token) headers["x-session-token"] = s.token;
-  const r = await fetch(`${BACKEND_URL}/api/upload`, { method: "POST", headers, body: formData });
+  const r = await fetch("/api/upload/base64", { method: "POST", headers, body: JSON.stringify({ filename: file.name, data: base64 }) });
   if (!r.ok) throw new Error("Upload failed");
   return r.json();
 }

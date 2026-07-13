@@ -30,5 +30,21 @@ router.post("/", upload.single("file"), async (req, res) => {
   res.json({ url, filename: req.file.filename });
 });
 
+router.post("/base64", async (req, res) => {
+  try {
+    const { filename, data } = req.body;
+    if (!data || !filename) return res.status(400).json({ error: "Missing filename or data" });
+    const matches = data.match(/^data:(.+);base64,(.+)$/);
+    if (!matches) return res.status(400).json({ error: "Invalid base64 format" });
+    const ext = filename.split(".").pop() || "png";
+    const fname = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const buffer = Buffer.from(matches[2], "base64");
+    fs.writeFileSync(join(uploadDir, fname), buffer);
+    res.json({ url: `/uploads/${fname}`, filename: fname });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;
 export { upload };
