@@ -11,6 +11,7 @@ const styles = `
 /* CTA Banner */
 .fs-cta-wrapper {
   padding: 0 5% 0;
+  direction: ltr;
 }
 .fs-cta {
   position: relative;
@@ -102,6 +103,7 @@ const styles = `
 .fs-footer {
   background: #fff;
   padding: 64px 5% 0;
+  direction: ltr;
 }
 .fs-footer-grid {
   display: grid;
