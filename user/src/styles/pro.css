@@ -496,7 +496,7 @@ video { object-fit:contain; }
 /* ===== NAVBAR (shared across all pages) ===== */
 .navbar {
   position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
-  width: min(94%, 1300px); height: 78px; padding: 0 22px 0 32px;
+  width: min(94%, 1300px); height: 78px; padding: 0 36px 0 40px;
   background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(20px);
   border: 1px solid rgba(212, 175, 55, 0.436); border-radius: 24px;
   display: flex; align-items: center; justify-content: space-between;
