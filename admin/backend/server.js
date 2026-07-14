@@ -54,6 +54,7 @@ import dashboardRoutes from "./routes/dashboard.js";
 import uploadRoutes from "./routes/upload.js";
 import paymentGatewayRoutes from "./routes/payment_gateways.js";
 import chatRoutes from "./routes/chat.js";
+import { loadGroqKey } from "./routes/chat.js";
 import feedbacksRoutes from "./routes/feedbacks.js";
 import proofsRoutes from "./routes/proofs.js";
 import adminLogsRoutes from "./routes/admin_logs.js";
@@ -140,6 +141,8 @@ initDb().then(async () => {
       console.log("🔑 Loaded Gemini keys from settings DB");
     }
   } catch {}
+  // Load Groq API key from settings DB
+  await loadGroqKey();
   // Clean up orphaned sessions
   try { await execute("DELETE FROM user_sessions WHERE user_id NOT IN (SELECT id FROM users)"); } catch(e) {}
   app.listen(PORT, () => {

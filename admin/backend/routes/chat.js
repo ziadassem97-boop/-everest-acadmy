@@ -3,8 +3,16 @@ import { query, queryOne } from "../db.js";
 
 const router = Router();
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY || "";
+let GROQ_API_KEY = process.env.GROQ_API_KEY || "";
 const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+
+// Load key from settings DB on startup (overrides env var)
+async function loadGroqKey() {
+  try {
+    const row = await queryOne("SELECT value FROM settings WHERE key = 'groq_api_key'");
+    if (row && row.value) { GROQ_API_KEY = row.value; console.log("🔑 Loaded Groq API key from settings DB"); }
+  } catch {}
+}
 
 // ─── Knowledge Base (fast-path: instant replies for common questions) ───
 const KB = [
@@ -175,3 +183,4 @@ router.get("/test-groq", async (req, res) => {
 });
 
 export default router;
+export { loadGroqKey };
