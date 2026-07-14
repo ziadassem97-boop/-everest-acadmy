@@ -279,14 +279,6 @@ export default function ProfilePage() {
             </button>
           </div>
 
-          <div className="rank-card">
-            <div className="rl">{t("الرتبة الحالية", "Current Rank")}</div>
-            <h3>{(() => { if (!currentRankName) return "—"; const rk = dbRanks.find(r => r.name === currentRankName); return rk?.image ? <img src={rk.image} alt="" style={{width:32,height:32,borderRadius:8,verticalAlign:"middle",marginRight:8,objectFit:"cover"}} /> : null; })()} {currentRankName || "—"}</h3>
-            <p>{t("استمر في تنمية فريقك لفتح الرتبة التالية.", "Keep growing your team to unlock the next rank.")}</p>
-            <div className="next-rank">
-              <span>{t("الرتبة التالية", "Next Rank")}</span>
-              <strong>{nextRankName}</strong>
-            </div>
           </div>
         </section>
 
