@@ -14,6 +14,8 @@ export default function CourseViewPage() {
   const nav = useNavigate();
   const loc = useLocation();
   const { colors: c } = useTheme();
+  const [m, setM] = useState(window.innerWidth <= 768);
+  useEffect(() => { const h = () => setM(window.innerWidth <= 768); window.addEventListener("resize", h); return () => window.removeEventListener("resize", h); }, []);
   const [course, setCourse] = useState(null);
   const [playing, setPlaying] = useState(null);
   const [enrollment, setEnrollment] = useState(null);
@@ -222,12 +224,12 @@ export default function CourseViewPage() {
     <div className="courses-body" style={{background:c.bg}}>
       <AppNavbar />
       <main className="courses-main">
-        <div style={{background:c.bgCard,border:`1px solid ${c.borderLight}`,borderRadius:20,padding:24,marginBottom:20}}>
-          <h2 style={{fontSize:"1.8rem",fontWeight:800,background:"linear-gradient(135deg,#fdfbfb,#e2c275,#b38728)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",marginBottom:8}}>
+        <div style={{background:c.bgCard,border:`1px solid ${c.borderLight}`,borderRadius:20,padding:m?16:24,marginBottom:20}}>
+          <h2 style={{fontSize:m?"1.3rem":"1.8rem",fontWeight:800,background:"linear-gradient(135deg,#fdfbfb,#e2c275,#b38728)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",marginBottom:8}}>
             {course.title_ar || course.title}
           </h2>
-          <p style={{color:c.textMuted,fontSize:14}}>{course.description_ar || course.description}</p>
-          <div style={{display:"flex",gap:15,marginTop:15,fontSize:13,color:c.textMuted,flexWrap:"wrap",alignItems:"center"}}>
+          <p style={{color:c.textMuted,fontSize:m?12:14}}>{course.description_ar || course.description}</p>
+          <div style={{display:"flex",gap:m?8:15,marginTop:15,fontSize:m?11:13,color:c.textMuted,flexWrap:"wrap",alignItems:"center"}}>
             <span><strong style={{color:"#e2c275"}}>{t("المستوى:", "Level:")}</strong> {course.difficulty === "beginner" ? t("مبتدئ", "Beginner") : course.difficulty === "intermediate" ? t("متوسط", "Intermediate") : t("متقدم", "Advanced")}</span>
             <span><strong style={{color:"#e2c275"}}>{t("السعر:", "Price:")}</strong> {!isFree && `${course.price} E-Money`}{!isFree && course.price_egp > 0 ? ` — ${course.price_egp} ${t("ج.م", "EGP")}` : ""}{isFree && t("مجاني", "Free")}</span>
             <span><strong style={{color:"#e2c275"}}>{t("الدروس:", "Lessons:")}</strong> {allLessons.length}</span>
@@ -294,7 +296,7 @@ export default function CourseViewPage() {
           </div>
         )}
 
-        <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:20,alignItems:"start"}}>
+        <div style={{display:"grid",gridTemplateColumns:m?"1fr":"1fr 2fr",gap:20,alignItems:"start"}}>
           <div style={{background:c.bgCard,border:`1px solid ${c.borderLight}`,borderRadius:16,padding:16}}>
             <h3 style={{fontSize:14,fontWeight:700,color:"#e2c275",marginBottom:12,letterSpacing:1}}>{t("محتوى الكورس", "COURSE CONTENT")}</h3>
             {(course.topics || []).map((topic) => {
@@ -358,19 +360,19 @@ export default function CourseViewPage() {
           <div style={{background:c.bgCard,border:`1px solid ${c.borderLight}`,borderRadius:16,overflow:"hidden",position:"relative"}}>
             <div onContextMenu={blockCtx} style={{aspectRatio:"16/9",background:"#000",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",userSelect:"none",WebkitUserSelect:"none"}}>
               {current && !canWatchAll && !current.is_free ? (
-                <div style={{textAlign:"center",color:"#555",padding:30}}>
-                  <p style={{fontSize:48,marginBottom:12}}>🔒</p>
-                  <p style={{fontWeight:700,color:c.text,marginBottom:4}}>{t("هذا الدرس مقفل", "This lesson is locked")}</p>
-                  <p style={{fontSize:13,color:c.textMuted,marginBottom:16}}>{t("اشترِ الكورس للمشاهدة الكاملة", "Buy the course for full access")}</p>
-                  <Link to={`/courses/${id}`} style={{display:"inline-flex",alignItems:"center",gap:8,padding:"10px 24px",background:"linear-gradient(135deg,#b38728,#e2c275)",borderRadius:10,color:"#05030a",fontWeight:800,fontSize:13,textDecoration:"none"}}>
+                <div style={{textAlign:"center",color:"#555",padding:m?20:30}}>
+                  <p style={{fontSize:m?36:48,marginBottom:m?8:12}}>🔒</p>
+                  <p style={{fontWeight:700,color:c.text,marginBottom:4,fontSize:m?14:16}}>{t("هذا الدرس مقفل", "This lesson is locked")}</p>
+                  <p style={{fontSize:m?12:13,color:c.textMuted,marginBottom:m?12:16}}>{t("اشترِ الكورس للمشاهدة الكاملة", "Buy the course for full access")}</p>
+                  <Link to={`/courses/${id}`} style={{display:"inline-flex",alignItems:"center",gap:8,padding:m?"10px 18px":"10px 24px",background:"linear-gradient(135deg,#b38728,#e2c275)",borderRadius:10,color:"#05030a",fontWeight:800,fontSize:m?12:13,textDecoration:"none"}}>
                     💳 {t("اشترِ الكورس", "Buy Course")} — {course.price} E-Money{course.price_egp > 0 ? ` / ${course.price_egp} ${t("ج.م", "EGP")}` : ""}
                   </Link>
                 </div>
               ) : videoSrc ? (
                 isYoutube(current?.video_url) ? (
-                  <iframe src={videoSrc} style={{width:"100%",height:"100%",aspectRatio:"16/9"}} allowFullScreen title="video" />
+                  <iframe src={videoSrc} style={{width:"100%",height:"100%",aspectRatio:"16/9"}} allowFullScreen allow="autoplay; encrypted-media" title="video" />
                 ) : (
-                  <video src={videoSrc} controls controlsList="nodownload noremoteplayback" disablePictureInPicture style={{width:"100%",height:"100%"}} autoPlay onEnded={() => {
+                  <video src={videoSrc} controls playsInline controlsList="nodownload noremoteplayback" disablePictureInPicture style={{width:"100%",height:"100%",objectFit:"contain"}} onEnded={() => {
                     if (currentLessonQuiz && !isQuizPassed(currentLessonQuiz.id)) {
                       setActiveQuiz(currentLessonQuiz);
                     } else {
@@ -399,10 +401,10 @@ export default function CourseViewPage() {
               )}
             </div>
             {current && (
-              <div style={{padding:16,borderTop:`1px solid ${c.borderLight}`}}>
+              <div style={{padding:m?12:16,borderTop:`1px solid ${c.borderLight}`}}>
                 {currentQuizBlocked && (
-                  <div style={{background:"rgba(212,175,55,.1)",border:"1px solid rgba(212,175,55,.3)",borderRadius:12,padding:14,marginBottom:12,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                    <div style={{color:"#d4af37",fontSize:14,fontWeight:700}}>
+                  <div style={{background:"rgba(212,175,55,.1)",border:"1px solid rgba(212,175,55,.3)",borderRadius:12,padding:m?10:14,marginBottom:12,display:"flex",flexDirection:m?"column":"row",justifyContent:"space-between",alignItems:m?"stretch":"center",gap:m?8:0}}>
+                    <div style={{color:"#d4af37",fontSize:m?12:14,fontWeight:700}}>
                       📝 {t("هذا الدرس له اختبار. أجب على الاختبار للمتابعة.", "This lesson has a quiz. Complete it to continue.")}
                     </div>
                     <button onClick={() => setActiveQuiz(currentLessonQuiz)}
@@ -411,16 +413,16 @@ export default function CourseViewPage() {
                     </button>
                   </div>
                 )}
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div style={{display:"flex",flexDirection:m?"column":"row",justifyContent:"space-between",alignItems:m?"stretch":"center",gap:m?10:0}}>
                   <div>
-                    <p style={{fontWeight:600,color:c.text,fontSize:14}}>{current.title_ar || current.title}</p>
-                    <p style={{fontSize:12,color:c.textMuted}}>{current.topicTitle}</p>
+                    <p style={{fontWeight:600,color:c.text,fontSize:m?13:14}}>{current.title_ar || current.title}</p>
+                    <p style={{fontSize:m?11:12,color:c.textMuted}}>{current.topicTitle}</p>
                   </div>
-                  <div style={{display:"flex",gap:8}}>
-                    {idx > 0 && <button onClick={goToPrev} style={{padding:"8px 16px",background:c.bgInput,border:`1px solid ${c.borderLight}`,borderRadius:8,color:c.text,cursor:"pointer",fontSize:13}}>{t("السابق", "Previous")}</button>}
+                  <div style={{display:"flex",gap:8,justifyContent:m?"space-between":"flex-end"}}>
+                    {idx > 0 && <button onClick={goToPrev} style={{padding:m?"10px 12px":"8px 16px",background:c.bgInput,border:`1px solid ${c.borderLight}`,borderRadius:8,color:c.text,cursor:"pointer",fontSize:m?12:13,flex:m?1:"none"}}>{t("السابق", "Previous")}</button>}
                     {idx < allLessons.length-1 && (
                       <button onClick={goToNext} disabled={currentQuizBlocked}
-                        style={{padding:"8px 16px",background:currentQuizBlocked ? c.border : "linear-gradient(135deg,#b38728,#e2c275)",border:"none",borderRadius:8,color:currentQuizBlocked ? c.textMuted : "#05030a",cursor:currentQuizBlocked ? "not-allowed" : "pointer",fontWeight:700,fontSize:13,opacity:currentQuizBlocked ? 0.5 : 1}}>
+                        style={{padding:m?"10px 12px":"8px 16px",background:currentQuizBlocked ? c.border : "linear-gradient(135deg,#b38728,#e2c275)",border:"none",borderRadius:8,color:currentQuizBlocked ? c.textMuted : "#05030a",cursor:currentQuizBlocked ? "not-allowed" : "pointer",fontWeight:700,fontSize:m?12:13,opacity:currentQuizBlocked ? 0.5 : 1,flex:m?1:"none"}}>
                         {t("التالي", "Next")}
                       </button>
                     )}
