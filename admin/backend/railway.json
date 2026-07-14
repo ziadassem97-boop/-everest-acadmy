@@ -5,7 +5,7 @@
     "buildCommand": "cd ../../user && npm install && npm run build && cd ../admin/frontend && npm install && npm run build && cd ../backend && npm install"
   },
   "deploy": {
-    "startCommand": "node server.js",
+    "startCommand": "NODE_ENV=production node server.js",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
