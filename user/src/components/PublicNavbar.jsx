@@ -70,41 +70,40 @@ export default function PublicNavbar({ active }) {
         </div>
 
         {/* Navigation Links */}
-        <div style={{display:"flex",flexDirection:"column",gap:4}}>
+        <div style={{display:"flex",flexDirection:"column",gap:6}}>
           {links.map((l) => {
             const isActive = active === l.key;
             return (
               <Link key={l.key} to={l.to} onClick={() => setMenuOpen(false)}
                 style={{
-                  display:"flex",alignItems:"center",gap:14,height:52,padding:"0 16px",
-                  borderRadius:14,textDecoration:"none",fontSize:15,fontWeight:isActive?700:600,
+                  display:"flex",alignItems:"center",gap:12,height:46,padding:"0 14px",
+                  borderRadius:14,textDecoration:"none",fontSize:16,fontWeight:isActive?800:600,
                   color:isActive?"#d4af37":c.text,
-                  background:isActive?c.goldLight:"transparent",
+                  background:isActive?c.goldLight:c.bgInput,
                   transition:".2s",
                 }}
-                onMouseEnter={e => { if(!isActive){e.currentTarget.style.background=c.bgInput;} }}
-                onMouseLeave={e => { if(!isActive){e.currentTarget.style.background="transparent";} }}>
-                <span style={{width:38,height:38,borderRadius:10,background:isActive?"rgba(212,175,55,.15)":c.bgInput,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>
+                onMouseEnter={e => { e.currentTarget.style.transform="translateX(-4px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform="none"; }}>
+                <span style={{width:36,height:36,borderRadius:10,background:isActive?"rgba(212,175,55,.2)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,flexShrink:0}}>
                   {l.key==="courses"&&"📚"}{l.key==="about"&&"ℹ️"}{l.key==="feedback"&&"💬"}
                 </span>
                 <span>{l.label}</span>
-                <span style={{marginLeft:"auto",fontSize:12,color:c.textMuted,opacity:.5}}>←</span>
               </Link>
             );
           })}
         </div>
 
         {/* Divider */}
-        <div style={{height:1,background:c.border,margin:"20px 0"}}></div>
+        <div style={{height:1,background:c.border,margin:"16px 0"}}></div>
 
         {/* Settings Row */}
-        <div style={{display:"flex",gap:8,marginBottom:20}}>
-          <button onClick={toggleLang} style={{flex:1,height:44,borderRadius:12,fontSize:13,fontWeight:600,background:c.bgInput,color:c.text,border:`1px solid ${c.border}`,cursor:"pointer",fontFamily:"Cairo,sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:6,transition:".2s"}}
+        <div style={{display:"flex",gap:8,marginBottom:16}}>
+          <button onClick={toggleLang} style={{flex:1,height:42,borderRadius:12,fontSize:14,fontWeight:600,background:c.bgInput,color:c.text,border:`1px solid ${c.border}`,cursor:"pointer",fontFamily:"Cairo,sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:6,transition:".2s"}}
             onMouseEnter={e => e.currentTarget.style.borderColor="#d4af37"}
             onMouseLeave={e => e.currentTarget.style.borderColor=c.border}>
             {lang==="ar"?"🇺🇸 English":"🇸🇦 العربية"}
           </button>
-          <button onClick={toggleTheme} style={{width:44,height:44,borderRadius:12,fontSize:18,background:c.bgInput,color:c.text,border:`1px solid ${c.border}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:".2s"}}
+          <button onClick={toggleTheme} style={{width:42,height:42,borderRadius:12,fontSize:18,background:c.bgInput,color:c.text,border:`1px solid ${c.border}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:".2s"}}
             onMouseEnter={e => e.currentTarget.style.borderColor="#d4af37"}
             onMouseLeave={e => e.currentTarget.style.borderColor=c.border}>
             {theme==="dark"?"☀️":"🌙"}
@@ -112,9 +111,9 @@ export default function PublicNavbar({ active }) {
         </div>
 
         {/* Auth Buttons */}
-        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+        <div style={{display:"flex",gap:10}}>
           <Link to="/login" onClick={() => setMenuOpen(false)} style={{
-            display:"flex",alignItems:"center",justifyContent:"center",height:50,borderRadius:14,
+            flex:1,display:"flex",alignItems:"center",justifyContent:"center",height:46,borderRadius:14,
             textDecoration:"none",fontSize:15,fontWeight:700,
             background:c.bgInput,color:c.text,border:`1px solid ${c.border}`,
             transition:".2s",
@@ -124,7 +123,7 @@ export default function PublicNavbar({ active }) {
             {t("تسجيل الدخول", "Login")}
           </Link>
           <Link to="/register" onClick={() => setMenuOpen(false)} style={{
-            display:"flex",alignItems:"center",justifyContent:"center",height:50,borderRadius:14,
+            flex:1,display:"flex",alignItems:"center",justifyContent:"center",height:46,borderRadius:14,
             textDecoration:"none",fontSize:15,fontWeight:700,
             background:"linear-gradient(135deg,#d4af37,#b8922a)",color:"#0a0a1a",
             boxShadow:"0 4px 15px rgba(212,175,55,.25)",transition:".2s",
