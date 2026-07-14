@@ -26,8 +26,18 @@ const router = express.Router();
 
 router.post("/", upload.single("file"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No file uploaded" });
-  const url = `/uploads/${req.file.filename}`;
-  res.json({ url, filename: req.file.filename });
+  try {
+    const filePath = join(uploadDir, req.file.filename);
+    const buffer = fs.readFileSync(filePath);
+    const ext = (req.file.originalname.split(".").pop() || "png").toLowerCase();
+    const mimeMap = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", gif: "image/gif", webp: "image/webp", svg: "image/svg+xml" };
+    const mimeType = mimeMap[ext] || "image/png";
+    const base64 = `data:${mimeType};base64,${buffer.toString("base64")}`;
+    try { fs.unlinkSync(filePath); } catch(e) {}
+    res.json({ url: base64, filename: req.file.filename });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 router.post("/base64", async (req, res) => {
