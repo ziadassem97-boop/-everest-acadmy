@@ -203,7 +203,7 @@ export default function HomePage() {
           </div>
         </div>
         <div style={s.heroImage}>
-            <img src={img("Screenshot_2026-06-28_145125-removebg-preview.png")} alt="Hero" style={s.heroImg} />
+            <img src="/images/Screenshot_2026-06-28_145125-removebg-preview.png" alt="Hero" style={s.heroImg} />
         </div>
       </section>
 
@@ -247,7 +247,7 @@ export default function HomePage() {
             <p style={{color:c.textMuted,padding:20,fontSize:15}}>{t("لا توجد كورسات متاحة بعد.","No courses available yet.")}</p>
           ) : courses.map((course) => (
             <div key={course.id} style={s.courseCard}>
-              <img src={course.featured_image || img("trading.png")} alt="" style={s.courseImage} onError={(e) => { e.target.src = img("trading.png"); }} />
+              <img src={course.featured_image || "/images/trading.png"} alt="" style={s.courseImage} onError={(e) => { e.target.src = "/images/trading.png"; }} />
               <h3 style={s.courseCardH3}>{course.title_ar || course.title}</h3>
               <p style={s.courseCardP}>{(course.description_ar || course.description || "").slice(0,80)}...</p>
               <div style={s.courseFooter}>
