@@ -10,7 +10,7 @@ router.get("/", async (req, res) => {
     const topUsers = await query(`
       SELECT id, full_name as name, avatar, rank, e_money, direct_count
       FROM users
-      WHERE role != 'admin' AND rank IS NOT NULL AND rank != ''
+      WHERE role NOT IN ('admin', 'manager') AND rank IS NOT NULL AND rank != ''
       ORDER BY
         CASE rank
           WHEN 'Star' THEN 1
@@ -65,7 +65,7 @@ router.delete("/:id", async (req, res) => {
 router.post("/top/add", async (req, res) => {
   const { userId } = req.body;
   if (!userId) return res.status(400).json({ error: "userId required" });
-  const user = await queryOne("SELECT id, full_name, avatar, rank, e_money, direct_count FROM users WHERE id = ? AND role != 'admin'", [userId]);
+  const user = await queryOne("SELECT id, full_name, avatar, rank, e_money, direct_count FROM users WHERE id = ? AND role NOT IN ('admin', 'manager')", [userId]);
   if (!user) return res.status(404).json({ error: "User not found or is admin" });
   if (!user.rank) return res.status(400).json({ error: "User has no rank" });
   // Remove if already exists and re-add
