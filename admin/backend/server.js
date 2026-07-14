@@ -34,13 +34,23 @@ if (fs.existsSync(adminDist)) {
 const userDist = join(__dirname, "../../user/dist");
 const userPublic = join(__dirname, "../../user/public");
 if (fs.existsSync(userDist)) {
-  app.use(express.static(userDist, { maxAge: 0, etag: false, lastModified: false }));
-  app.get("*", (req, res, next) => {
-    if (req.path.startsWith("/api") || req.path.startsWith("/uploads") || req.path.startsWith("/admin")) return next();
+  app.use(express.static(userDist, { maxAge: 0, etag: false, lastModified: false, index: false }));
+  const buildVersion = Date.now().toString(36);
+  const serveUser = (req, res) => {
+    const indexPath = join(userDist, "index.html");
+    let html = fs.readFileSync(indexPath, "utf8");
+    html = html.replace('src="/assets/', `src="/assets/?v=${buildVersion}&f=`);
+    html = html.replace('href="/assets/', `href="/assets/?v=${buildVersion}&f=`);
     res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     res.set("Pragma", "no-cache");
     res.set("Expires", "0");
-    res.sendFile(join(userDist, "index.html"));
+    res.set("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  };
+  app.get("/", serveUser);
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/uploads") || req.path.startsWith("/admin")) return next();
+    serveUser(req, res);
   });
   console.log("✅ Serving user frontend from", userDist);
 }
