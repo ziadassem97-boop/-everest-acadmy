@@ -34,7 +34,7 @@ function findKBReply(msg) {
 async function getPlatformContext() {
   try {
     const users = await queryOne("SELECT COUNT(*) as c FROM users WHERE role != 'admin'");
-    const courses = await query("SELECT title, price, price_egp FROM courses WHERE published = 1 LIMIT 10");
+    const courses = await query("SELECT title, price, price_egp FROM courses WHERE status = 'published' LIMIT 10");
     const ranks = await query("SELECT name, sales_required, bonus FROM ranks WHERE is_active = 1 ORDER BY sort_order");
     const settings = await queryOne("SELECT value FROM settings WHERE key = 'membership_duration'");
 
@@ -135,6 +135,7 @@ router.post("/", async (req, res) => {
         if (aiReply) return res.json({ reply: aiReply, source: "ai" });
       } catch (err) {
         console.error("Groq AI error:", err.message);
+        console.error("Groq API key present:", !!GROQ_API_KEY, "key prefix:", GROQ_API_KEY.slice(0, 10));
       }
     }
 
