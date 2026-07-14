@@ -29,7 +29,7 @@ export default function PublicNavbar({ active }) {
     <>
       <nav className="navbar" ref={navRef}>
         <div className="nav-left" style={{marginLeft:8}}>
-          <Link to="/" className="logo"><img src="/image/logo-navbar.png" alt="Everest" style={{width:90,height:90,objectFit:"contain",mixBlendMode:"multiply"}} /></Link>
+          <Link to="/" className="logo"><img src="/image/logo-navbar.png" alt="Everest" style={{width:90,height:90,objectFit:"contain"}} /></Link>
         </div>
         <div className="nav-links">
           {links.map((l) => (
@@ -37,20 +37,14 @@ export default function PublicNavbar({ active }) {
           ))}
         </div>
         <div className="nav-right" style={{marginRight:8}}>
-          <div className="auth-buttons" style={{display:"flex",alignItems:"center",gap:8}}>
-            <button onClick={toggleLang} style={{height:38,padding:"0 14px",borderRadius:10,fontSize:13,fontWeight:700,background:c.bgCard,color:c.text,border:`1px solid ${c.borderLight || c.border}`,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>
-              {lang === "ar" ? "EN" : "عربي"}
-            </button>
-            <button onClick={toggleTheme} style={{width:38,height:38,borderRadius:10,fontSize:18,background:c.bgCard,color:c.text,border:`1px solid ${c.borderLight || c.border}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              {theme === "dark" ? "\u2600\uFE0F" : "\uD83C\uDF19"}
-            </button>
+          <div className="auth-buttons">
             <Link to="/login" className="login-btn">{t("تسجيل الدخول", "Login")}</Link>
             <Link to="/register" className="signup-btn">{t("إنشاء حساب", "Sign Up")}</Link>
           </div>
           <button className="menu-btn" onClick={() => setMenuOpen(!menuOpen)} aria-label="menu" style={{display:"flex",flexDirection:"column",gap:5,padding:8,background:"transparent",border:"none"}}>
-            <span style={{width:20,height:2,background:c.text,borderRadius:2,display:"block"}} />
-            <span style={{width:20,height:2,background:c.text,borderRadius:2,display:"block"}} />
-            <span style={{width:20,height:2,background:c.text,borderRadius:2,display:"block"}} />
+            <span style={{width:20,height:2,background:"#000",borderRadius:2,display:"block"}} />
+            <span style={{width:20,height:2,background:"#000",borderRadius:2,display:"block"}} />
+            <span style={{width:20,height:2,background:"#000",borderRadius:2,display:"block"}} />
           </button>
         </div>
       </nav>
@@ -73,9 +67,9 @@ export default function PublicNavbar({ active }) {
                 color: active === l.key ? "#d4af37" : c.text,
                 background: active === l.key ? c.goldLight : "transparent",
               }}>
-              {l.key === "courses" && "📚"}
-              {l.key === "about" && "ℹ️"}
-              {l.key === "feedback" && "💬"}
+              {l.key === "courses" && "\uD83D\uDCDA"}
+              {l.key === "about" && "\u2139\uFE0F"}
+              {l.key === "feedback" && "\uD83D\uDCAC"}
               {l.label}
             </Link>
           ))}

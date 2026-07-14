@@ -887,7 +887,7 @@ video { object-fit:contain; }
   .landing-page .track-box { padding: 20px 16px; }
   .landing-page .track-icon { width: 48px; height: 48px; font-size: 18px; border-radius: 14px; }
   .landing-page .track-box h3 { font-size: 15px; }
-  .landing-page .track-box p { display: none; }
+  .landing-page .track-box p { font-size: 12px; line-height: 1.6; }
   .landing-page .features { display: flex; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; width: 100%; gap: 14px; padding: 0 16px 10px; margin: 50px 0; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
   .landing-page .features::-webkit-scrollbar { display: none; }
   .landing-page .feature-card { flex: 0 0 280px; min-height: 220px; padding: 22px; scroll-snap-align: start; }
@@ -914,7 +914,7 @@ video { object-fit:contain; }
   .landing-page .stats-section { padding: 50px 0; }
   .landing-page .stats-wrapper { overflow-x: auto; gap: 20px; padding: 0 20px; justify-content: flex-start; scroll-snap-type: x mandatory; -ms-overflow-style: none; scrollbar-width: none; }
   .landing-page .stats-wrapper::-webkit-scrollbar { display: none; }
-  .landing-page .stat-card { min-width: 260px; flex: 0 0 auto; scroll-snap-align: start; background: #fff; border-radius: 18px; padding: 24px; border: 1px solid #f0f0f0; }
+  .landing-page .stat-card { min-width: 280px; flex: 0 0 auto; scroll-snap-align: start; background: #fff; border-radius: 18px; padding: 28px 24px; border: 1px solid #f0f0f0; }
   .landing-page .stat-number { font-size: 38px; }
   .landing-page .stat-title { font-size: 16px; margin-bottom: 12px; }
   .landing-page .stat-desc { font-size: 13px; line-height: 1.7; max-width: none; }
@@ -1651,6 +1651,8 @@ video { object-fit:contain; }
 [data-theme="dark"] .navbar .mobile-menu .mobile-header h2 { color: #e8e8ec !important; }
 [data-theme="dark"] .navbar .mobile-menu .mobile-header button { color: #e8e8ec !important; }
 [data-theme="dark"] .navbar .auth-buttons button { background: #252538 !important; color: #e8e8ec !important; border-color: rgba(255,255,255,0.08) !important; }
+[data-theme="dark"] .navbar .logo img { filter: brightness(1.5) !important; }
+[data-theme="dark"] .navbar .mobile-menu .mobile-header button { background: #252538 !important; color: #e8e8ec !important; }
 
 /* LANDING PAGE */
 [data-theme="dark"] .landing-page .tracks-card { background: #1e1e2e !important; box-shadow: 0 25px 60px rgba(0,0,0,0.3) !important; }
