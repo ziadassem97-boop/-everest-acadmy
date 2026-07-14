@@ -248,12 +248,6 @@ export default function ProfilePage() {
                 </button>
               </div>
             )}
-            {p.account_type && p.account_type === "student" && (
-              <div style={{marginBottom:16,padding:"10px 16px",borderRadius:10,background:"rgba(34,197,94,0.08)",border:"1px solid rgba(34,197,94,0.2)",display:"flex",alignItems:"center",gap:8}}>
-                <span style={{fontSize:14}}>🎓</span>
-                <span style={{fontSize:13,fontWeight:600,color:"#22c55e"}}>{t("حساب Student — تشارك في العمولات والرتب", "Student Account — participates in commissions & ranks")}</span>
-              </div>
-            )}
 
             <div className="referral-box">
               <span>🔗 {t("كود الإحالة", "Referral Code")}</span>
