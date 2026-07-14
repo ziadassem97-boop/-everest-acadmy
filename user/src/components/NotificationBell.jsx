@@ -2,8 +2,16 @@ import React, { useState, useEffect, useRef } from "react";
 import { useTheme } from "../ThemeContext";
 import { useLang } from "../LangContext";
 
-const api = (path, opts = {}) =>
-  fetch(path, { headers: { "Content-Type": "application/json" }, ...opts }).then((r) => r.json());
+const BACKEND_URL = window.location.origin.includes("localhost") ? "http://localhost:5000" : "https://steadfast-energy-production-a9d1.up.railway.app";
+
+const api = (path, opts = {}) => {
+  const uid = localStorage.getItem("everest_user");
+  const stoken = localStorage.getItem("everest_session_token");
+  const headers = { "Content-Type": "application/json" };
+  if (uid && stoken) { try { headers["x-user-id"] = JSON.parse(uid).id; headers["x-session-token"] = stoken; } catch {} }
+  const url = path.startsWith("http") ? path : `${BACKEND_URL}${path}`;
+  return fetch(url, { ...opts, headers: { ...headers, ...opts.headers } }).then((r) => r.json());
+};
 
 export default function NotificationBell({ userId }) {
   const { colors: c } = useTheme();

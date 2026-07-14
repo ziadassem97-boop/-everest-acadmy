@@ -45,7 +45,7 @@ export default function LandingPage() {
         </video>
         <div className="overlay"></div>
         <div className="video-content-layer">
-          <img src="image/logopanner.png" className="logo-fxpro-left" alt="" />
+
           <div className="center-content">
             <h1>
               {t(".اتقن المهارات", ".Master Skills")}
