@@ -11,7 +11,7 @@ const api2 = async (path, opts = {}) => {
   const stoken = localStorage.getItem("everest_session_token");
   if (uid && stoken) { try { headers["x-user-id"] = JSON.parse(uid).id; headers["x-session-token"] = stoken; } catch {} }
   const res = await fetch(path, { ...opts, headers: { ...headers, ...opts.headers } });
-  if (!res.ok) { const body = await res.json().catch(() => ({})); if (body.session_expired) { localStorage.removeItem("everest_user"); localStorage.removeItem("everest_session_token"); window.location.href = "/login"; } throw new Error(body.error || `HTTP ${res.status}`); }
+  if (!res.ok) { const body = await res.json().catch(() => ({})); throw new Error(body.error || `HTTP ${res.status}`); }
   return res.json();
 };
 

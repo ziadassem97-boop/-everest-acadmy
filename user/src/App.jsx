@@ -43,7 +43,7 @@ const api = async (path, opts = {}) => {
   const res = await fetch(path, { ...opts, headers: { ...headers, ...opts.headers } });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    if (body.session_expired) { localStorage.removeItem("everest_user"); localStorage.removeItem("everest_session_token"); window.location.href = "/login"; }
+    if (body.session_expired) { /* don't auto-logout */ }
     const err = new Error(body.error || `HTTP ${res.status}`);
     if (body.upgradeRequired) err.upgradeRequired = true;
     throw err;
