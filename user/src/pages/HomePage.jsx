@@ -399,6 +399,20 @@ export default function HomePage() {
             </div>
             <div className="ai-footer">
               <div className="ai-input-wrap">
+                <label style={{flexShrink:0,width:42,height:42,borderRadius:14,background:"rgba(212,175,55,.08)",border:"1px solid rgba(212,175,55,.15)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .3s"}}>
+                  <input type="file" accept="image/*" style={{display:"none"}} onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      const b64 = reader.result.split(",")[1];
+                      setChatInput(prev => prev ? prev : `[${t("مرفق","Attachment")}: ${file.name}]`);
+                    };
+                    reader.readAsDataURL(file);
+                    e.target.value = "";
+                  }} />
+                  <svg viewBox="0 0 24 24" style={{width:20,height:20,fill:"none",stroke:"#d4af37","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round"}}><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                </label>
                 <input type="text" placeholder={t("اكتب سؤالك هنا...","Type your question here...")} value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendChat()} />
                 <button className="ai-send" onClick={sendChat}>
                   <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
