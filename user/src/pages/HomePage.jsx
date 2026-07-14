@@ -17,8 +17,6 @@ const useIsMobile = () => {
   return m;
 };
 
-const img = (name) => `/images/${name}`;
-
 const makeStyles = (c, m) => ({
   hero: { width:"95%",maxWidth:1500,margin:"0 auto",background:c.heroBg,borderRadius:0,padding:m?"24px 16px":"55px 60px",display:"flex",flexDirection:m?"column":"row",alignItems:"center",justifyContent:"space-between",gap:m?20:40,overflow:"hidden",position:"relative" },
   heroContent: { flex:1,maxWidth:m?"100%":700,textAlign:m?"center":"start" },
@@ -173,7 +171,6 @@ export default function HomePage() {
   const [courses, setCourses] = useState([]);
   const [modal, setModal] = useState(null);
   const [leaders, setLeaders] = useState([]);
-  const defaultAvatars = ["ahmed.png","omar.png","yosry.png","mariam.png","yara.png","khled.png"];
 
   useEffect(() => {
     api("/api/courses?status=published").then(setCourses).catch(() => {});
@@ -222,7 +219,13 @@ export default function HomePage() {
             <p style={{color:"#7c7c86",textAlign:"center",width:"100%",padding:40}}>{t("لا يوجد قادة بعد","No leaders yet")}</p>
           ) : leaders.map((l, i) => (
             <div key={l.id || i} style={s.leaderCard}>
-              <img src={l.avatar || img(defaultAvatars[i % defaultAvatars.length])} alt="" style={s.leaderImg} />
+              {l.avatar && l.avatar.trim() ? (
+                <img src={l.avatar} alt="" style={s.leaderImg} />
+              ) : (
+                <div style={{...s.leaderImg,display:"flex",alignItems:"center",justifyContent:"center",background:"linear-gradient(135deg,#d4af37,#b8922a)",fontSize:m?32:48,fontWeight:900,color:"#fff",lineHeight:1}}>
+                  {(l.name || "U")[0].toUpperCase()}
+                </div>
+              )}
               <h3 style={s.leaderName}>{l.name}</h3>
               <div style={{...s.rank,...rankColors[rankClassMap[l.rank] || "senior"]}}>{l.rank}</div>
             </div>

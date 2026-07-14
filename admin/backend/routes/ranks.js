@@ -108,7 +108,8 @@ async function advanceUserRank(userId) {
   if (allRanks.length === 0) return null;
 
   let currentRankIdx = allRanks.findIndex(r => r.name === user.rank);
-  if (currentRankIdx === -1) currentRankIdx = 0;
+  if (!user.rank || user.rank === '') currentRankIdx = -1;
+  else if (currentRankIdx === -1) currentRankIdx = 0;
 
   const teamCount = await getTeamCount(userId);
 
@@ -176,19 +177,22 @@ router.get("/progress/:userId", async (req, res) => {
     const user = await queryOne("SELECT id, rank, rank_progress, e_money FROM users WHERE id = ?", [req.params.userId]);
     if (!user) return res.status(404).json({ error: "User not found" });
     const allRanks = await query("SELECT * FROM ranks WHERE is_active = 1 ORDER BY sort_order ASC");
-    const idx = allRanks.findIndex(r => r.name === user.rank);
+    const idx = user.rank ? allRanks.findIndex(r => r.name === user.rank) : -1;
     let nextRank = null;
     let salesRequired = 0;
     let progress = user.rank_progress || 0;
     const teamCount = await getTeamCount(req.params.userId);
 
-    if (idx < allRanks.length - 1) {
+    if (idx === -1 && allRanks.length > 0) {
+      nextRank = allRanks[0];
+      salesRequired = sReq(nextRank);
+    } else if (idx < allRanks.length - 1) {
       nextRank = allRanks[idx + 1];
       salesRequired = sReq(nextRank);
     }
 
     return res.json({
-      currentRank: user.rank,
+      currentRank: user.rank || null,
       currentBonus: idx >= 0 ? bVal(allRanks[idx]) : 0,
       currentSalesRequired: idx >= 0 ? sReq(allRanks[idx]) : 0,
       nextRank: nextRank ? nextRank.name : null,

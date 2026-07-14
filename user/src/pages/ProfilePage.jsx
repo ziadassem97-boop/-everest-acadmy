@@ -88,8 +88,8 @@ export default function ProfilePage() {
   const p = profile || user || {};
   const rp = rankProgress || {};
   const progressPct = rp.progress || 0;
-  const currentRankName = rp.currentRank || p.rank || "Star";
-  const nextRankName = rp.nextRank || "—";
+  const currentRankName = rp.currentRank || p.rank || null;
+  const nextRankName = rp.nextRank || "Star";
   const eMoney = p.e_money || 0;
   const teamSales = rp.totalTeamSales || p.total_team_sales || p.direct_count || 0;
 
@@ -219,7 +219,7 @@ export default function ProfilePage() {
 
             <div className="profile-stats-grid">
               <div className="stat-box"><span>📞 {t("الهاتف", "Phone")}</span><strong>{p.phone || "—"}</strong></div>
-              <div className="stat-box"><span>🏅 {t("الرتبة", "Rank")}</span><strong>{currentRankName}</strong></div>
+              <div className="stat-box"><span>🏅 {t("الرتبة", "Rank")}</span><strong>{currentRankName || "—"}</strong></div>
               <div className="stat-box"><span>💰 E-Money</span><strong>{eMoney.toLocaleString()}</strong></div>
               <div className="stat-box"><span>👥 {t("المباشرون", "Directs")}</span><strong>{p.direct_count || 0}</strong></div>
               <div className="stat-box"><span>📊 {t("مبيعات الفريق", "Team Sales")}</span><strong>{teamSales}</strong></div>
@@ -288,7 +288,7 @@ export default function ProfilePage() {
 
           <div className="rank-card">
             <div className="rl">{t("الرتبة الحالية", "Current Rank")}</div>
-            <h3>{(() => { const rk = dbRanks.find(r => r.name === currentRankName); return rk?.image ? <img src={rk.image} alt="" style={{width:32,height:32,borderRadius:8,verticalAlign:"middle",marginRight:8,objectFit:"cover"}} /> : null; })()} {currentRankName}</h3>
+            <h3>{(() => { if (!currentRankName) return "—"; const rk = dbRanks.find(r => r.name === currentRankName); return rk?.image ? <img src={rk.image} alt="" style={{width:32,height:32,borderRadius:8,verticalAlign:"middle",marginRight:8,objectFit:"cover"}} /> : null; })()} {currentRankName || "—"}</h3>
             <p>{t("استمر في تنمية فريقك لفتح الرتبة التالية.", "Keep growing your team to unlock the next rank.")}</p>
             <div className="next-rank">
               <span>{t("الرتبة التالية", "Next Rank")}</span>
@@ -303,7 +303,7 @@ export default function ProfilePage() {
             <div className="rank-top">
               <div>
                 <span className="rl">{t("الرتبة الحالية", "Current Rank")}</span>
-                <h2>{(() => { const rk = dbRanks.find(r => r.name === currentRankName); return rk?.image ? <img src={rk.image} alt="" style={{width:36,height:36,borderRadius:10,verticalAlign:"middle",marginRight:8,objectFit:"cover"}} /> : null; })()} {currentRankName}</h2>
+                <h2>{(() => { if (!currentRankName) return "—"; const rk = dbRanks.find(r => r.name === currentRankName); return rk?.image ? <img src={rk.image} alt="" style={{width:36,height:36,borderRadius:10,verticalAlign:"middle",marginRight:8,objectFit:"cover"}} /> : null; })()} {currentRankName || "—"}</h2>
               </div>
               <div className="next-rank-box">
                 <span>{t("الرتبة التالية", "Next Rank")}</span>

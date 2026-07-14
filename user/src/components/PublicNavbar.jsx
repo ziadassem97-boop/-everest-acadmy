@@ -37,12 +37,15 @@ export default function PublicNavbar({ active }) {
           ))}
         </div>
         <div className="nav-right" style={{marginRight:8}}>
-          <button onClick={toggleLang} style={{width:42,height:42,borderRadius:999,border:"none",background:c.bgInput,cursor:"pointer",fontSize:14,fontWeight:700,color:c.text,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}} title={lang === "ar" ? "English" : "العربية"}>
-            {lang === "ar" ? "EN" : "ع"}
-          </button>
-          <button onClick={toggleTheme} style={{width:42,height:42,borderRadius:999,border:"none",background:c.bgInput,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}} title={theme === "dark" ? "Light Mode" : "Dark Mode"}>
-            {theme === "dark" ? "\u2600\uFE0F" : "\uD83C\uDF19"}
-          </button>
+          <div style={{display:"flex",alignItems:"center",gap:6,padding:"4px 8px",background:c.bgInput,borderRadius:12,border:`1px solid ${c.borderLight || c.border}`}}>
+            <span style={{fontSize:11,fontWeight:600,color:c.textMuted,marginRight:2}}>{t("الإعدادات","Settings")}</span>
+            <button onClick={toggleLang} style={{width:36,height:36,borderRadius:8,border:"none",background:c.bgCard,cursor:"pointer",fontSize:13,fontWeight:700,color:c.text,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}} title={lang === "ar" ? "English" : "العربية"}>
+              {lang === "ar" ? "EN" : "ع"}
+            </button>
+            <button onClick={toggleTheme} style={{width:36,height:36,borderRadius:8,border:"none",background:c.bgCard,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center"}} title={theme === "dark" ? "Light Mode" : "Dark Mode"}>
+              {theme === "dark" ? "\u2600\uFE0F" : "\uD83C\uDF19"}
+            </button>
+          </div>
           <div className="auth-buttons">
             <Link to="/login" className="login-btn">{t("تسجيل الدخول", "Login")}</Link>
             <Link to="/register" className="signup-btn">{t("إنشاء حساب", "Sign Up")}</Link>
@@ -81,12 +84,15 @@ export default function PublicNavbar({ active }) {
           ))}
         </div>
         <div style={{marginTop:16,display:"flex",flexDirection:"column",gap:10}}>
-          <button onClick={toggleLang} style={{
-            display:"flex",alignItems:"center",justifyContent:"center",height:48,borderRadius:14,
-            fontSize:15,fontWeight:600,background:c.bgInput,color:c.text,border:`1px solid ${c.border}`,cursor:"pointer",fontFamily:"inherit",
-          }}>
-            {lang === "ar" ? "🇬🇧 English" : "🇸🇦 العربية"}
-          </button>
+          <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",background:c.bgInput,borderRadius:14,border:`1px solid ${c.border}`}}>
+            <span style={{fontSize:12,fontWeight:600,color:c.textMuted}}>{t("الإعدادات","Settings")}</span>
+            <button onClick={toggleLang} style={{flex:1,height:40,borderRadius:10,fontSize:14,fontWeight:600,background:c.bgCard,color:c.text,border:`1px solid ${c.borderLight || c.border}`,cursor:"pointer",fontFamily:"inherit"}}>
+              {lang === "ar" ? "English" : "العربية"}
+            </button>
+            <button onClick={toggleTheme} style={{width:40,height:40,borderRadius:10,fontSize:16,background:c.bgCard,color:c.text,border:`1px solid ${c.borderLight || c.border}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              {theme === "dark" ? "\u2600\uFE0F" : "\uD83C\uDF19"}
+            </button>
+          </div>
           <Link to="/login" onClick={() => setMenuOpen(false)} style={{
             display:"flex",alignItems:"center",justifyContent:"center",height:48,borderRadius:14,
             textDecoration:"none",fontSize:15,fontWeight:700,

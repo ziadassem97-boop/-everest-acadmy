@@ -57,8 +57,8 @@ export default function RankingsPage() {
     api("/api/ranks").then((d) => Array.isArray(d) ? setRanks(d) : setRanks([])).catch(() => {});
   }, [user?.id]);
 
-  const currentRankName = progress?.currentRank || user?.rank || "Star";
-  const userRankIndex = ranks.findIndex(r => r.name === currentRankName);
+  const currentRankName = progress?.currentRank || user?.rank || null;
+  const userRankIndex = currentRankName ? ranks.findIndex(r => r.name === currentRankName) : -1;
   const nextRankName = progress?.nextRank;
   const nextRankData = ranks.find(r => r.name === nextRankName);
   const userSales = progress?.totalTeamSales ?? 0;
@@ -130,7 +130,7 @@ export default function RankingsPage() {
           <div className="rk-hero-left">
             <h1>
               {t("ترتيبك:", "Your Rank:")}{" "}
-              <span>{userRankIndex >= 0 ? `${rankIcons[userRankIndex]} ${progress?.currentRank}` : "⭐ Star"}</span>
+              <span>{currentRankName ? (userRankIndex >= 0 ? `${rankIcons[userRankIndex]} ${currentRankName}` : `⭐ ${currentRankName}`) : t("لا يوجد رتبة بعد", "No rank yet")}</span>
             </h1>
             <p>{t("أكمل المهام، وافتح ترتبات جديدة، وكن أحد قادة أكاديمية إيفرست.", "Complete missions, unlock new ranks, and become one of Everest Academy leaders.")}</p>
             <div className="rk-hero-btns">

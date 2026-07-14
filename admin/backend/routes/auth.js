@@ -93,7 +93,7 @@ router.post("/register", async (req, res) => {
     }
 
     await execute(
-      "INSERT INTO users (id, full_name, email, phone, address, password, referral_code, referred_by, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')",
+      "INSERT INTO users (id, full_name, email, phone, address, password, referral_code, referred_by, status, rank) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', '')",
       [id, full_name, email, phone || null, address || null, password, code, referredBy]
     );
 
