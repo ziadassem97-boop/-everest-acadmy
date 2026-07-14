@@ -273,37 +273,23 @@ export default function ProfilePage() {
                 <h3>{currentRankName || "—"}</h3>
                 <span>{t("الرتبة الحالية", "Current Rank")}</span>
               </div>
+              <div className="mini-stat">
+                <h3>{nextRankName || "—"}</h3>
+                <span>{t("الرتبة التالية", "Next Rank")}</span>
+              </div>
             </div>
-            <button onClick={() => nav("/affiliate")} style={{width:"100%",marginTop:12,padding:"12px 0",borderRadius:12,background:"linear-gradient(135deg,#d4af37,#b8922a)",color:"#0a0a1a",border:"none",fontWeight:700,fontSize:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+            <div style={{marginTop:14}}>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:6,color:c.textMuted}}>
+                <span>{t("التقدم", "Progress")}</span>
+                <span style={{fontWeight:700,color:c.text}}>{Math.round(progressPct)}%</span>
+              </div>
+              <div style={{width:"100%",height:8,borderRadius:99,background:c.bgInput,overflow:"hidden"}}>
+                <div style={{width:Math.min(progressPct,100)+"%",height:"100%",borderRadius:99,background:"linear-gradient(90deg,#d4af37,#f0d78c)",transition:"width .8s ease"}}></div>
+              </div>
+            </div>
+            <button onClick={() => nav("/affiliate")} style={{width:"100%",marginTop:14,padding:"12px 0",borderRadius:12,background:"linear-gradient(135deg,#d4af37,#b8922a)",color:"#0a0a1a",border:"none",fontWeight:700,fontSize:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               🔗 {t("شبكة الإحالة", "Referral Network")}
             </button>
-          </div>
-
-          </div>
-        </section>
-
-        {/* Rank Progress */}
-        <section className="dash-section">
-          <div className="rank-progress-card">
-            <div className="rank-top">
-              <div>
-                <span className="rl">{t("الرتبة الحالية", "Current Rank")}</span>
-                <h2>{(() => { if (!currentRankName) return "—"; const rk = dbRanks.find(r => r.name === currentRankName); return rk?.image ? <img src={rk.image} alt="" style={{width:36,height:36,borderRadius:10,verticalAlign:"middle",marginRight:8,objectFit:"cover"}} /> : null; })()} {currentRankName || "—"}</h2>
-              </div>
-              <div className="next-rank-box">
-                <span>{t("الرتبة التالية", "Next Rank")}</span>
-                <strong>{nextRankName}</strong>
-              </div>
-            </div>
-            <div className="rank-progress-info">
-              <div className="progress-header">
-                <span>{t("التقدم", "Progress")}</span>
-                <span>{Math.round(progressPct)}%</span>
-              </div>
-              <div className="rank-pbar">
-                <div className="rank-pfill" style={{width: Math.min(progressPct, 100) + "%"}}></div>
-              </div>
-            </div>
           </div>
         </section>
 
