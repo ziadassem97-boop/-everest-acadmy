@@ -22,23 +22,23 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(join(__dirname, "uploads")));
 
-// In production, serve built frontends
-if (process.env.NODE_ENV === "production") {
-  // Admin frontend at /admin
-  const adminDist = join(__dirname, "../frontend/dist");
-  if (fs.existsSync(adminDist)) {
-    app.use("/admin", express.static(adminDist));
-    app.get("/admin/*", (req, res) => { res.sendFile(join(adminDist, "index.html")); });
-  }
-  // User frontend at root (optional, for same-origin deployment)
-  const userDist = join(__dirname, "../../user/dist");
-  if (fs.existsSync(userDist)) {
-    app.use(express.static(userDist));
-    app.get("*", (req, res, next) => {
-      if (req.path.startsWith("/api") || req.path.startsWith("/uploads") || req.path.startsWith("/admin")) return next();
-      res.sendFile(join(userDist, "index.html"));
-    });
-  }
+// Serve built frontends if dist folders exist
+// Admin frontend at /admin
+const adminDist = join(__dirname, "../frontend/dist");
+if (fs.existsSync(adminDist)) {
+  app.use("/admin", express.static(adminDist));
+  app.get("/admin/*", (req, res) => { res.sendFile(join(adminDist, "index.html")); });
+  console.log("✅ Serving admin frontend from", adminDist);
+}
+// User frontend at root
+const userDist = join(__dirname, "../../user/dist");
+if (fs.existsSync(userDist)) {
+  app.use(express.static(userDist));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/uploads") || req.path.startsWith("/admin")) return next();
+    res.sendFile(join(userDist, "index.html"));
+  });
+  console.log("✅ Serving user frontend from", userDist);
 }
 
 import sessionAuth from "./middleware/sessionAuth.js";
