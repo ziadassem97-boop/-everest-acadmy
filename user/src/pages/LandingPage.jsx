@@ -227,22 +227,6 @@ function PremiumStatsCarousel({ stats, t, c }) {
             </div>
           ))}
         </div>
-
-        {/* Dots */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 8 }}>
-          {items.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => scrollTo(i)}
-              className={`psc-dot${i === activeIdx ? " active" : ""}`}
-              style={{
-                width: i === activeIdx ? 28 : 10, height: 10, borderRadius: 99,
-                background: i === activeIdx ? "#d4af37" : "#d0d0d0",
-                border: "none", cursor: "pointer", padding: 0,
-              }}
-            />
-          ))}
-        </div>
       </div>
     </section>
   );
