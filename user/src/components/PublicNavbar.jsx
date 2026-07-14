@@ -29,7 +29,7 @@ export default function PublicNavbar({ active }) {
     <>
       <nav className="navbar" ref={navRef}>
         <div className="nav-left">
-          <Link to="/" className="logo"><img src="/image/logo3.png" alt="Everest" /></Link>
+          <Link to="/" className="logo"><img src="/image/logo-navbar.png" alt="Everest" /></Link>
         </div>
         <div className="nav-links">
           {links.map((l) => (
@@ -59,7 +59,7 @@ export default function PublicNavbar({ active }) {
       <div className={`mobile-menu${menuOpen ? " active" : ""}`}>
         <div className="mobile-header">
           <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <img src="/image/logo3.png" alt="Everest" style={{height:40,width:40,objectFit:"contain"}} />
+            <img src="/image/logo-navbar.png" alt="Everest" style={{height:40,width:40,objectFit:"contain"}} />
             <h2>Everest</h2>
           </div>
           <button onClick={() => setMenuOpen(false)}>&times;</button>
