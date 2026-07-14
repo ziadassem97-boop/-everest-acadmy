@@ -161,9 +161,10 @@ router.put("/:id/approve-registration", async (req, res) => {
       let level = 1;
       let lastDirects = -1;
       while (upline) {
-        const uplineUser = await queryOne("SELECT direct_count, account_type FROM users WHERE id = ?", [upline]);
+        const currentUpline = upline;
+        const uplineUser = await queryOne("SELECT direct_count, account_type FROM users WHERE id = ?", [currentUpline]);
         if (!uplineUser) break;
-        const next = await queryOne("SELECT referred_by FROM users WHERE id = ?", [upline]);
+        const next = await queryOne("SELECT referred_by FROM users WHERE id = ?", [currentUpline]);
         upline = next?.referred_by || null;
         // Skip non-student uplines — they don't earn commissions (NULL = old student account)
         if (uplineUser.account_type && uplineUser.account_type !== "student") {
@@ -174,12 +175,12 @@ router.put("/:id/approve-registration", async (req, res) => {
         if (uplineDirects > lastDirects) {
           const comId = uuidv4();
           await execute("INSERT INTO commissions (id, from_user_id, to_user_id, level, amount) VALUES (?, ?, ?, ?, ?)",
-            [comId, req.params.id, upline, level, 1000]);
-          await execute("UPDATE users SET e_money = e_money + 1000 WHERE id = ?", [upline]);
+            [comId, req.params.id, currentUpline, level, 1000]);
+          await execute("UPDATE users SET e_money = e_money + 1000 WHERE id = ?", [currentUpline]);
           if (level === 1) {
-            await execute("UPDATE users SET direct_count = direct_count + 1 WHERE id = ?", [upline]);
+            await execute("UPDATE users SET direct_count = direct_count + 1 WHERE id = ?", [currentUpline]);
           }
-          const nid2 = uuidv4(); await execute("INSERT INTO notifications (id, user_id, title, message, type) VALUES (?, ?, ?, ?, 'commission')", [nid2, upline, "💰 عمولة جديدة", `ربحت 1000 E-Money كمكافأة عن تسجيل عضو جديد`]);
+          const nid2 = uuidv4(); await execute("INSERT INTO notifications (id, user_id, title, message, type) VALUES (?, ?, ?, ?, 'commission')", [nid2, currentUpline, "💰 عمولة جديدة", `ربحت 1000 E-Money كمكافأة عن تسجيل عضو جديد`]);
           lastDirects = uplineDirects;
         }
         level++;
