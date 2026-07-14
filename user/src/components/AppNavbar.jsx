@@ -46,6 +46,7 @@ const mobileTabItems = [
   { to: "/affiliate?tab=team", label_ar: "التسويق", label_en: "Affiliate", icon: "🤝", studentOnly: true },
   { to: "/top-saller", label_ar: "الأفضل", label_en: "Top", icon: "⭐", studentOnly: true },
   { to: "/feedback/new", label_ar: "التقييم", label_en: "Feedback", icon: "💬" },
+  { to: "/profile", label_ar: "حسابي", label_en: "Profile", icon: "👤" },
 ];
 
 const isStudentAccount = (user) => !user || user.account_type === "student";
