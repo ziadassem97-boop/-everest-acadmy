@@ -29,24 +29,25 @@ function ThemeToggle({ c }) {
 }
 
 const navItems = [
-  { to: "/home", label_ar: "الأكاديمية", label_en: "Academy", icon: "🏠" },
-  { to: "/my-courses", label_ar: "كورساتي", label_en: "My Courses", icon: "📚" },
-  { to: "/courses", label_ar: "الكورسات", label_en: "Courses", icon: "🎓" },
-  { to: "/rankings", label_ar: "الرتب", label_en: "Ranks", icon: "🏆", studentOnly: true },
-  { to: "/affiliate?tab=team", label_ar: "التسويق", label_en: "Affiliate", icon: "🤝", studentOnly: true },
-  { to: "/top-saller", label_ar: "الأفضل", label_en: "Top", icon: "⭐", studentOnly: true },
-  { to: "/feedback/new", label_ar: "التقييم", label_en: "Feedback", icon: "💬" },
+  { to: "/home", label_ar: "الرئيسية", label_en: "Home", icon: "fa-solid fa-house" },
+  { to: "/my-courses", label_ar: "كورساتي", label_en: "My Courses", icon: "fa-solid fa-book-open" },
+  { to: "/courses", label_ar: "الكورسات", label_en: "Courses", icon: "fa-solid fa-graduation-cap" },
+  { to: "/rankings", label_ar: "الرتب", label_en: "Ranks", icon: "fa-solid fa-trophy", studentOnly: true },
+  { to: "/affiliate?tab=team", label_ar: "التسويق", label_en: "Affiliate", icon: "fa-solid fa-handshake", studentOnly: true },
+  { to: "/top-saller", label_ar: "الأفضل", label_en: "Top", icon: "fa-solid fa-star", studentOnly: true },
+  { to: "/feedback/new", label_ar: "التقييم", label_en: "Feedback", icon: "fa-solid fa-comment-dots" },
+  { to: "/profile", label_ar: "الملف الشخصي", label_en: "Profile", icon: "fa-solid fa-user" },
 ];
 
 const mobileTabItems = [
-  { to: "/home", label_ar: "الأكاديمية", label_en: "Home", icon: "🏠" },
-  { to: "/my-courses", label_ar: "كورساتي", label_en: "My Courses", icon: "📚" },
-  { to: "/courses", label_ar: "الكورسات", label_en: "Courses", icon: "🎓" },
-  { to: "/rankings", label_ar: "الرتب", label_en: "Ranks", icon: "🏆", studentOnly: true },
-  { to: "/affiliate?tab=team", label_ar: "التسويق", label_en: "Affiliate", icon: "🤝", studentOnly: true },
-  { to: "/top-saller", label_ar: "الأفضل", label_en: "Top", icon: "⭐", studentOnly: true },
-  { to: "/feedback/new", label_ar: "التقييم", label_en: "Feedback", icon: "💬" },
-  { to: "/profile", label_ar: "حسابي", label_en: "Profile", icon: "👤" },
+  { to: "/home", label_ar: "الرئيسية", label_en: "Home", icon: "fa-solid fa-house" },
+  { to: "/my-courses", label_ar: "كورساتي", label_en: "My Courses", icon: "fa-solid fa-book-open" },
+  { to: "/courses", label_ar: "الكورسات", label_en: "Courses", icon: "fa-solid fa-graduation-cap" },
+  { to: "/rankings", label_ar: "الرتب", label_en: "Ranks", icon: "fa-solid fa-trophy", studentOnly: true },
+  { to: "/affiliate?tab=team", label_ar: "التسويق", label_en: "Affiliate", icon: "fa-solid fa-handshake", studentOnly: true },
+  { to: "/top-saller", label_ar: "الأفضل", label_en: "Top", icon: "fa-solid fa-star", studentOnly: true },
+  { to: "/feedback/new", label_ar: "التقييم", label_en: "Feedback", icon: "fa-solid fa-comment-dots" },
+  { to: "/profile", label_ar: "حسابي", label_en: "Profile", icon: "fa-solid fa-user" },
 ];
 
 const isStudentAccount = (user) => !user || user.account_type === "student";
@@ -163,63 +164,99 @@ export default function AppNavbar() {
       </header>
       )}
 
-      {/* Mobile Sidebar Menu (tablet only, hidden on phone since we use bottom tab) */}
+      {/* Backdrop */}
       {menuOpen && (
-        <div style={{position:"fixed",inset:0,background: c.backdrop,backdropFilter:"blur(4px)",zIndex:998}} onClick={()=>setMenuOpen(false)} />
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)",zIndex:998,transition:"opacity 0.3s",opacity:1}} onClick={()=>setMenuOpen(false)} />
       )}
+
+      {/* Side Drawer */}
       <div style={{
-        position:"fixed",top:0,right:menuOpen?0:-340,width:300,height:"100vh",
-        background: c.bgCard, padding:25, display:"flex", flexDirection:"column",
-        transition:"0.4s cubic-bezier(.4,0,.2,1)",zIndex:999,boxShadow:c.shadow,
-        direction: dir
+        position:"fixed",top:0,right:menuOpen?0:"-82%",width:"82%",maxWidth:360,height:"100vh",
+        background:c.bgCard,display:"flex",flexDirection:"column",
+        transition:"right 0.35s cubic-bezier(.4,0,.2,1)",zIndex:999,
+        boxShadow:menuOpen?"-8px 0 40px rgba(0,0,0,0.15)":"none",
+        direction: dir,overflow:"hidden"
       }}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:30,paddingBottom:20,borderBottom:`1px solid ${c.border}`}}>
-          <span style={{fontSize:18,fontWeight:700,color:c.text}}>{t("القائمة", "Menu")}</span>
-          <button onClick={()=>setMenuOpen(false)} style={{width:36,height:36,borderRadius:10,background:c.bg, border:`1px solid ${c.border}`, cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",color:c.text}}>&times;</button>
-        </div>
-        <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:4,padding:0,margin:0}}>
-          {navItems.filter(item => !item.studentOnly || isStudentAccount(user)).map((item) => {
-            const active = isActive(item.to);
-            return (
-              <li key={item.to + item.label_en}>
-                <Link to={item.to} onClick={()=>setMenuOpen(false)} style={{
-                  display:"flex",alignItems:"center",height:44,padding:"0 16px",borderRadius:12,textDecoration:"none",fontSize:14,fontWeight:600,
-                  color:active ? c.text : c.textSoft,
-                  background:active ? c.goldLight : "transparent",
-                  borderLeft:active ? `3px solid ${c.primary}` : "3px solid transparent",
-                  transition:"0.2s"
-                }}>
-                  <span style={{marginRight:10,fontSize:18}}>{item.icon}</span>
-                  {t(item.label_ar,item.label_en)}
-                </Link>
-              </li>
-            );
-          })}
-          {user && (
-            <li>
-              <Link to="/profile" onClick={()=>setMenuOpen(false)} style={{
-                display:"flex",alignItems:"center",height:44,padding:"0 16px",borderRadius:12,textDecoration:"none",fontSize:14,fontWeight:600,
-                color:loc.pathname==="/profile"?c.text:c.textSoft,
-                background:loc.pathname==="/profile"?c.goldLight:"transparent",
-                borderLeft:loc.pathname==="/profile"?`3px solid ${c.primary}`:"3px solid transparent"
-              }}>
-                <span style={{marginRight:10,fontSize:18}}>👤</span>
-                {t("الملف الشخصي", "Profile")}
-              </Link>
-            </li>
-          )}
-        </ul>
-        {user && (
-          <div style={{marginTop:"auto",display:"flex",alignItems:"center",gap:14,padding:16,borderRadius:16,background:c.bg}}>
-            <div style={{width:48,height:48,borderRadius:"50%",background:"linear-gradient(135deg,#d4af37,#b38728)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,fontSize:20}}>
-              {user.full_name?.[0]?.toUpperCase()||"U"}
+        {/* Header */}
+        <div style={{padding:"28px 24px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:`1px solid ${c.border}`,flexShrink:0}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <div style={{width:44,height:44,borderRadius:14,background:"linear-gradient(135deg,#d4af37,#b38728)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+              <span style={{color:"#fff",fontWeight:800,fontSize:20,fontFamily:"'Cairo',sans-serif"}}>E</span>
             </div>
             <div>
-              <h4 style={{fontSize:15,margin:0,color:c.text}}>{user.full_name}</h4>
-              <span style={{fontSize:12,color:c.textMuted}}>{user.role === "admin" ? t("مدير", "Admin") : t("طالب", "Student")}</span>
+              <h2 style={{margin:0,fontSize:17,fontWeight:700,color:c.text,lineHeight:1.2}}>Everest Academy</h2>
+              <span style={{fontSize:11,color:c.textMuted,letterSpacing:0.5}}>{t("تعلم • ابنِ • انمُ", "Learn • Build • Grow")}</span>
+            </div>
+          </div>
+          <button onClick={()=>setMenuOpen(false)} style={{width:36,height:36,borderRadius:10,background:c.bgSoft,border:`1px solid ${c.border}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:c.textMuted,fontSize:16,transition:"0.2s"}} onMouseEnter={e=>{e.currentTarget.style.background=c.bgInput}} onMouseLeave={e=>{e.currentTarget.style.background=c.bgSoft}}>
+            <i className="fa-solid fa-xmark" style={{fontSize:14}}></i>
+          </button>
+        </div>
+
+        {/* User Card */}
+        {user && (
+          <div style={{margin:"16px 20px 0",padding:"14px 16px",borderRadius:16,background:c.bgSoft,border:`1px solid ${c.border}`,display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
+            <div style={{width:42,height:42,borderRadius:"50%",background:"linear-gradient(135deg,#d4af37,#b38728)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,fontSize:16,flexShrink:0}}>
+              {user.full_name?.[0]?.toUpperCase()||"U"}
+            </div>
+            <div style={{minWidth:0}}>
+              <h4 style={{margin:0,fontSize:14,fontWeight:600,color:c.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user.full_name}</h4>
+              <span style={{fontSize:11,color:c.textMuted}}>{user.role === "admin" ? t("مدير", "Admin") : t("طالب", "Student")}</span>
             </div>
           </div>
         )}
+
+        {/* Nav Items */}
+        <nav style={{flex:1,overflowY:"auto",padding:"16px 12px",display:"flex",flexDirection:"column",gap:2}}>
+          {navItems.filter(item => !item.studentOnly || isStudentAccount(user)).map((item) => {
+            const active = isActive(item.to);
+            return (
+              <Link key={item.to + item.label_en} to={item.to} onClick={()=>setMenuOpen(false)} style={{
+                display:"flex",alignItems:"center",gap:14,height:48,padding:"0 16px",borderRadius:14,
+                textDecoration:"none",fontSize:14,fontWeight:600,
+                color:active?"#d4af37":c.text,
+                background:active?c.goldLight:"transparent",
+                transition:"all 0.2s ease",
+              }} onMouseEnter={e=>{if(!active){e.currentTarget.style.background=c.bgSoft;e.currentTarget.style.transform="translateX(-2px)"}}} onMouseLeave={e=>{if(!active){e.currentTarget.style.background="transparent";e.currentTarget.style.transform="none"}}}>
+                <i className={item.icon} style={{width:20,textAlign:"center",fontSize:15,color:active?"#d4af37":c.textMuted,flexShrink:0}}></i>
+                <span>{t(item.label_ar,item.label_en)}</span>
+                {active && <div style={{marginRight:"auto",width:6,height:6,borderRadius:"50%",background:"#d4af37"}} />}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Bottom Actions */}
+        <div style={{padding:"16px 20px 24px",borderTop:`1px solid ${c.border}`,flexShrink:0,display:"flex",flexDirection:"column",gap:10}}>
+          {/* Language + Theme row */}
+          <div style={{display:"flex",gap:10}}>
+            <button onClick={toggleLang} style={{flex:1,height:44,borderRadius:12,background:c.bgSoft,border:`1px solid ${c.border}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,fontSize:13,fontWeight:600,color:c.text,fontFamily:"inherit",transition:"0.2s"}} onMouseEnter={e=>{e.currentTarget.style.background=c.bgInput}} onMouseLeave={e=>{e.currentTarget.style.background=c.bgSoft}}>
+              <i className="fa-solid fa-globe" style={{fontSize:14,color:c.textMuted}}></i>
+              {lang === "ar" ? "English" : "العربية"}
+            </button>
+            <button onClick={toggle} style={{width:44,height:44,borderRadius:12,background:c.bgSoft,border:`1px solid ${c.border}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,transition:"0.2s"}} onMouseEnter={e=>{e.currentTarget.style.background=c.bgInput}} onMouseLeave={e=>{e.currentTarget.style.background=c.bgSoft}}>
+              <i className={theme==="dark"?"fa-solid fa-sun":"fa-solid fa-moon"} style={{fontSize:15,color:c.textMuted}}></i>
+            </button>
+          </div>
+          {/* Auth buttons */}
+          <Link to="/login" onClick={()=>setMenuOpen(false)} style={{
+            display:"flex",alignItems:"center",justifyContent:"center",height:46,borderRadius:14,
+            textDecoration:"none",fontSize:14,fontWeight:700,
+            background:c.bgSoft,color:c.text,border:`1px solid ${c.border}`,
+            transition:"0.2s"
+          }} onMouseEnter={e=>{e.currentTarget.style.background=c.bgInput}} onMouseLeave={e=>{e.currentTarget.style.background=c.bgSoft}}>
+            {t("تسجيل الدخول", "Login")}
+          </Link>
+          <Link to="/register" onClick={()=>setMenuOpen(false)} style={{
+            display:"flex",alignItems:"center",justifyContent:"center",height:46,borderRadius:14,
+            textDecoration:"none",fontSize:14,fontWeight:700,
+            background:"linear-gradient(135deg,#d4af37,#b38728)",color:"#fff",
+            boxShadow:"0 4px 16px rgba(212,175,55,0.3)",
+            transition:"all 0.2s"
+          }} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-1px)";e.currentTarget.style.boxShadow="0 6px 24px rgba(212,175,55,0.45)"}} onMouseLeave={e=>{e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="0 4px 16px rgba(212,175,55,0.3)"}}>
+            {t("إنشاء حساب", "Sign Up")}
+          </Link>
+        </div>
       </div>
 
       {/* Mobile Bottom Tab Bar */}
@@ -239,7 +276,7 @@ export default function AppNavbar() {
                 color: active ? "#d4af37" : c.textMuted,
                 position:"relative",
               }}>
-                <span className="tab-icon">{item.icon}</span>
+                <span className="tab-icon"><i className={item.icon} style={{fontSize:18}}></i></span>
                 <span className="tab-label" style={{color: active ? "#d4af37" : c.textMuted}}>
                   {t(item.label_ar, item.label_en)}
                 </span>
