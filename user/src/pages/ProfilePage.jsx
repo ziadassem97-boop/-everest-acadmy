@@ -270,14 +270,13 @@ export default function ProfilePage() {
                 <span>E-Money</span>
               </div>
               <div className="mini-stat">
-                <h3>{currentRankName}</h3>
+                <h3>{currentRankName || "—"}</h3>
                 <span>{t("الرتبة الحالية", "Current Rank")}</span>
               </div>
-              <div className="mini-stat" style={{cursor:"pointer"}} onClick={() => nav("/affiliate")}>
-                <h3 style={{color:"#d4af37"}}>🔗</h3>
-                <span>{t("شبكة الإحالة", "Referral Network")}</span>
-              </div>
             </div>
+            <button onClick={() => nav("/affiliate")} style={{width:"100%",marginTop:12,padding:"12px 0",borderRadius:12,background:"linear-gradient(135deg,#d4af37,#b8922a)",color:"#0a0a1a",border:"none",fontWeight:700,fontSize:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+              🔗 {t("شبكة الإحالة", "Referral Network")}
+            </button>
           </div>
 
           <div className="rank-card">
