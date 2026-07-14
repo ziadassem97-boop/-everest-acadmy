@@ -102,7 +102,7 @@ export default function TopSallerPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const sorted = [...performers].sort((a, b) => b.avg_score - a.avg_score);
+  const sorted = [...performers].filter(s => s.avg_score >= 70).sort((a, b) => b.avg_score - a.avg_score);
   const top3 = sorted.slice(0, 3);
   const rest = sorted.slice(3, 10);
   const filtered = search ? sorted.filter(s => (s.full_name || "").toLowerCase().includes(search.toLowerCase())) : sorted;
