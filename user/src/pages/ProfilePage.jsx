@@ -259,9 +259,9 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Welcome + Rank Overview */}
-        <section className="dash-overview">
-          <div className="welcome-card">
+        {/* Welcome + Rank Overview + Contact CS */}
+        <section className="dash-overview" style={{display:"flex",gap:16,flexWrap:"wrap",alignItems:"stretch"}}>
+          <div className="welcome-card" style={{flex:"1 1 300px",minWidth:0}}>
             <h2>{p.full_name || "—"}</h2>
             <p>{t("استمر في بناء شبكتك وأكمل كورساتك لفتح الرتبة التالية.", "Continue building your network, complete your courses and unlock the next rank.")}</p>
             <div className="overview-stats">
@@ -291,31 +291,36 @@ export default function ProfilePage() {
               🔗 {t("شبكة الإحالة", "Referral Network")}
             </button>
           </div>
-        </section>
 
-        {/* Customer Service Contact */}
-        {(csWhatsapp || csEmail) && (
-          <section className="dash-section">
-            <div className="rank-progress-card">
-              <h3 style={{marginBottom:16}}>📞 {t("تواصل مع خدمة العملاء", "Contact Customer Service")}</h3>
-              <p style={{fontSize:13,color:c.textMuted,marginBottom:16}}>{t("في حالة وجود أي مشكلة، تواصل معنا", "If you have any issue, contact us")}</p>
-              <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+          {/* Customer Service Box */}
+          {(csWhatsapp || csEmail) && (
+            <div style={{flex:"1 1 260px",minWidth:0,padding:24,borderRadius:20,background:c.bgCard,border:`1px solid ${c.borderLight}`,display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
+              <div>
+                <div style={{width:48,height:48,borderRadius:14,background:"linear-gradient(135deg,#25d366,#128c7e)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,marginBottom:14}}>📞</div>
+                <h3 style={{margin:"0 0 6px",fontSize:16,color:c.text}}>{t("خدمة العملاء", "Customer Service")}</h3>
+                <p style={{fontSize:13,color:c.textMuted,margin:0,lineHeight:1.6}}>{t("تواصل معنا لأي استفسار أو مساعدة", "Contact us for any inquiry or support")}</p>
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:20}}>
                 {csWhatsapp && (
-                  <a href={`https://wa.me/${csWhatsapp.replace(/[^0-9+]/g, "")}`} target="_blank" rel="noopener noreferrer"
-                    style={{display:"inline-flex",alignItems:"center",gap:8,padding:"12px 20px",borderRadius:12,background:"linear-gradient(135deg,#dcf8c6,#d4edda)",border:"1px solid #b8e6b0",color:"#155724",textDecoration:"none",fontWeight:600,fontSize:14}}>
-                    📱 WhatsApp: {csWhatsapp}
+                  <a href={`https://wa.me/${csWhatsapp.replace(/[^0-9+]/g,"")}`} target="_blank" rel="noopener noreferrer"
+                    style={{display:"flex",alignItems:"center",gap:10,padding:"12px 16px",borderRadius:14,background:"linear-gradient(135deg,#25d366,#128c7e)",color:"#fff",textDecoration:"none",fontWeight:700,fontSize:14,transition:".3s"}}
+                    onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"}
+                    onMouseLeave={e => e.currentTarget.style.transform="none"}>
+                    <span style={{fontSize:18}}>📱</span> WhatsApp
                   </a>
                 )}
                 {csEmail && (
                   <a href={`mailto:${csEmail}`}
-                    style={{display:"inline-flex",alignItems:"center",gap:8,padding:"12px 20px",borderRadius:12,background:c.bgInput,border:`1px solid ${c.border}`,color:c.text,textDecoration:"none",fontWeight:600,fontSize:14}}>
-                    📧 {csEmail}
+                    style={{display:"flex",alignItems:"center",gap:10,padding:"12px 16px",borderRadius:14,background:c.bgInput,border:`1px solid ${c.border}`,color:c.text,textDecoration:"none",fontWeight:700,fontSize:14,transition:".3s"}}
+                    onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"}
+                    onMouseLeave={e => e.currentTarget.style.transform="none"}>
+                    <span style={{fontSize:18}}>📧</span> {csEmail}
                   </a>
                 )}
               </div>
             </div>
-          </section>
-        )}
+          )}
+        </section>
 
        
       </div>
