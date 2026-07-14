@@ -34,9 +34,12 @@ if (fs.existsSync(adminDist)) {
 const userDist = join(__dirname, "../../user/dist");
 const userPublic = join(__dirname, "../../user/public");
 if (fs.existsSync(userDist)) {
-  app.use(express.static(userDist));
+  app.use(express.static(userDist, { maxAge: 0, etag: false, lastModified: false }));
   app.get("*", (req, res, next) => {
     if (req.path.startsWith("/api") || req.path.startsWith("/uploads") || req.path.startsWith("/admin")) return next();
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
     res.sendFile(join(userDist, "index.html"));
   });
   console.log("✅ Serving user frontend from", userDist);
