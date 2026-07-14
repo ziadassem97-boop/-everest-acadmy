@@ -175,24 +175,26 @@ export default function AppNavbar() {
       {/* Side Drawer */}
       <div style={{
         position:"fixed",top:0,right:menuOpen?0:"-82%",width:"82%",maxWidth:360,height:"100vh",
-        background:c.bgCard,display:"flex",flexDirection:"column",
+        background:"linear-gradient(180deg,#0a0a12 0%,#12121f 50%,#0d0d18 100%)",display:"flex",flexDirection:"column",
         transition:"right 0.35s cubic-bezier(.4,0,.2,1)",zIndex:999,
-        boxShadow:menuOpen?"-8px 0 40px rgba(0,0,0,0.15)":"none",
+        boxShadow:menuOpen?"-8px 0 40px rgba(0,0,0,0.4)":"none",
         direction: dir,overflow:"hidden"
       }}>
+        {/* Gold accent bar */}
+        <div style={{height:4,background:"linear-gradient(90deg,#d4af37,#f0d060,#d4af37)",flexShrink:0}} />
         {/* Header */}
         <div style={{padding:"28px 24px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:`1px solid ${c.border}`,flexShrink:0}}>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <div style={{width:44,height:44,borderRadius:14,background:"linear-gradient(135deg,#d4af37,#b38728)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-              <span style={{color:"#fff",fontWeight:800,fontSize:20,fontFamily:"'Cairo',sans-serif"}}>E</span>
+            <div style={{width:48,height:48,borderRadius:16,background:"linear-gradient(135deg,#d4af37,#b38728)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:"0 4px 16px rgba(212,175,55,0.4)"}}>
+              <span style={{color:"#fff",fontWeight:800,fontSize:22,fontFamily:"'Cairo',sans-serif"}}>E</span>
             </div>
             <div>
-              <h2 style={{margin:0,fontSize:17,fontWeight:700,color:c.text,lineHeight:1.2}}>Everest Academy</h2>
-              <span style={{fontSize:11,color:c.textMuted,letterSpacing:0.5}}>{t("تعلم • ابنِ • انمُ", "Learn • Build • Grow")}</span>
+              <h2 style={{margin:0,fontSize:18,fontWeight:700,color:c.text,lineHeight:1.2}}>Everest Academy</h2>
+              <span style={{fontSize:11,color:"#d4af37",letterSpacing:0.5,fontWeight:600}}>{t("تعلم • ابنِ • انمُ", "Learn • Build • Grow")}</span>
             </div>
           </div>
-          <button onClick={()=>setMenuOpen(false)} style={{width:36,height:36,borderRadius:10,background:c.bgSoft,border:`1px solid ${c.border}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:c.textMuted,fontSize:16,transition:"0.2s"}} onMouseEnter={e=>{e.currentTarget.style.background=c.bgInput}} onMouseLeave={e=>{e.currentTarget.style.background=c.bgSoft}}>
-            <i className="fa-solid fa-xmark" style={{fontSize:14}}></i>
+          <button onClick={()=>setMenuOpen(false)} style={{width:38,height:38,borderRadius:11,background:c.bgSoft,border:`1px solid ${c.border}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:c.textMuted,fontSize:16,transition:"0.2s"}} onMouseEnter={e=>{e.currentTarget.style.background=c.bgInput}} onMouseLeave={e=>{e.currentTarget.style.background=c.bgSoft}}>
+            <i className="fa-solid fa-xmark" style={{fontSize:15}}></i>
           </button>
         </div>
 
