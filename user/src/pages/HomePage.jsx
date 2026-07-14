@@ -85,7 +85,7 @@ const rankColors = {
 
 export default function HomePage() {
   const { user, logout } = useAuth();
-  const { t, lang, toggle: toggleLang, dir } = useLang();
+  const { t, lang, dir } = useLang();
   const { colors: c } = useTheme();
   const m = useIsMobile();
   const s = makeStyles(c, m);
@@ -188,14 +188,6 @@ export default function HomePage() {
 
       {/* Hero */}
       <section style={{...s.hero,marginBottom:25}}>
-        <div style={{position:"fixed",top:m?64:16,right:16,zIndex:100}}>
-          <button onClick={toggleLang} title={lang === "ar" ? "Switch to English" : "التبديل إلى العربية"} style={{width:m?40:44,height:m?40:44,borderRadius:"50%",background:c.goldLight,border:`1px solid ${c.borderLight}`,cursor:"pointer",fontSize:m?18:20,display:"flex",alignItems:"center",justifyContent:"center",transition:"0.3s",boxShadow:"0 2px 12px rgba(0,0,0,0.15)"}}
-            onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.1)";e.currentTarget.style.boxShadow="0 4px 20px rgba(212,175,55,0.4)";}}
-            onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)";e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.15)";}}
-          >
-            {lang === "ar" ? "🇺🇸" : "🇸🇦"}
-          </button>
-        </div>
         <div style={s.heroContent}>
           <span style={s.heroBadge}>{t("👋 مرحباً بعودتك","👋 Welcome Back")}{user ? `, ${user.full_name?.split(" ")[0]}` : ""}</span>
           <h1 style={s.heroH1}>{t("اكمل","Continue Your")} <br />{t("رحلتك إلى","Journey To The")} <br /><span style={s.heroH1Span}>{t("الرتبة التالية","Next Rank")}</span></h1>
