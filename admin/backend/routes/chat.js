@@ -160,4 +160,18 @@ router.get("/keys-status", (req, res) => {
   });
 });
 
+// ─── Debug: test Groq API call ───
+router.get("/test-groq", async (req, res) => {
+  try {
+    if (!GROQ_API_KEY) return res.json({ ok: false, error: "No API key" });
+    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${GROQ_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: GROQ_MODEL, messages: [{ role: "user", content: "Say hi in Arabic" }], max_tokens: 50 }),
+    });
+    const text = await resp.text();
+    res.json({ ok: resp.ok, status: resp.status, body: text.slice(0, 500) });
+  } catch (e) { res.json({ ok: false, error: e.message }); }
+});
+
 export default router;
