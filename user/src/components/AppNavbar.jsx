@@ -84,6 +84,9 @@ export default function AppNavbar() {
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             {user && <NotificationBell userId={user.id} />}
+            <button onClick={() => setMenuOpen(!menuOpen)} style={{width:36,height:36,borderRadius:10,background:c.bgSoft,border:`1px solid ${c.border}`,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:3,padding:0}}>
+              {[1,2,3].map((_, i) => <span key={i} style={{width:16,height:2,background:c.text,borderRadius:2,display:"block"}} />)}
+            </button>
             {user && (
               <div style={{ cursor: "pointer" }} onClick={() => nav("/profile")}>
                 <div style={{ width: 34, height: 34, borderRadius: "50%", border: "2px solid #d4af37", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
