@@ -912,13 +912,13 @@ video { object-fit:contain; }
   .landing-page .features-slider::-webkit-scrollbar { display: none; }
   .landing-page .feature-card { min-width: 220px; flex-shrink: 0; }
   .landing-page .stats-section { padding: 50px 0; }
-  .landing-page .stats-wrapper { overflow-x: auto; gap: 20px; padding: 0 20px; justify-content: flex-start; scroll-snap-type: x mandatory; -ms-overflow-style: none; scrollbar-width: none; }
+  .landing-page .stats-wrapper { overflow-x: auto; gap: 14px; padding: 0 16px; justify-content: flex-start; scroll-snap-type: x mandatory; -ms-overflow-style: none; scrollbar-width: none; }
   .landing-page .stats-wrapper::-webkit-scrollbar { display: none; }
-  .landing-page .stat-card { min-width: 220px; flex: 0 0 auto; scroll-snap-align: start; background: #fff; border-radius: 24px; padding: 20px; border: 1px solid #f0f0f0; }
-  .landing-page .stat-number { font-size: 38px; }
-  .landing-page .stat-title { font-size: 16px; margin-bottom: 12px; }
-  .landing-page .stat-desc { font-size: 13px; line-height: 1.7; max-width: none; }
-  .landing-page .stat-card i { font-size: 36px; margin-bottom: 14px; }
+  .landing-page .stat-card { min-width: 180px; flex: 0 0 auto; scroll-snap-align: start; background: #fff; border-radius: 20px; padding: 16px; border: 1px solid #f0f0f0; }
+  .landing-page .stat-number { font-size: 28px; }
+  .landing-page .stat-title { font-size: 13px; margin-bottom: 8px; }
+  .landing-page .stat-desc { font-size: 11px; line-height: 1.6; max-width: none; }
+  .landing-page .stat-card i { font-size: 26px; margin-bottom: 10px; }
   .landing-page .footer-middle { flex-direction: column; gap: 12px; text-align: center; padding: 16px 20px; }
   .landing-page .social { flex-wrap: wrap; justify-content: center; }
   .landing-page .footer-bottom { font-size: 12px; padding: 16px; }
