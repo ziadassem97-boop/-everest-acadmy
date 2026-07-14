@@ -320,7 +320,7 @@ export default function LandingPage() {
       {/* CTA */}
       <section className="cta-section">
         <div className="cta-content">
-          <h2>{t("أطلق العنان لإمكانياتك من خلال التعلم والنمو والمجتمع.", "Unlock your potential through learning, growth, and community.")}</h2>
+          <h2>{t("رحلتك إلى النجاح تبدأ هنا.", "Your journey to success starts here.")}</h2>
           <Link to="/register" className="cta-btn">{t("ابدأ الآن", "Start Now")}</Link>
         </div>
       </section>
