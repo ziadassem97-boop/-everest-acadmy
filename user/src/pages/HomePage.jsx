@@ -173,6 +173,7 @@ export default function HomePage() {
   const [courses, setCourses] = useState([]);
   const [modal, setModal] = useState(null);
   const [leaders, setLeaders] = useState([]);
+  const defaultAvatars = ["ahmed.png","omar.png","yosry.png","mariam.png","yara.png","khled.png"];
 
   useEffect(() => {
     api("/api/courses?status=published").then(setCourses).catch(() => {});
@@ -221,7 +222,7 @@ export default function HomePage() {
             <p style={{color:"#7c7c86",textAlign:"center",width:"100%",padding:40}}>{t("لا يوجد قادة بعد","No leaders yet")}</p>
           ) : leaders.map((l, i) => (
             <div key={l.id || i} style={s.leaderCard}>
-              <img src={l.avatar || img("ahmed.png")} alt="" style={s.leaderImg} />
+              <img src={l.avatar || img(defaultAvatars[i % defaultAvatars.length])} alt="" style={s.leaderImg} />
               <h3 style={s.leaderName}>{l.name}</h3>
               <div style={{...s.rank,...rankColors[rankClassMap[l.rank] || "senior"]}}>{l.rank}</div>
             </div>
