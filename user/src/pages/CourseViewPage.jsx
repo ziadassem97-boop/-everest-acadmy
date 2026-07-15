@@ -224,35 +224,20 @@ export default function CourseViewPage() {
     <div className="course-view-page" style={{background:c.bg,minHeight:"100vh"}}>
       <AppNavbar />
 
-      {/* Public header for non-logged-in users */}
-      {!user && (
-        <header style={{
-          position:"sticky",top:0,zIndex:100,
-          background:c.bgSoft,borderBottom:`1px solid ${c.border}`,
-          padding:m?"0 14px":"0 30px",height:m?56:72,display:"flex",
-          alignItems:"center",justifyContent:"space-between",
-          boxShadow:c.shadow,direction:dir
-        }}>
-          <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <button onClick={() => nav(-1)} style={{
-              width:m?36:40,height:m?36:40,borderRadius:10,border:`1px solid ${c.border}`,
-              background:c.bgCard,cursor:"pointer",display:"flex",alignItems:"center",
-              justifyContent:"center",fontSize:m?16:18,color:c.text,transition:"all 0.2s"
-            }}>
-              {dir === "rtl" ? "→" : "←"}
-            </button>
-            <Link to="/" style={{display:"flex",alignItems:"center",gap:8,textDecoration:"none"}}>
-              <img src="./new_logo-removebg-preview.png" alt="Logo" style={{height:m?44:60,objectFit:"contain"}} />
-            </Link>
-          </div>
-        </header>
-      )}
-
       {/* Non-logged-in: clean purchase page */}
       {!user ? (
         <main style={{maxWidth:600,margin:"0 auto",padding:m?"20px 14px 40px":"60px 5% 40px",display:"flex",alignItems:"center",justifyContent:"center",minHeight:"calc(100vh - 80px)"}}>
           <div style={{width:"100%",textAlign:"center"}}>
-            {/* Course card */}
+            {/* Back button */}
+            <button onClick={() => nav(-1)} style={{
+              display:"inline-flex",alignItems:"center",gap:8,marginBottom:24,
+              padding:m?"10px 20px":"12px 24px",
+              background:c.bgCard,border:`1px solid ${c.borderLight}`,
+              borderRadius:12,color:c.text,fontSize:m?13:14,fontWeight:700,
+              cursor:"pointer",transition:"all 0.2s"
+            }}>
+              {dir === "rtl" ? "→" : "←"} {t("رجوع", "Go Back")}
+            </button>
             <div style={{
               background:c.bgCard,border:`1px solid ${c.borderLight}`,
               borderRadius:m?16:20,padding:m?"28px 20px":"40px 36px",
@@ -323,15 +308,6 @@ export default function CourseViewPage() {
                 {t("سجّل دخولك للوصول إلى جميع الدروس والمحتوى التعليمي", "Sign in to access all lessons and educational content")}
               </p>
             </div>
-
-            {/* Back link */}
-            <button onClick={() => nav(-1)} style={{
-              marginTop:20,padding:"10px 24px",background:"transparent",
-              border:"none",color:c.textMuted,fontSize:m?13:14,cursor:"pointer",
-              fontWeight:600,display:"inline-flex",alignItems:"center",gap:6
-            }}>
-              {dir === "rtl" ? "→" : "←"} {t("العودة للفائت", "Go Back")}
-            </button>
           </div>
         </main>
 
