@@ -8,7 +8,7 @@ import AppNavbar from "../components/AppNavbar";
 import QuizModal from "../components/QuizModal";
 
 export default function CourseViewPage() {
-  const { t, dir } = useLang();
+  const { t, dir, lang } = useLang();
   const { id } = useParams();
   const { user, login, logout } = useAuth();
   const nav = useNavigate();
