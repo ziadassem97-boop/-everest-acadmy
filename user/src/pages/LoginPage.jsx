@@ -53,17 +53,22 @@ export default function LoginPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  const [deviceActive, setDeviceActive] = useState(false);
+
   const submit = async (e) => {
-    e.preventDefault(); setErr(""); setLoading(true);
+    e.preventDefault(); setErr(""); setDeviceActive(false); setLoading(true);
     try {
       const { user, session_token } = await api("/api/auth/login", { method: "POST", body: JSON.stringify(form) });
       login(user, session_token);
       setForm({ email: "", password: "" });
-      // Replace history so user can't go back to login
       window.history.replaceState(null, "", "/home");
       nav("/home", { replace: true });
     } catch (e) {
-      setErr(t(e.message || "بيانات الدخول غير صحيحة", e.message || "Invalid login credentials"));
+      if (e.code === "DEVICE_ALREADY_ACTIVE") {
+        setDeviceActive(true);
+      } else {
+        setErr(t(e.message || "بيانات الدخول غير صحيحة", e.message || "Invalid login credentials"));
+      }
     }
     setLoading(false);
   };
@@ -132,6 +137,26 @@ export default function LoginPage() {
               borderRadius: 12, padding: "10px 14px", marginBottom: 16,
               color: c.error || "#ef4444", fontSize: 13, textAlign: "center",
             }}>⚠️ {err}</div>
+          )}
+
+          {/* Device Already Active */}
+          {deviceActive && (
+            <div style={{
+              background: "rgba(251,191,36,.08)", border: "1px solid rgba(251,191,36,.25)",
+              borderRadius: 14, padding: "14px 16px", marginBottom: 16,
+              textAlign: "center",
+            }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>🔒</div>
+              <p style={{ fontWeight: 700, color: c.text, fontSize: 14, marginBottom: 6 }}>
+                {t("الحساب مسجل الدخول على جهاز آخر", "Account is logged in on another device")}
+              </p>
+              <p style={{ fontSize: 12, color: c.textMuted, lineHeight: 1.7, margin: 0 }}>
+                {t(
+                  "هذا الحساب مسجل الدخول على جهاز آخر. يرجى تسجيل الخروج من ذلك الجهاز أولاً ثم حاول مرة أخرى.",
+                  "This account is already logged in on another device. Please log out from that device first, then try again."
+                )}
+              </p>
+            </div>
           )}
 
           <form onSubmit={submit} autoComplete="off">
@@ -365,6 +390,26 @@ export default function LoginPage() {
                 color: c.error || "#ef4444", fontSize: 13, textAlign: "center",
               }}>
                 ⚠️ {err}
+              </div>
+            )}
+
+            {/* Device Already Active */}
+            {deviceActive && (
+              <div style={{
+                background: "rgba(251,191,36,.08)", border: "1px solid rgba(251,191,36,.25)",
+                borderRadius: 14, padding: "16px 20px", marginBottom: 20,
+                textAlign: "center",
+              }}>
+                <div style={{ fontSize: 32, marginBottom: 10 }}>🔒</div>
+                <p style={{ fontWeight: 700, color: c.text, fontSize: 15, marginBottom: 6 }}>
+                  {t("الحساب مسجل الدخول على جهاز آخر", "Account is logged in on another device")}
+                </p>
+                <p style={{ fontSize: 13, color: c.textMuted, lineHeight: 1.7, margin: 0 }}>
+                  {t(
+                    "هذا الحساب مسجل الدخول على جهاز آخر. يرجى تسجيل الخروج من ذلك الجهاز أولاً ثم حاول مرة أخرى.",
+                    "This account is already logged in on another device. Please log out from that device first, then try again."
+                  )}
+                </p>
               </div>
             )}
 

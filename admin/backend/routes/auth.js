@@ -29,18 +29,23 @@ router.post("/login", async (req, res) => {
   const deviceType = detectDeviceType(req.headers["user-agent"]);
   const session_token = uuidv4() + "-" + Date.now();
 
-  // Check if user already has an active session on the same device type
+  // Single Active Device: check if user already has ANY active session
   const existingSession = await queryOne(
-    "SELECT id, device_type FROM user_sessions WHERE user_id = ? AND device_type = ?",
-    [user.id, deviceType]
+    "SELECT id, device_type, device_info FROM user_sessions WHERE user_id = ?",
+    [user.id]
   );
 
   if (existingSession) {
-    // Same device type — allow re-login, just replace the old session
-    await execute("DELETE FROM user_sessions WHERE user_id = ? AND device_type = ?", [user.id, deviceType]);
+    // Another device is already logged in — reject
+    return res.status(403).json({
+      success: false,
+      code: "DEVICE_ALREADY_ACTIVE",
+      message: "This account is already logged in on another device. Please log out from that device first.",
+      message_ar: "هذا الحساب مسجل الدخول على جهاز آخر. يرجى تسجيل الخروج من ذلك الجهاز أولاً."
+    });
   }
 
-  // Create new session in user_sessions table
+  // No active session — create new session
   await execute(
     "INSERT INTO user_sessions (id, user_id, session_token, device_type, device_info) VALUES (?, ?, ?, ?, ?)",
     [uuidv4(), user.id, session_token, deviceType, req.headers["user-agent"] || ""]
@@ -56,9 +61,10 @@ router.post("/login", async (req, res) => {
 router.post("/logout", async (req, res) => {
   try {
     const { user_id, session_token } = req.body;
-    if (user_id && session_token) {
-      await execute("DELETE FROM user_sessions WHERE user_id = ? AND session_token = ?", [user_id, session_token]);
-      await execute("UPDATE users SET session_token = NULL WHERE id = ? AND session_token = ?", [user_id, session_token]);
+    if (user_id) {
+      // Delete ALL sessions for this user (single active device)
+      await execute("DELETE FROM user_sessions WHERE user_id = ?", [user_id]);
+      await execute("UPDATE users SET session_token = NULL WHERE id = ?", [user_id]);
     }
     res.json({ success: true });
   } catch (e) {

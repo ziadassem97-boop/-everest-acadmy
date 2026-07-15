@@ -45,6 +45,7 @@ const api = async (path, opts = {}) => {
     const body = await res.json().catch(() => ({}));
     if (body.session_expired) { /* don't auto-logout */ }
     const err = new Error(body.error || `HTTP ${res.status}`);
+    if (body.code) err.code = body.code;
     if (body.upgradeRequired) err.upgradeRequired = true;
     throw err;
   }
