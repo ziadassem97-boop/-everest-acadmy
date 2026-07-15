@@ -975,6 +975,7 @@ video { object-fit:contain; }
 @media (max-width: 950px) {
   .navbar .nav-links { display: none; }
   .navbar .auth-buttons { display: none; }
+  .navbar .nav-toggles { display: none !important; }
   .navbar .menu-btn { display: block; }
   .navbar { height: 72px; }
   .navbar .logo img { width: 75px !important; height: 75px !important; }
@@ -1749,6 +1750,7 @@ video { object-fit:contain; }
 [data-theme="dark"] .navbar .signup-btn { background: #d4af37 !important; color: #111 !important; }
 [data-theme="dark"] .navbar .menu-btn span { background: #e8e8ec !important; }
 [data-theme="dark"] .navbar .menu-btn { background: transparent !important; }
+[data-theme="dark"] .navbar .nav-toggles button { border-color: rgba(255,255,255,0.1) !important; background: rgba(255,255,255,0.06) !important; color: #e8e8ec !important; }
 [data-theme="dark"] .navbar .mobile-menu { background: #1a1a24 !important; }
 [data-theme="dark"] .navbar .mobile-menu .mobile-header { background: #1a1a24 !important; color: #e8e8ec !important; }
 [data-theme="dark"] .navbar .mobile-menu .mobile-header h2 { color: #e8e8ec !important; }

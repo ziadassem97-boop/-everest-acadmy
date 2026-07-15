@@ -47,6 +47,14 @@ export default function PublicNavbar({ active }) {
           ))}
         </div>
         <div className="nav-right" style={{marginRight:8}}>
+          <div className="nav-toggles" style={{display:"flex",alignItems:"center",gap:8,marginRight:16}}>
+            <button onClick={toggleLang} title={lang === "ar" ? "English" : "العربية"} style={{width:36,height:36,borderRadius:10,border:"1px solid rgba(0,0,0,.1)",background:"rgba(0,0,0,.04)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,transition:".3s"}}>
+              {lang === "ar" ? "EN" : "ع"}
+            </button>
+            <button onClick={toggleTheme} title={theme === "dark" ? "Light Mode" : "Dark Mode"} style={{width:36,height:36,borderRadius:10,border:"1px solid rgba(0,0,0,.1)",background:"rgba(0,0,0,.04)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,transition:".3s"}}>
+              {theme === "dark" ? "☀️" : "🌙"}
+            </button>
+          </div>
           <div className="auth-buttons">
             <Link to="/login" className="login-btn">{t("تسجيل الدخول", "Login")}</Link>
             <Link to="/register" className="signup-btn">{t("إنشاء حساب", "Sign Up")}</Link>
