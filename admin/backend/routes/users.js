@@ -155,35 +155,16 @@ router.put("/:id/approve-registration", async (req, res) => {
     await execute("UPDATE users SET status = 'active', role = ?, account_type = ?, membership_expires_at = ?, updated_at = datetime('now','localtime') WHERE id = ?", [role, accountType, expiresStr, req.params.id]);
     console.log("[approve-registration] Updated:", req.params.id, "role:", role, "account_type:", accountType);
 
-    // If approved as student AND has a sponsor → pay commissions to uplines (skip non-student uplines)
+    // If approved as student AND has a sponsor → pay commission to direct referrer ONLY (Level 1)
     if (accountType === "student" && user.referred_by) {
-      let upline = user.referred_by;
-      let level = 1;
-      let lastDirects = -1;
-      while (upline) {
-        const currentUpline = upline;
-        const uplineUser = await queryOne("SELECT direct_count, account_type FROM users WHERE id = ?", [currentUpline]);
-        if (!uplineUser) break;
-        const next = await queryOne("SELECT referred_by FROM users WHERE id = ?", [currentUpline]);
-        upline = next?.referred_by || null;
-        // Skip non-student uplines — they don't earn commissions (NULL = old student account)
-        if (uplineUser.account_type && uplineUser.account_type !== "student") {
-          level++;
-          continue;
-        }
-        const uplineDirects = uplineUser.direct_count || 0;
-        if (uplineDirects > lastDirects) {
-          const comId = uuidv4();
-          await execute("INSERT INTO commissions (id, from_user_id, to_user_id, level, amount) VALUES (?, ?, ?, ?, ?)",
-            [comId, req.params.id, currentUpline, level, 1000]);
-          await execute("UPDATE users SET e_money = e_money + 1000 WHERE id = ?", [currentUpline]);
-          if (level === 1) {
-            await execute("UPDATE users SET direct_count = direct_count + 1 WHERE id = ?", [currentUpline]);
-          }
-          const nid2 = uuidv4(); await execute("INSERT INTO notifications (id, user_id, title, message, type) VALUES (?, ?, ?, ?, 'commission')", [nid2, currentUpline, "💰 عمولة جديدة", `ربحت 1000 E-Money كمكافأة عن تسجيل عضو جديد`]);
-          lastDirects = uplineDirects;
-        }
-        level++;
+      const directReferrer = await queryOne("SELECT id, account_type FROM users WHERE id = ?", [user.referred_by]);
+      if (directReferrer && directReferrer.account_type === "student") {
+        const comId = uuidv4();
+        await execute("INSERT INTO commissions (id, from_user_id, to_user_id, level, amount) VALUES (?, ?, ?, 1, 1000)",
+          [comId, req.params.id, directReferrer.id]);
+        await execute("UPDATE users SET e_money = e_money + 1000 WHERE id = ?", [directReferrer.id]);
+        await execute("UPDATE users SET direct_count = direct_count + 1 WHERE id = ?", [directReferrer.id]);
+        const nid2 = uuidv4(); await execute("INSERT INTO notifications (id, user_id, title, message, type) VALUES (?, ?, ?, ?, 'commission')", [nid2, directReferrer.id, "💰 عمولة جديدة", `ربحت 1000 E-Money كمكافأة عن تسجيل عضو جديد`]);
       }
     }
 
