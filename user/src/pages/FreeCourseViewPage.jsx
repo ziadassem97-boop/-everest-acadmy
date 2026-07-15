@@ -102,7 +102,7 @@ export default function FreeCourseViewPage() {
         </div>
 
         {/* Registration account block */}
-        {user && (user.account_type === "registration" || user.account_type === "registration_sponsor") && (
+        {user && user.account_type === "registration" && (
           <div style={{background:card,border:`1px solid ${border}`,borderRadius:20,padding:m?"32px 20px":"48px 40px",textAlign:"center",marginBottom:20}}>
             <div style={{width:72,height:72,borderRadius:"50%",background:`${accent}15`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 24px"}}>
               <i className="fa-solid fa-lock" style={{fontSize:28,color:accent}}></i>

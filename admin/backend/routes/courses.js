@@ -83,7 +83,7 @@ router.get("/top-quiz-performers", async (req, res) => {
       JOIN users u ON qa.user_id = u.id
       JOIN quizzes q ON qa.quiz_id = q.id
       JOIN courses c ON q.course_id = c.id
-      WHERE q.type = 'final'
+      WHERE q.type = 'final' AND u.account_type = 'student'
       GROUP BY qa.user_id, c.id
       HAVING avg_score >= 70
       ORDER BY avg_score DESC
@@ -120,7 +120,7 @@ router.post("/sync-leaderboard", async (req, res) => {
       LEFT JOIN courses c ON q.course_id = c.id
       LEFT JOIN topics t ON q.topic_id = t.id
       LEFT JOIN courses c2 ON t.course_id = c2.id
-      WHERE qa.user_id NOT IN (SELECT user_id FROM quiz_leaderboard)
+      WHERE qa.user_id NOT IN (SELECT user_id FROM quiz_leaderboard) AND u.account_type = 'student'
       GROUP BY qa.user_id, COALESCE(c.id, c2.id)
       ORDER BY avg_score DESC
       LIMIT 10
@@ -333,8 +333,8 @@ router.post("/:id/purchase", async (req, res) => {
 
     const user = await queryOne("SELECT * FROM users WHERE id = ?", [userId]);
     if (!user) return res.status(404).json({ error: "User not found" });
-    if (user.account_type === "registration_sponsor") return res.status(403).json({ error: "Registration (Sponsor) users cannot purchase courses. Please upgrade to Student account.", upgradeRequired: true });
-    if (user.role !== "student") return res.status(403).json({ error: "Only student accounts can purchase courses" });
+    if (user.account_type === "registration") return res.status(403).json({ error: "Registration users cannot purchase courses. Please upgrade to Student account.", upgradeRequired: true });
+    if (user.account_type !== "registration_sponsor" && user.role !== "student") return res.status(403).json({ error: "Only student accounts can purchase courses" });
 
     const existing = await queryOne("SELECT id, status FROM enrollments WHERE user_id = ? AND course_id = ?", [userId, req.params.id]);
     if (existing && existing.status !== "rejected") return res.status(400).json({ error: "Already enrolled in this course" });
@@ -587,7 +587,8 @@ router.post("/quizzes/:quizId/submit", async (req, res) => {
     // Update persistent leaderboard (survives quiz_attempts deletion)
     try {
       const user = await queryOne("SELECT * FROM users WHERE id = ?", [userId]);
-      const courseTitle = await queryOne(`
+      if (user && user.account_type === "student") {
+        const courseTitle = await queryOne(`
         SELECT COALESCE(c.title, c2.title, '—') as title
         FROM quizzes q
         LEFT JOIN courses c ON q.course_id = c.id
@@ -629,6 +630,7 @@ router.post("/quizzes/:quizId/submit", async (req, res) => {
            courseId?.id || null, courseTitle?.title || "—", marks,
            result === "pass" ? 1 : 0, result === "fail" ? 1 : 0, marks]
         );
+      }
       }
     } catch (lbErr) {
       console.error("Leaderboard update error:", lbErr);

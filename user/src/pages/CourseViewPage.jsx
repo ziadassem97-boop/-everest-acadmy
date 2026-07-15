@@ -84,8 +84,8 @@ export default function CourseViewPage() {
 
   const buyCourse = async (method = "emoney") => {
     if (!user) { nav("/login"); return; }
-    if (user.account_type === "registration_sponsor") {
-      alert(t("حسابك من نوع Registration (Sponsor). يجب الترقية إلى Student أولاً من صفحة الملف الشخصي.", "Your account is Registration (Sponsor). You must upgrade to Student first from your profile page."));
+    if (user.account_type === "registration") {
+      alert(t("حسابك من نوع Registration. يجب الترقية إلى Student أولاً من صفحة الملف الشخصي.", "Your account is Registration type. You must upgrade to Student first from your profile page."));
       nav("/profile");
       return;
     }
@@ -101,7 +101,7 @@ export default function CourseViewPage() {
       }
     } catch (e) {
       if (e.upgradeRequired) {
-        alert(t("حسابك من نوع Registration (Sponsor). يجب الترقية إلى Student أولاً.", "Your account is Registration (Sponsor). You must upgrade to Student first."));
+        alert(t("حسابك من نوع Registration. يجب الترقية إلى Student أولاً.", "Your account is Registration type. You must upgrade to Student first."));
         nav("/profile");
       } else {
         alert(t("خطأ: ", "Error: ") + (e.message || t("فشل عملية الشراء", "Purchase failed")));
@@ -203,7 +203,7 @@ export default function CourseViewPage() {
   const isPending = enrollment?.status === "pending";
   const isEnrolled = isApproved || (isFree && enrollment);
   const canWatchAll = isEnrolled || isFree;
-  const isRegistration = user?.account_type === "registration" || user?.account_type === "registration_sponsor";
+  const isRegistration = user?.account_type === "registration";
 
   const allLessons = (course.topics || []).flatMap((t) => (t.lessons || []).map((l) => ({ ...l, topicTitle: t.title_ar || t.title, topicId: t.id })));
   const current = playing || allLessons[0] || null;
@@ -335,7 +335,7 @@ export default function CourseViewPage() {
           </div>
         )}
 
-        {!isEnrolled && !isPending && !isFree && user?.role === "student" && (
+        {!isEnrolled && !isPending && !isFree && user?.account_type !== "registration" && (
           <div style={{textAlign:"center",padding:m?"12px 0":"16px 0",marginBottom:m?12:20}}>
             {(user?.e_money || 0) < course.price && (
               <div style={{background:"rgba(255,91,91,.1)",border:"1px solid rgba(255,91,91,.2)",borderRadius:14,padding:m?10:12,marginBottom:m?10:16,color:"#ff5b5b",fontSize:m?12:13}}>
