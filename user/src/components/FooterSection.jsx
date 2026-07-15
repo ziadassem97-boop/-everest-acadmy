@@ -337,10 +337,6 @@ export default function FooterSection({ showCTA }) {
             <h4 className="fs-col-title">{t("الدعم", "Support")}</h4>
             <div className="fs-col-links">
               <Link to="/about" className="fs-col-link">{t("تواصل معنا", "Contact Us")}</Link>
-              <a href="#" className="fs-col-link">{t("الأسئلة الشائعة", "FAQ")}</a>
-              <a href="#" className="fs-col-link">{t("مركز المساعدة", "Help Center")}</a>
-              <a href="#" className="fs-col-link">{t("الشروط والأحكام", "Terms & Conditions")}</a>
-              <a href="#" className="fs-col-link">{t("سياسة الخصوصية", "Privacy Policy")}</a>
             </div>
           </div>
         </div>
