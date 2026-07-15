@@ -49,89 +49,92 @@ export default function PublicNavbar({ active }) {
         </div>
       </nav>
 
-      <div className={`menu-overlay${menuOpen ? " active" : ""}`} onClick={() => setMenuOpen(false)}></div>
-      <div className={`mobile-menu${menuOpen ? " active" : ""}`}>
+      <div className={`pdm-overlay${menuOpen ? " active" : ""}`} onClick={() => setMenuOpen(false)} aria-hidden="true"></div>
+      <div className={`pdm-drawer${menuOpen ? " active" : ""}`} role="dialog" aria-label="Navigation menu">
+        {/* Decorative background */}
+        <div className="pdm-bg">
+          <div className="pdm-blob pdm-blob-1"></div>
+          <div className="pdm-blob pdm-blob-2"></div>
+          <div className="pdm-blob pdm-blob-3"></div>
+        </div>
+
         {/* Header */}
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:32}}>
-          <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <div style={{width:44,height:44,borderRadius:14,background:"linear-gradient(135deg,#d4af37,#b8922a)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              <img src="/image/logo-navbar.png" alt="" style={{width:28,height:28,objectFit:"contain",filter:"brightness(0) invert(1)"}} />
+        <div className="pdm-header">
+          <div className="pdm-brand">
+            <div className="pdm-logo-ring">
+              <img src="/image/logo-navbar.png" alt="Everest" />
             </div>
             <div>
-              <h2 style={{margin:0,fontSize:18,fontWeight:800,color:c.text,lineHeight:1.2}}>Everest</h2>
-              <span style={{fontSize:11,color:c.textMuted,fontWeight:500}}>{t("أكاديمية إيفرست","Academy")}</span>
+              <h2>Everest Academy</h2>
+              <span>Premium Learning Platform</span>
             </div>
           </div>
-          <button onClick={() => setMenuOpen(false)} style={{width:38,height:38,borderRadius:12,background:c.bgInput,border:`1px solid ${c.border}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,color:c.text,transition:".2s"}}
-            onMouseEnter={e => e.currentTarget.style.borderColor="#ef4444"}
-            onMouseLeave={e => e.currentTarget.style.borderColor=c.border}>
-            ✕
+          <button className="pdm-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
 
-        {/* Navigation Links */}
-        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+        {/* Navigation */}
+        <nav className="pdm-nav" role="navigation">
+          <Link to="/" className="pdm-nav-item" onClick={() => setMenuOpen(false)}>
+            <span className="pdm-nav-icon"><i className="fa-solid fa-house"></i></span>
+            <span className="pdm-nav-label">{t("الرئيسية", "Home")}</span>
+            <svg className="pdm-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </Link>
           {links.map((l) => {
             const isActive = active === l.key;
+            const icons = { courses: "fa-solid fa-book-open", about: "fa-solid fa-circle-info", feedback: "fa-solid fa-comment-dots" };
             return (
-              <Link key={l.key} to={l.to} onClick={() => setMenuOpen(false)}
-                style={{
-                  display:"flex",alignItems:"center",gap:12,height:46,padding:"0 14px",
-                  borderRadius:14,textDecoration:"none",fontSize:16,fontWeight:isActive?800:600,
-                  color:isActive?"#d4af37":c.text,
-                  background:isActive?c.goldLight:c.bgInput,
-                  transition:".2s",
-                }}
-                onMouseEnter={e => { e.currentTarget.style.transform="translateX(-4px)"; }}
-                onMouseLeave={e => { e.currentTarget.style.transform="none"; }}>
-                <span style={{width:36,height:36,borderRadius:10,background:isActive?"rgba(212,175,55,.2)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,flexShrink:0}}>
-                  {l.key==="courses"&&"📚"}{l.key==="about"&&"ℹ️"}{l.key==="feedback"&&"💬"}
-                </span>
-                <span>{l.label}</span>
+              <Link key={l.key} to={l.to} className={`pdm-nav-item${isActive ? " active" : ""}`} onClick={() => setMenuOpen(false)}>
+                <span className="pdm-nav-icon"><i className={icons[l.key]}></i></span>
+                <span className="pdm-nav-label">{l.label}</span>
+                <svg className="pdm-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
               </Link>
             );
           })}
-        </div>
+        </nav>
 
         {/* Divider */}
-        <div style={{height:1,background:c.border,margin:"16px 0"}}></div>
+        <div className="pdm-divider"></div>
 
-        {/* Settings Row */}
-        <div style={{display:"flex",gap:8,marginBottom:16}}>
-          <button onClick={toggleLang} style={{flex:1,height:42,borderRadius:12,fontSize:14,fontWeight:600,background:c.bgInput,color:c.text,border:`1px solid ${c.border}`,cursor:"pointer",fontFamily:"Cairo,sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:6,transition:".2s"}}
-            onMouseEnter={e => e.currentTarget.style.borderColor="#d4af37"}
-            onMouseLeave={e => e.currentTarget.style.borderColor=c.border}>
-            {lang==="ar"?"🇺🇸 English":"🇸🇦 العربية"}
+        {/* Settings */}
+        <div className="pdm-settings">
+          <button className="pdm-setting-btn" onClick={toggleLang} aria-label="Toggle language">
+            <i className="fa-solid fa-globe"></i>
+            <span>{lang === "ar" ? "English" : "العربية"}</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
           </button>
-          <button onClick={toggleTheme} style={{width:42,height:42,borderRadius:12,fontSize:18,background:c.bgInput,color:c.text,border:`1px solid ${c.border}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:".2s"}}
-            onMouseEnter={e => e.currentTarget.style.borderColor="#d4af37"}
-            onMouseLeave={e => e.currentTarget.style.borderColor=c.border}>
-            {theme==="dark"?"☀️":"🌙"}
+          <button className="pdm-setting-btn" onClick={toggleTheme} aria-label="Toggle theme">
+            <i className={theme === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon"}></i>
+            <span>{theme === "dark" ? t("الوضع الفاتح", "Light Mode") : t("الوضع الداكن", "Dark Mode")}</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
           </button>
         </div>
 
-        {/* Auth Buttons */}
-        <div style={{display:"flex",gap:10}}>
-          <Link to="/login" onClick={() => setMenuOpen(false)} style={{
-            flex:1,display:"flex",alignItems:"center",justifyContent:"center",height:46,borderRadius:14,
-            textDecoration:"none",fontSize:15,fontWeight:700,
-            background:c.bgInput,color:c.text,border:`1px solid ${c.border}`,
-            transition:".2s",
-          }}
-            onMouseEnter={e => e.currentTarget.style.borderColor="#d4af37"}
-            onMouseLeave={e => e.currentTarget.style.borderColor=c.border}>
-            {t("تسجيل الدخول", "Login")}
+        {/* Auth */}
+        <div className="pdm-auth">
+          <Link to="/register" className="pdm-btn-primary" onClick={() => setMenuOpen(false)}>
+            {t("إنشاء حساب", "Create Account")}
           </Link>
-          <Link to="/register" onClick={() => setMenuOpen(false)} style={{
-            flex:1,display:"flex",alignItems:"center",justifyContent:"center",height:46,borderRadius:14,
-            textDecoration:"none",fontSize:15,fontWeight:700,
-            background:"linear-gradient(135deg,#d4af37,#b8922a)",color:"#0a0a1a",
-            boxShadow:"0 4px 15px rgba(212,175,55,.25)",transition:".2s",
-          }}
-            onMouseEnter={e => e.currentTarget.style.transform="translateY(-2px)"}
-            onMouseLeave={e => e.currentTarget.style.transform="none"}>
-            {t("إنشاء حساب", "Sign Up")}
+          <Link to="/login" className="pdm-btn-secondary" onClick={() => setMenuOpen(false)}>
+            <span>{t("تسجيل الدخول", "Login")}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </Link>
+        </div>
+
+        {/* Footer */}
+        <div className="pdm-footer">
+          <div className="pdm-help">
+            <i className="fa-solid fa-headset"></i>
+            <div>
+              <span className="pdm-help-title">{t("Need Help?", "Need Help?")}</span>
+              <a href="mailto:support@everestacademy.com">support@everestacademy.com</a>
+            </div>
+          </div>
+          <div className="pdm-copyright">
+            <span>© 2026 Everest Academy</span>
+            <span className="pdm-version">v2.0</span>
+          </div>
         </div>
       </div>
     </>
