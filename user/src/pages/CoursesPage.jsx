@@ -313,7 +313,7 @@ export default function CoursesPage() {
             <div className="cp-feature">{t("📚 محتوى محدث", "Updated Content")}</div>
             <div className="cp-feature">{t("💎 نظام E-Money مرن", "Flexible E-Money System")}</div>
             <div className="cp-feature">{t("🤝 دعم الطلاب", "Student Support")}</div>
-            <div className="cp-feature">{t("🌟 مكافآت الإحالة خلال 48 ساعة", "  Referral rewards in 48 h")}</div>
+            <div className="fcp-feature">{t("🌟 مكافآت الإحالة المالية خلال 48 ساعة", "Money Referral rewards in 48 hours")}</div>
           </div>
         </div>
         <div className="cp-premium-card">
