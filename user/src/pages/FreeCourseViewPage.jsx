@@ -110,13 +110,9 @@ export default function FreeCourseViewPage() {
             <h2 style={{fontSize:m?"1.2rem":"1.5rem",fontWeight:800,color:text,margin:"0 0 12px"}}>
               {t("الكورسات متاحة للطلاب فقط", "Courses Available for Students Only")}
             </h2>
-            <p style={{color:muted,fontSize:m?13:15,lineHeight:1.8,maxWidth:500,margin:"0 auto 28px"}}>
+            <p style={{color:muted,fontSize:m?13:15,lineHeight:1.8,maxWidth:500,margin:"0 auto 0"}}>
               {t("حسابك من نوع Registration. لمشاهدة الدروس، يرجى الترقية إلى حساب Student أولاً.", "Your account is Registration type. To watch lessons, please upgrade to a Student account first.")}
             </p>
-            <Link to="/profile" style={{display:"inline-flex",alignItems:"center",gap:8,padding:"14px 32px",background:`linear-gradient(135deg,${accent},#b8922a)`,color:"#111",fontWeight:800,fontSize:14,borderRadius:14,textDecoration:"none",transition:".3s"}}>
-              <i className="fa-solid fa-arrow-up" style={{fontSize:12}}></i>
-              {t("طلب ترقية الحساب", "Upgrade Account")}
-            </Link>
           </div>
         )}
 
