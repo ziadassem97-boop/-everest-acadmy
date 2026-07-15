@@ -89,7 +89,7 @@ export default function App() {
         <Route path="/dashboard" element={<Guard><DashboardPage /></Guard>} />
         <Route path="/courses" element={<Guard><CoursesPage /></Guard>} />
         <Route path="/my-courses" element={<Guard><MyCoursesPage /></Guard>} />
-        <Route path="/courses/:id" element={<Guard><CourseViewPage /></Guard>} />
+        <Route path="/courses/:id" element={<CourseViewPage />} />
         <Route path="/profile" element={<Guard><ProfilePage /></Guard>} />
         <Route path="/rankings" element={<Guard><RankingsPage /></Guard>} />
         <Route path="/affiliate" element={<Guard><AffiliatePage /></Guard>} />
