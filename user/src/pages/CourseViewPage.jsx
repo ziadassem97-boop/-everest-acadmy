@@ -13,7 +13,7 @@ export default function CourseViewPage() {
   const { user, login, logout } = useAuth();
   const nav = useNavigate();
   const loc = useLocation();
-  const { colors: c } = useTheme();
+  const { colors: c, theme } = useTheme();
   const [m, setM] = useState(window.innerWidth <= 768);
   useEffect(() => { const h = () => setM(window.innerWidth <= 768); window.addEventListener("resize", h); return () => window.removeEventListener("resize", h); }, []);
   const [course, setCourse] = useState(null);
