@@ -264,6 +264,7 @@ function createSchema(driver, isTursoDb) {
       try { await driver.execute("ALTER TABLE courses ADD COLUMN price_egp REAL DEFAULT 0"); } catch(e) {}
       try { await driver.execute("ALTER TABLE ranks ADD COLUMN image TEXT"); } catch(e) {}
       try { await driver.execute("ALTER TABLE users ADD COLUMN account_type TEXT DEFAULT 'student'"); } catch(e) {}
+      try { await driver.execute("ALTER TABLE user_sessions ADD COLUMN last_heartbeat TEXT"); } catch(e) {}
       try {
         await driver.execute("UPDATE users SET account_type = 'registration', role = 'registration' WHERE account_type = 'registration_sponsor'");
         await driver.execute("UPDATE users SET account_type = 'registration' WHERE role = 'registration' AND account_type = 'student'");
