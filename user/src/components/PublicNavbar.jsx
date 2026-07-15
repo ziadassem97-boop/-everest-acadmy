@@ -2,12 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useLang } from "../LangContext";
 import { useTheme } from "../ThemeContext";
+import { api } from "../App";
 
 export default function PublicNavbar({ active }) {
   const { t, lang, toggle: toggleLang } = useLang();
   const { theme, toggle: toggleTheme, colors: c } = useTheme();
   const navRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [csWhatsapp, setCsWhatsapp] = useState("");
+  const [csEmail, setCsEmail] = useState("");
 
   useEffect(() => {
     const onScroll = () => {
@@ -17,6 +20,13 @@ export default function PublicNavbar({ active }) {
     };
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    api("/api/settings").then(d => {
+      setCsWhatsapp(d.customer_service_whatsapp || "");
+      setCsEmail(d.customer_service_email || "");
+    }).catch(() => {});
   }, []);
 
   const links = [
@@ -128,7 +138,9 @@ export default function PublicNavbar({ active }) {
             <i className="fa-solid fa-headset"></i>
             <div>
               <span className="pdm-help-title">{t("Need Help?", "Need Help?")}</span>
-              <a href="mailto:support@everestacademy.com">support@everestacademy.com</a>
+              {csWhatsapp && <a href={`https://wa.me/${csWhatsapp.replace(/[^0-9+]/g,"")}`} target="_blank" rel="noopener noreferrer">📱 {csWhatsapp}</a>}
+              {csEmail && <a href={`mailto:${csEmail}`}>📧 {csEmail}</a>}
+              {!csWhatsapp && !csEmail && <a href="mailto:support@everestacademy.com">support@everestacademy.com</a>}
             </div>
           </div>
           <div className="pdm-copyright">
