@@ -158,7 +158,6 @@ export default function UsersPage() {
                 <td>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                     u.account_type === "student" ? "bg-green-100 text-green-700" :
-                    u.account_type === "registration_sponsor" ? "bg-teal-100 text-teal-700" :
                     u.account_type === "registration" ? "bg-emerald-100 text-emerald-700" :
                     "bg-gray-100 text-gray-600"
                   }`}>{u.account_type || "student"}</span>
@@ -280,7 +279,6 @@ export default function UsersPage() {
                       <select value={editForm.account_type} onChange={e => setEditForm({...editForm, account_type: e.target.value})} className="w-full px-3 py-2 border rounded-lg text-sm">
                         <option value="student">🎓 Student</option>
                         <option value="registration">👤 Registration</option>
-                        <option value="registration_sponsor">🤝 Registration (Sponsor)</option>
                       </select>
                     </div>
                   </div>
@@ -334,10 +332,9 @@ export default function UsersPage() {
                       <div className="flex items-center gap-3">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                           selectedUser.account_type === "student" ? "bg-green-100 text-green-700" :
-                          selectedUser.account_type === "registration_sponsor" ? "bg-teal-100 text-teal-700" :
                           "bg-emerald-100 text-emerald-700"
                         }`}>{selectedUser.account_type || "student"}</span>
-                        {["student", "registration", "registration_sponsor"].filter(t => t !== (selectedUser.account_type || "student")).map(newType => (
+                        {["student", "registration"].filter(t => t !== (selectedUser.account_type || "student")).map(newType => (
                           <button key={newType} onClick={async () => {
                             try {
                               await api(`/api/users/${selectedUser.id}/account-type`, { method: "PUT", body: JSON.stringify({ account_type: newType }) });
@@ -346,7 +343,7 @@ export default function UsersPage() {
                               loadUsers();
                             } catch (e) { alert(e.message); }
                           }} className="px-3 py-1 text-xs font-medium bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                            → {newType === "student" ? "🎓 Student" : newType === "registration_sponsor" ? "🤝 Reg. (Sponsor)" : "👤 Registration"}
+                            → {newType === "student" ? "🎓 Student" : "👤 Registration"}
                           </button>
                         ))}
                       </div>

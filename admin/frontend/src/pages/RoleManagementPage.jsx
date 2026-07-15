@@ -7,14 +7,12 @@ export default function RoleManagementPage() {
   const t = (ar, en) => tFn(ar, en);
   const [pending, setPending] = useState([]);
   const [registration, setRegistration] = useState([]);
-  const [regSponsor, setRegSponsor] = useState([]);
   const [students, setStudents] = useState([]);
   const [changing, setChanging] = useState(null);
   const [viewUser, setViewUser] = useState(null);
   const [viewUserData, setViewUserData] = useState(null);
   const [searchStudent, setSearchStudent] = useState("");
   const [searchReg, setSearchReg] = useState("");
-  const [searchSponsor, setSearchSponsor] = useState("");
   const [searchPending, setSearchPending] = useState("");
 
   const loadData = async () => {
@@ -22,7 +20,6 @@ export default function RoleManagementPage() {
     const getType = (u) => u.account_type || (u.role === "registration" ? "registration" : "student");
     setPending(all.filter((u) => u.status === "pending" && u.role !== "admin"));
     setRegistration(all.filter((u) => getType(u) === "registration" && u.status === "active" && u.role !== "admin"));
-    setRegSponsor(all.filter((u) => getType(u) === "registration_sponsor" && u.status === "active" && u.role !== "admin"));
     setStudents(all.filter((u) => getType(u) === "student" && u.role !== "admin" && u.status === "active"));
   };
 
@@ -82,14 +79,13 @@ export default function RoleManagementPage() {
     const types = [
       { key: "student", label: "🎓 Student" },
       { key: "registration", label: "👤 Registration" },
-      { key: "registration_sponsor", label: "🤝 Reg. Sponsor" },
     ];
     const others = types.filter(tp => tp.key !== currentType);
 
     return (
       <div className="flex items-center gap-2 p-2.5 rounded-lg border bg-gray-50/50">
         <div className="w-7 h-7 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
-          style={{background: currentType === "student" ? "#22c55e" : currentType === "registration_sponsor" ? "#14b8a6" : "#3b82f6"}}>
+          style={{background: currentType === "student" ? "#22c55e" : "#3b82f6"}}>
           {user.full_name?.[0] || "?"}
         </div>
         <div className="flex-1 min-w-0">
@@ -130,14 +126,6 @@ export default function RoleManagementPage() {
           ))}
           {registration.filter(u => matchSearch(u, searchReg)).length === 0 && <p className="text-center text-gray-400 py-4 text-sm">{t("لا توجد حسابات تسجيل", "No registration accounts")}</p>}
         </Column>
-
-        <Column title={t("تسجيل راعي (Reg. Sponsor)", "Registration (Sponsor)")} emoji="🤝" bgColor="bg-teal-100 text-teal-700"
-          count={regSponsor.length} search={searchSponsor} setSearch={setSearchSponsor}>
-          {regSponsor.filter(u => matchSearch(u, searchSponsor)).map((u) => (
-            <UserCard key={u.id} user={u} currentType="registration_sponsor" />
-          ))}
-          {regSponsor.filter(u => matchSearch(u, searchSponsor)).length === 0 && <p className="text-center text-gray-400 py-4 text-sm">{t("لا توجد حسابات راعي", "No sponsor accounts")}</p>}
-        </Column>
       </div>
 
       {pending.length > 0 && (
@@ -168,7 +156,7 @@ export default function RoleManagementPage() {
 
               <div className="flex items-center gap-3 mb-4 pb-4 border-b">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                  style={{background: (viewUserData?.account_type || "student") === "student" ? "#22c55e" : (viewUserData?.account_type) === "registration_sponsor" ? "#14b8a6" : "#3b82f6"}}>
+                  style={{background: (viewUserData?.account_type || "student") === "student" ? "#22c55e" : "#3b82f6"}}>
                   {viewUserData?.full_name?.[0] || viewUser.full_name?.[0] || "?"}
                 </div>
                 <div>

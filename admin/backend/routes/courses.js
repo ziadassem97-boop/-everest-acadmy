@@ -334,7 +334,7 @@ router.post("/:id/purchase", async (req, res) => {
     const user = await queryOne("SELECT * FROM users WHERE id = ?", [userId]);
     if (!user) return res.status(404).json({ error: "User not found" });
     if (user.account_type === "registration") return res.status(403).json({ error: "Registration users cannot purchase courses. Please upgrade to Student account.", upgradeRequired: true });
-    if (user.account_type !== "registration_sponsor" && user.role !== "student") return res.status(403).json({ error: "Only student accounts can purchase courses" });
+    if (user.role !== "student") return res.status(403).json({ error: "Only student accounts can purchase courses" });
 
     const existing = await queryOne("SELECT id, status FROM enrollments WHERE user_id = ? AND course_id = ?", [userId, req.params.id]);
     if (existing && existing.status !== "rejected") return res.status(400).json({ error: "Already enrolled in this course" });

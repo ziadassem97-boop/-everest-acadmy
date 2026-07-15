@@ -140,7 +140,7 @@ router.put("/:id/approve-registration", async (req, res) => {
     if (user.status !== 'pending') return res.status(400).json({ error: "User is not pending" });
     const accountType = req.body.account_type || "student";
     console.log("[approve-registration] userId:", req.params.id, "body:", JSON.stringify(req.body), "accountType:", accountType);
-    if (!["student","registration","registration_sponsor"].includes(accountType)) return res.status(400).json({ error: "Invalid account_type" });
+    if (!["student","registration"].includes(accountType)) return res.status(400).json({ error: "Invalid account_type" });
 
     // Determine role from account_type
     const role = accountType === "student" ? "student" : "registration";
@@ -187,7 +187,7 @@ router.put("/:id/approve-registration", async (req, res) => {
       }
     }
 
-    const typeLabel = accountType === "student" ? "Student" : accountType === "registration_sponsor" ? "Registration (Sponsor)" : "Registration";
+    const typeLabel = accountType === "student" ? "Student" : "Registration";
     const roleMsg = accountType === "student" ? `ترقيتك إلى Student! العضوية مفعلة لمدة ${days} يوم.` : `تم تفعيل حسابك كـ ${typeLabel}! العضوية مفعلة لمدة ${days} يوم.`;
     const nid = uuidv4(); await execute("INSERT INTO notifications (id, user_id, title, message, type) VALUES (?, ?, ?, ?, 'success')", [nid, req.params.id, "✅ تم تفعيل الحساب والعضوية", roleMsg]);
     await logAdminAction(req, `approve as ${accountType} (membership ${days}d)`, req.params.id, user.full_name, null);
@@ -273,10 +273,10 @@ router.put("/:id/account-type", async (req, res) => {
     const user = await queryOne("SELECT * FROM users WHERE id = ?", [req.params.id]);
     if (!user) return res.status(404).json({ error: "User not found" });
     const { account_type } = req.body;
-    if (!["student","registration","registration_sponsor"].includes(account_type)) return res.status(400).json({ error: "Invalid account_type" });
+    if (!["student","registration"].includes(account_type)) return res.status(400).json({ error: "Invalid account_type" });
     const role = account_type === "student" ? "student" : "registration";
     await execute("UPDATE users SET role = ?, account_type = ?, updated_at = datetime('now','localtime') WHERE id = ?", [role, account_type, req.params.id]);
-    const typeLabel = account_type === "student" ? "Student" : account_type === "registration_sponsor" ? "Registration (Sponsor)" : "Registration";
+    const typeLabel = account_type === "student" ? "Student" : "Registration";
     const nid = uuidv4(); await execute("INSERT INTO notifications (id, user_id, title, message, type) VALUES (?, ?, ?, ?, 'info')", [nid, req.params.id, "🔄 تم تغيير نوع الحساب", `تم تغيير نوع حسابك إلى ${typeLabel}`]);
     await logAdminAction(req, `change account_type to ${account_type}`, req.params.id, user.full_name, JSON.stringify({ from: user.account_type, to: account_type }));
     res.json({ success: true, account_type, role });

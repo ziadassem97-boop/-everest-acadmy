@@ -202,7 +202,7 @@ export default function ProfilePage() {
                   background: c.bgInput, border:`1px solid ${c.borderLight}`,
                   color: gold, fontSize:13, fontWeight:600
                 }}>
-                  {p?.account_type === "student" ? `🎓 ${t("طالب", "Student")}` : p?.account_type === "registration_sponsor" ? `🤝 ${t("تسجيل (راعي)", "Reg. (Sponsor)")}` : `📝 ${t("تسجيل", "Registration")}`}
+                  {p?.account_type === "student" ? `🎓 ${t("طالب", "Student")}` : `📝 ${t("تسجيل", "Registration")}`}
                 </span>
                 <button onClick={() => { logout(); nav("/login"); }}
                   style={{
@@ -230,7 +230,7 @@ export default function ProfilePage() {
             {p.account_type && p.account_type !== "student" && (
               <div style={{marginBottom:16,padding:"14px 18px",borderRadius:14,background:c.goldLight,border:`1px solid ${c.borderLight}`,display:"flex",alignItems:"center",gap:10}}>
                 <span style={{fontSize:14,fontWeight:700,color:c.text}}>
-                  {p.account_type === "registration_sponsor" ? "🤝 Registration (Sponsor)" : "👤 Registration"}
+                  👤 Registration
                 </span>
                 <p style={{fontSize:12,color:c.textMuted,margin:0}}>
                   {t("قم بالترقية للحصول على جميع مميزات المنصة", "Upgrade to get all platform features")}

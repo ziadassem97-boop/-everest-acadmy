@@ -6,9 +6,7 @@ const router = express.Router();
 router.get("/stats", async (req, res) => {
   const totalUsers = await queryOne("SELECT COUNT(*) as count FROM users WHERE role != 'admin'");
   const totalStudents = await queryOne("SELECT COUNT(*) as count FROM users WHERE account_type = 'student'");
-  const totalRegistration = await queryOne("SELECT COUNT(*) as count FROM users WHERE account_type IN ('registration','registration_sponsor')");
-  const totalRegistrationOnly = await queryOne("SELECT COUNT(*) as count FROM users WHERE account_type = 'registration'");
-  const totalRegistrationSponsor = await queryOne("SELECT COUNT(*) as count FROM users WHERE account_type = 'registration_sponsor'");
+  const totalRegistration = await queryOne("SELECT COUNT(*) as count FROM users WHERE account_type = 'registration'");
   const totalBlocked = await queryOne("SELECT COUNT(*) as count FROM users WHERE role != 'admin' AND blocked = 1");
   const totalCourses = await queryOne("SELECT COUNT(*) as count FROM courses");
   const totalRevenue = await queryOne("SELECT COALESCE(SUM(e_money), 0) as total FROM users");
@@ -28,8 +26,6 @@ router.get("/stats", async (req, res) => {
     totalStudents: totalStudents ? totalStudents.count : 0,
     totalGuest: totalRegistration ? totalRegistration.count : 0,
     totalRegistration: totalRegistration ? totalRegistration.count : 0,
-    totalRegistrationOnly: totalRegistrationOnly ? totalRegistrationOnly.count : 0,
-    totalRegistrationSponsor: totalRegistrationSponsor ? totalRegistrationSponsor.count : 0,
     totalBlocked: totalBlocked ? totalBlocked.count : 0,
     totalCourses: totalCourses ? totalCourses.count : 0,
     publishedCourses: publishedCourses ? publishedCourses.count : 0,

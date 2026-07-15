@@ -33,7 +33,6 @@ export default function AdminLogsPage() {
     "unblock": t("🔓 فك حظر", "🔓 Unblock"),
     "approve as student": t("✅ تفعيل كـ Student", "✅ Approved as Student"),
     "approve as registration": t("✅ تفعيل كـ Registration", "✅ Approved as Registration"),
-    "approve as registration_sponsor": t("✅ تفعيل كـ Registration (Sponsor)", "✅ Approved as Registration (Sponsor)"),
     "self-upgrade to student": t("⬆️ ترقية ذاتية إلى Student", "⬆️ Self-upgrade to Student"),
     "change account_type": t("🔄 تغيير نوع الحساب", "🔄 Changed Account Type"),
   };

@@ -78,10 +78,6 @@ export default function RegistrationApprovalsPage() {
                           className="px-4 py-1.5 text-xs font-medium bg-emerald-400 text-white rounded-lg hover:bg-emerald-500 transition whitespace-nowrap">
                           👤 {t("تسجيل", "Registration")}
                         </button>
-                        <button onClick={() => handleApprove(u.id, "registration_sponsor")}
-                          className="px-4 py-1.5 text-xs font-medium bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition whitespace-nowrap">
-                          🤝 {t("تسجيل (راعي)", "Reg. (Sponsor)")}
-                        </button>
                       </div>
                       <button onClick={() => handleReject(u.id)}
                         className="px-4 py-1.5 text-xs font-medium bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
