@@ -70,8 +70,8 @@ function TeamMemberNode({ member, depth, t, c, total, dbRanks }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontWeight: 700, fontSize: 13, margin: 0, color: c.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{member.full_name}</p>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-            <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 6, background: `${lc}12`, color: lc, display:"inline-flex", alignItems:"center", gap:4 }}>
-              {(() => { const rk = (dbRanks || []).find(r => r.name === member.rank); return rk?.image ? <img src={rk.image} alt="" style={{width:14,height:14,borderRadius:3,objectFit:"cover"}} /> : (rankIcons[member.rank] || "⭐"); })()} {member.rank || "Star"}
+            <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 6, background: member.rank ? `${lc}12` : `${lc}08`, color: member.rank ? lc : `${lc}88`, display:"inline-flex", alignItems:"center", gap:4 }}>
+              {(() => { if (!member.rank) return null; const rk = (dbRanks || []).find(r => r.name === member.rank); return rk?.image ? <img src={rk.image} alt="" style={{width:14,height:14,borderRadius:3,objectFit:"cover"}} /> : (rankIcons[member.rank] || "⭐"); })()} {member.rank || `—`}
             </span>
             <span style={{ fontSize: 9, fontWeight: 600, padding: "1px 6px", borderRadius: 6,
               background: member.account_type === "student" ? "#22c55e18" : "#3b82f618",
