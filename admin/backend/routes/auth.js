@@ -36,7 +36,7 @@ router.post("/login", async (req, res) => {
   const now = Date.now();
   const HEARTBEAT_TIMEOUT = 30 * 1000; // 30 seconds
   const activeSessions = existingSessions.filter(s => {
-    if (!s.last_heartbeat) return true; // old sessions without heartbeat = active
+    if (!s.last_heartbeat) return false; // old session without heartbeat = stale
     const lastHb = new Date(s.last_heartbeat).getTime();
     return (now - lastHb) < HEARTBEAT_TIMEOUT;
   });

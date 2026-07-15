@@ -1,6 +1,6 @@
 import { queryOne } from "../db.js";
 
-const publicPaths = ["/auth/login", "/auth/register", "/auth/logout", "/payment-gateways/active", "/admin-auth"];
+const publicPaths = ["/auth/login", "/auth/register", "/auth/logout", "/auth/heartbeat", "/payment-gateways/active", "/admin-auth"];
 const chatPublicPaths = ["/chat"];
 
 export default async function sessionAuth(req, res, next) {
