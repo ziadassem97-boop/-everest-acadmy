@@ -67,9 +67,25 @@ router.delete("/attempts", async (req, res) => {
 router.get("/top-quiz-performers", async (req, res) => {
   try {
     const rows = await query(`
-      SELECT user_id, full_name, email, avatar, course_id, course_title,
-        total_attempts, avg_score, passed, failed, best_score
-      FROM quiz_leaderboard
+      SELECT
+        qa.user_id,
+        u.full_name,
+        u.email,
+        u.avatar,
+        c.id as course_id,
+        c.title as course_title,
+        COUNT(qa.id) as total_attempts,
+        ROUND(AVG(qa.earned_marks), 1) as avg_score,
+        SUM(CASE WHEN qa.result = 'pass' THEN 1 ELSE 0 END) as passed,
+        SUM(CASE WHEN qa.result = 'fail' THEN 1 ELSE 0 END) as failed,
+        MAX(qa.earned_marks) as best_score
+      FROM quiz_attempts qa
+      JOIN users u ON qa.user_id = u.id
+      JOIN quizzes q ON qa.quiz_id = q.id
+      JOIN courses c ON q.course_id = c.id
+      WHERE q.type = 'final'
+      GROUP BY qa.user_id, c.id
+      HAVING avg_score >= 70
       ORDER BY avg_score DESC
       LIMIT 10
     `);
