@@ -1,4 +1,5 @@
 import express from "express";
+import bcrypt from "bcryptjs";
 import { query, queryOne, execute } from "../db.js";
 import { v4 as uuidv4 } from "uuid";
 
@@ -50,6 +51,11 @@ router.put("/:id", async (req, res) => {
   const vals = [];
   for (const key of ["full_name","email","phone","address","role","bio","avatar"]) {
     if (req.body[key] !== undefined) { fields.push(`${key}=?`); vals.push(req.body[key]); }
+  }
+  if (req.body.password) {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    fields.push("password=?");
+    vals.push(hashedPassword);
   }
   if (fields.length === 0) return res.json(stripPassword(await queryOne("SELECT * FROM users WHERE id=?", [req.params.id])));
   fields.push("updated_at=datetime('now','localtime')");
