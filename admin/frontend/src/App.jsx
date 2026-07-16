@@ -201,7 +201,7 @@ function DashboardPage({ stats }) {
     { label: t("الحسابات المحظورة", "Blocked Accounts"), value: stats.totalBlocked, icon: "🚫", color: "#ef4444", desc: t("محظورين من المنصة", "Blocked from platform") },
     { label: t("حسابات التسجيل", "Registration Accounts"), value: stats.totalRegistration, icon: "📝", color: "#f59e0b", desc: t("حسابات غير مفعلة كطلاب", "Not activated as students") },
     { label: t("العمولات المدفوعة", "Commissions Paid"), value: stats.totalCommissions, icon: "💎", color: "#10b981", desc: "EM " + t("إجمالي", "total") },
-    { label: t("الرصيد الإجمالي", "Total E-Money Balance"), value: stats.totalEMoney, icon: "💳", color: "#8b5cf6", desc: t("EM في المنصة", "EM in platform") },
+    { label: t("اختبارات ناجحة", "Quizzes Passed"), value: stats.passedQuizzes, icon: "📋", color: "#8b5cf6", desc: `${stats.totalQuizAttempts || 0} ${t("إجمالي محاولات", "total attempts")}` },
   ];
 
   useEffect(() => {
