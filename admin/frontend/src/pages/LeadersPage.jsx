@@ -6,15 +6,32 @@ export default function LeadersPage() {
   const { lang, t: tFn } = useLang();
   const t = (ar, en) => tFn(ar, en);
   const [leaders, setLeaders] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => { fetchLeaders(); }, []);
 
-  const fetchLeaders = () => api("/api/leaders?top=1").then(setLeaders);
+  const fetchLeaders = () => api("/api/leaders").then(setLeaders).catch(() => {});
+
+  const refresh = async () => {
+    setLoading(true);
+    try {
+      await api("/api/leaders/refresh", { method: "POST" });
+      await fetchLeaders();
+    } catch (e) { alert(e.message); }
+    setLoading(false);
+  };
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">{t("🏆 إدارة القادة", "🏆 Leaders Management")} (Our Leaders)</h2>
-      <p className="text-gray-500 text-sm mb-4">{t("أعلى 10 أعضاء حسب الرتبة والمبيعات — يتم تحديثها تلقائياً أسبوعياً.", "Top 10 members by rank and sales — auto-updated weekly.")}</p>
+      <p className="text-gray-500 text-sm mb-4">{t("أعلى 10 أعضاء حسب الرتبة والمبيعات — يتم تحديثها تلقائياً كل أسبوع.", "Top 10 members by rank and sales — auto-updated weekly.")}</p>
+
+      <div className="flex gap-3 mb-6">
+        <button onClick={refresh} disabled={loading}
+          className="px-6 py-2.5 bg-everest-600 text-white rounded-xl font-medium text-sm hover:bg-everest-700 transition disabled:opacity-50">
+          {loading ? t("جاري التحديث...", "Refreshing...") : t("🔄 تحديث الآن", "🔄 Refresh Now")}
+        </button>
+      </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-5 border-b border-gray-100">
@@ -39,7 +56,6 @@ export default function LeadersPage() {
                   <div>
                     <p className="font-semibold text-gray-800">{l.name}</p>
                     <p className="text-sm text-gray-500">{l.icon || "🏆"} {l.rank}</p>
-                    <p className="text-xs text-gray-400">{l.direct_count} directs · E-Money {l.e_money?.toLocaleString()}</p>
                   </div>
                 </div>
               </div>
