@@ -6,42 +6,15 @@ export default function LeadersPage() {
   const { lang, t: tFn } = useLang();
   const t = (ar, en) => tFn(ar, en);
   const [leaders, setLeaders] = useState([]);
-  const [editing, setEditing] = useState(null);
-  const [userId, setUserId] = useState("");
 
   useEffect(() => { fetchLeaders(); }, []);
 
-  const fetchLeaders = () => api("/api/leaders").then(setLeaders);
-
-  const addUser = async () => {
-    if (!userId) return alert(t("اكتب ID المستخدم", "Enter user ID"));
-    try {
-      const res = await api("/api/leaders/top/add", { method: "POST", body: JSON.stringify({ userId }) });
-      if (res.error) return alert(res.error);
-      setUserId("");
-      fetchLeaders();
-    } catch (e) { alert(e.message); }
-  };
-
-  const remove = async (id) => {
-    if (confirm(t("حذف هذا القائد من القائمة؟", "Remove this leader from the list?"))) {
-      await api(`/api/leaders/${id}`, { method: "DELETE" });
-      fetchLeaders();
-    }
-  };
+  const fetchLeaders = () => api("/api/leaders?top=1").then(setLeaders);
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">{t("🏆 إدارة القادة", "🏆 Leaders Management")} (Our Leaders)</h2>
-      <p className="text-gray-500 text-sm mb-4">{t("أعلى 10 أعضاء حسب الرتبة والمبيعات — يتم تحديثها تلقائياً. يمكنك إضافة بديل عند الحذف.", "Top 10 members by rank and sales — auto-updated. You can add a replacement when removing.")}</p>
-
-      <div className="flex gap-3 mb-6">
-        <input placeholder={t("معرف المستخدم (UUID)", "User ID (UUID)")} value={userId} onChange={(e) => setUserId(e.target.value)}
-          className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-everest-500 flex-1" />
-        <button onClick={addUser} className="px-6 py-2.5 bg-everest-600 text-white rounded-xl font-medium text-sm hover:bg-everest-700 transition">
-          {t("اضافة مستخدم", "Add User")}
-        </button>
-      </div>
+      <p className="text-gray-500 text-sm mb-4">{t("أعلى 10 أعضاء حسب الرتبة والمبيعات — يتم تحديثها تلقائياً أسبوعياً.", "Top 10 members by rank and sales — auto-updated weekly.")}</p>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-5 border-b border-gray-100">
@@ -65,10 +38,10 @@ export default function LeadersPage() {
                   )}
                   <div>
                     <p className="font-semibold text-gray-800">{l.name}</p>
-                    <p className="text-sm text-gray-500">{l.rank}</p>
+                    <p className="text-sm text-gray-500">{l.icon || "🏆"} {l.rank}</p>
+                    <p className="text-xs text-gray-400">{l.direct_count} directs · E-Money {l.e_money?.toLocaleString()}</p>
                   </div>
                 </div>
-                <button onClick={() => remove(l.id)} className="px-4 py-1.5 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition">🗑️</button>
               </div>
             ))}
           </div>
