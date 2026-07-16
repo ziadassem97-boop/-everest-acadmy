@@ -71,4 +71,34 @@ router.post("/refresh", async (req, res) => {
   }
 });
 
+router.post("/add", async (req, res) => {
+  try {
+    const count = await queryOne("SELECT COUNT(*) as c FROM leaders");
+    if (count.c >= 10) return res.status(400).json({ error: "Maximum 10 leaders allowed" });
+
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ error: "userId required" });
+    const user = await queryOne("SELECT id, full_name, avatar, rank, e_money, direct_count FROM users WHERE id = ? AND role NOT IN ('admin', 'manager')", [userId]);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user.rank) return res.status(400).json({ error: "User has no rank" });
+
+    const existing = await queryOne("SELECT id FROM leaders WHERE id = ?", [userId]);
+    if (existing) return res.status(400).json({ error: "User already in leaders" });
+
+    await execute(
+      "INSERT INTO leaders (id, name, rank, avatar, icon) VALUES (?, ?, ?, ?, ?)",
+      [userId, user.full_name, user.rank, user.avatar, RANK_ICONS[user.rank] || "🏆"]
+    );
+    const leader = await queryOne("SELECT * FROM leaders WHERE id = ?", [userId]);
+    res.json(leader);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  await execute("DELETE FROM leaders WHERE id = ?", [req.params.id]);
+  res.json({ success: true });
+});
+
 export default router;
