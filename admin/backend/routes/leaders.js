@@ -33,16 +33,29 @@ router.get("/", async (req, res) => {
     const result = topUsers.map(u => ({ ...u, icon: icons[u.rank] || "🏆" }));
     return res.json(result);
   }
-  const leaders = await query("SELECT * FROM leaders ORDER BY sort_order ASC, created_at DESC");
+  const leaders = await query(`SELECT * FROM leaders ORDER BY
+    CASE rank
+      WHEN 'Everest Ambassador' THEN 10
+      WHEN 'Everest Legend' THEN 9
+      WHEN 'Everest Master' THEN 8
+      WHEN 'Everest Elite' THEN 7
+      WHEN 'Regional Leader' THEN 6
+      WHEN 'Senior Leader' THEN 5
+      WHEN 'Team Leader' THEN 4
+      WHEN 'Executive Star' THEN 3
+      WHEN 'Executive' THEN 2
+      WHEN 'Star' THEN 1
+      ELSE 0
+    END DESC, created_at ASC`);
   res.json(leaders);
 });
 
 router.post("/", async (req, res) => {
-  const { name, rank, avatar, icon } = req.body;
+  const { name, rank, avatar, icon, sort_order } = req.body;
   if (!name || !rank) return res.status(400).json({ error: "Name and rank required" });
   const id = uuidv4();
-  await execute("INSERT INTO leaders (id, name, rank, avatar, icon) VALUES (?, ?, ?, ?, ?)",
-    [id, name, rank, avatar || null, icon || "🏆"]);
+  await execute("INSERT INTO leaders (id, name, rank, avatar, icon, sort_order) VALUES (?, ?, ?, ?, ?, ?)",
+    [id, name, rank, avatar || null, icon || "🏆", sort_order || 0]);
   const leader = await queryOne("SELECT * FROM leaders WHERE id = ?", [id]);
   res.json(leader);
 });
