@@ -452,13 +452,6 @@ export default function CourseViewPage() {
                 <p style={{fontSize:m?12:14}}>{t("هذا الدرس لا يحتوي على فيديو", "This lesson has no video")}</p>
               </div>
             )}
-            {videoSrc && canWatchAll && user && (
-              <div style={{position:"absolute",top:0,left:0,right:0,bottom:0,pointerEvents:"none",zIndex:10,display:"flex",flexWrap:"wrap",alignContent:"flex-start",justifyContent:"center",overflow:"hidden",opacity:0.12,fontSize:m?10:14,fontWeight:700,color:"#fff",padding:"10px 0"}}>
-                {Array.from({length:m?20:40}).map((_,i) => (
-                  <span key={i} style={{margin:m?"4px 8px":"8px 16px",whiteSpace:"nowrap",transform:"rotate(-15deg)"}}>{user.email || user.full_name} — {user.email || user.full_name} —</span>
-                ))}
-              </div>
-            )}
           </div>
           {current && (
             <div style={{padding:m?10:16,borderTop:`1px solid ${c.borderLight}`}}>
