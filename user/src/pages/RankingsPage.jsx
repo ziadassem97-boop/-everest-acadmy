@@ -72,12 +72,14 @@ export default function RankingsPage() {
     api(`/api/mlm/weekly-history/${user.id}`).then(setWeeklyHistory).catch(() => {});
   }, [user?.id]);
 
-  const currentRankName = progress?.currentRank || user?.rank || null;
+  const currentRankObj = progress?.currentRank;
+  const nextRankObj = progress?.nextRank;
+  const currentRankName = currentRankObj?.name || user?.rank || null;
   const userRankIndex = currentRankName ? ranks.findIndex(r => r.name === currentRankName) : -1;
-  const nextRankName = progress?.nextRank;
-  const nextRankData = ranks.find(r => r.name === nextRankName);
+  const nextRankName = nextRankObj?.name || null;
+  const nextRankData = nextRankName ? ranks.find(r => r.name === nextRankName) : null;
   const teamCount = progress?.qualifiedDirects ?? 0;
-  const progressPct = progress?.progressToNext ?? 0;
+  const progressPct = Math.round(progress?.progressToNext ?? 0);
   const nextSalesReq = nextRankData ? (salesReq(nextRankData) || 40) : 40;
 
   const totalDirectSales = progress?.totalDirectSales ?? 0;
@@ -86,13 +88,13 @@ export default function RankingsPage() {
   const qualifiedDirectSales = progress?.qualifiedDirectSales ?? 0;
   const meetsMinDirects = progress?.meetsMinDirects ?? false;
 
-  const qualifiedTeam = progress?.qualifiedTeamCount ?? 0;
+  const qualifiedTeam = progress?.qualifiedDirects ?? 0;
   const studentMembers = progress?.studentMembers ?? 0;
   const registrationMembers = progress?.registrationMembers ?? 0;
   const higherRankExcluded = progress?.higherRankExcluded ?? 0;
   const inactiveExcluded = progress?.inactiveExcluded ?? 0;
 
-  const rankData = progress?.currentRankData;
+  const rankData = currentRankObj;
   const weeklyCommission = rankData ? bonusVal(rankData) : 0;
 
   const statusColors = {
@@ -193,7 +195,7 @@ export default function RankingsPage() {
                 ) : (
                   <span className="rk-trophy-emoji">🏆</span>
                 )}
-                <span style={{ fontSize: 14, color: "#d4af37", fontWeight: 700, marginTop: 8, letterSpacing: 1 }}>{progress?.currentRank || "Star"}</span>
+                <span style={{ fontSize: 14, color: "#d4af37", fontWeight: 700, marginTop: 8, letterSpacing: 1 }}>{currentRankName || "Star"}</span>
               </div>
             </div>
           </div>
