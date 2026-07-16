@@ -178,29 +178,30 @@ function DashboardPage({ stats }) {
   const { lang, t } = useLang();
 
   const mainCards = [
-    { label: t("إجمالي المستخدمين", "Total Users"), value: stats.totalUsers, color: "#6366f1", bg: "from-indigo-500", light: "#eef2ff" },
-    { label: t("الطلاب النشطين", "Active Students"), value: stats.totalStudents, color: "#10b981", bg: "from-emerald-500", light: "#ecfdf5" },
-    { label: t("الكورسات", "Courses"), value: stats.totalCourses, color: "#8b5cf6", bg: "from-violet-500", light: "#f3f3ff" },
-    { label: t("العمولات", "Commissions"), value: stats.totalCommissions, color: "#f59e0b", bg: "from-amber-500", light: "#fffbeb", suf: " EM" },
+    { label: t("إجمالي المستخدمين", "Total Users"), sub: t("(باستثناء المشرفين)", "(excl. admins)"), value: stats.totalUsers, icon: "👥", color: "#6366f1", bg: "from-indigo-500" },
+    { label: t("الطلاب", "Students"), sub: t("(حسابات طلاب فقط)", "(student accounts only)"), value: stats.totalStudents, icon: "🎓", color: "#10b981", bg: "from-emerald-500" },
+    { label: t("الكورسات", "Courses"), sub: `${stats.publishedCourses || 0} ${t("منشور", "published")}`, value: stats.totalCourses, icon: "📚", color: "#8b5cf6", bg: "from-violet-500" },
+    { label: t("الإيرادات", "Revenue"), sub: t("(مشتريات الكورسات)", "(course sales)"), value: stats.revenueFromSales, icon: "💰", color: "#f59e0b", bg: "from-amber-500", suf: " EGP" },
   ];
 
   const ringData = [
-    { label: t("طلاب ← تسجيل", "Students → Registration"), value: stats.totalStudents, max: stats.totalUsers || 1, color: "#10b981" },
-    { label: t("منشور ← كل الكورسات", "Published → All Courses"), value: stats.publishedCourses, max: stats.totalCourses || 1, color: "#8b5cf6" },
-    { label: t("اشتراكات مكتملة", "Completed Enrollments"), value: stats.approvedEnrollments, max: stats.totalEnrollments || 1, color: "#6366f1" },
+    { label: t("معدل الموافقة على الاشتراكات", "Enrollment Approval Rate"), value: stats.approvedEnrollments || 0, max: stats.totalEnrollments || 1, color: "#10b981", detail: `${stats.approvedEnrollments || 0} / ${stats.totalEnrollments || 0}` },
+    { label: t("معدل نجاح الاختبارات", "Quiz Pass Rate"), value: stats.passedQuizzes || 0, max: stats.totalQuizAttempts || 1, color: "#8b5cf6", detail: `${stats.passedQuizzes || 0} / ${stats.totalQuizAttempts || 0}` },
+    { label: t("الكورسات المنشرة", "Published Courses"), value: stats.publishedCourses || 0, max: stats.totalCourses || 1, color: "#6366f1", detail: `${stats.publishedCourses || 0} / ${stats.totalCourses || 0}` },
   ];
 
   const pendingCards = [
-    { label: t("بانتظار التفعيل", "Pending Approval"), value: stats.pendingApprovals, icon: "👤", color: "#f59e0b" },
-    { label: t("شحن معلق", "Pending Top-up"), value: stats.topUpPending, icon: "💰", color: "#ef4444" },
-    { label: t("طلبات شراء", "Purchase Requests"), value: stats.purchaseRequests, icon: "🛒", color: "#ec4899" },
-    { label: t("طلبات ترقية", "Upgrade Requests"), value: stats.upgradeRequests, icon: "⬆️", color: "#8b5cf6" },
+    { label: t("بانتظار التفعيل", "Pending Activation"), value: stats.pendingApprovals, icon: "⏳", color: "#f59e0b", desc: t("مستخدمين جدد يحتاجون تفعيل", "New users awaiting approval") },
+    { label: t("اشتراكات بانتظار المراجعة", "Pending Enrollments"), value: stats.pendingEnrollments, icon: "🛒", color: "#ec4899", desc: t("طلبات شراء كورسات", "Course purchase requests") },
+    { label: t("شحن معلق", "Pending Top-up"), value: stats.topUpPending, icon: "💳", color: "#ef4444", desc: t("طلباتشحن المحافظ", "Wallet top-up requests") },
+    { label: t("طلبات ترقية", "Upgrade Requests"), value: stats.upgradeRequests, icon: "⬆️", color: "#8b5cf6", desc: t("ترقية نوع الحساب", "Account type upgrade") },
   ];
 
-  const roleCards = [
-    { label: t("ضيوف (Guest)", "Guests"), value: stats.totalGuest, icon: "👤", color: "#f59e0b", filter: "registration" },
-    { label: t("طلاب (Student)", "Students"), value: stats.totalStudents, icon: "🎓", color: "#10b981", filter: "student" },
-    { label: t("محظورين (Blocked)", "Blocked"), value: stats.totalBlocked, icon: "🚫", color: "#ef4444", filter: "blocked" },
+  const breakdownCards = [
+    { label: t("الحسابات المحظورة", "Blocked Accounts"), value: stats.totalBlocked, icon: "🚫", color: "#ef4444", desc: t("محظورين من المنصة", "Blocked from platform") },
+    { label: t("حسابات التسجيل", "Registration Accounts"), value: stats.totalRegistration, icon: "📝", color: "#f59e0b", desc: t("حسابات غير مفعلة كطلاب", "Not activated as students") },
+    { label: t("العمولات المدفوعة", "Commissions Paid"), value: stats.totalCommissions, icon: "💎", color: "#10b981", desc: "EM " + t("إجمالي", "total") },
+    { label: t("الاشتراكات النشطة", "Active Enrollments"), value: stats.approvedEnrollments, icon: "✅", color: "#6366f1", desc: t("اشتراكات تمت الموافقة عليها", "Approved enrollments") },
   ];
 
   useEffect(() => {
@@ -216,10 +217,10 @@ function DashboardPage({ stats }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900">{t("📊 لوحة الإحصائيات", "📊 Dashboard")}</h1>
-          <p className="text-gray-500 text-sm mt-1">{t("نظرة عامة على أداء المنصة", "Overview of platform performance")}</p>
+          <p className="text-gray-500 text-sm mt-1">{t("نظرة عامة على أداء المنصة — بيانات حقيقية من قاعدة البيانات", "Platform performance overview — real data from database")}</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-xs text-gray-400 bg-white px-3 py-1.5 rounded-lg border">{new Date().toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", { weekday:"long", year:"numeric", month:"long", day:"numeric" })}</div>
@@ -239,61 +240,69 @@ function DashboardPage({ stats }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {mainCards.map((c, i) => (
           <div key={i} className="relative overflow-hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300" style={{animation: `slideUp 0.4s ease ${i * 0.08}s both`}}>
             <div className={`absolute top-0 right-0 w-24 h-24 -mr-6 -mt-6 rounded-full bg-gradient-to-br ${c.bg} to-white/5 opacity-10`} />
-            <p className="text-gray-500 text-xs font-medium mb-2">{c.label}</p>
-            <p className="text-3xl font-extrabold text-gray-900"><AnimatedNumber value={c.value || 0} suffix={c.suf || ""} /></p>
-            <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full bg-gradient-to-r ${c.bg} to-transparent`} style={{width:"100%",animation: `progressFill 1s ease ${0.3 + i * 0.1}s both`}} />
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-lg">{c.icon}</span>
+              <p className="text-gray-500 text-xs font-medium">{c.label}</p>
             </div>
+            <p className="text-3xl font-extrabold text-gray-900"><AnimatedNumber value={c.value || 0} suffix={c.suf || ""} /></p>
+            <p className="text-[10px] text-gray-400 mt-1">{c.sub}</p>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
         {ringData.map((r, i) => (
           <div key={i} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-5" style={{animation: `slideUp 0.4s ease ${0.4 + i * 0.1}s both`}}>
             <RingChart value={r.value} max={r.max} color={r.color} />
             <div>
               <p className="text-gray-700 font-bold text-sm">{r.label}</p>
               <p className="text-2xl font-extrabold text-gray-900 mt-1">
-                <AnimatedNumber value={r.value || 0} /> <span className="text-gray-400 text-base">/ {r.max}</span>
+                {r.detail}
               </p>
-              <p className="text-xs text-gray-400 mt-0.5">{Math.round((r.value / (r.max || 1)) * 100)}% {t("من الإجمالي", "of Total")}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{Math.round((r.value / (r.max || 1)) * 100)}%</p>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {pendingCards.map((c, i) => (
           <div key={i} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md transition-all duration-300" style={{animation: `slideUp 0.4s ease ${0.7 + i * 0.08}s both`}}>
             <div className="w-11 h-11 rounded-xl flex items-center justify-center text-lg" style={{background: c.color + "15"}}>{c.icon}</div>
             <div>
               <p className="text-gray-400 text-xs">{c.label}</p>
               <p className="text-xl font-extrabold text-gray-900"><AnimatedNumber value={c.value || 0} /></p>
+              <p className="text-[10px] text-gray-400 mt-0.5">{c.desc}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {roleCards.map((c, i) => (
-          <button key={i} onClick={() => setUserFilter(userFilter === c.filter ? null : c.filter)}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {breakdownCards.map((c, i) => (
+          <button key={i} onClick={() => {
+            if (c.filter) setUserFilter(userFilter === c.filter ? null : c.filter);
+          }}
             className={`relative overflow-hidden bg-white rounded-2xl shadow-sm border p-5 text-left transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${userFilter === c.filter ? 'ring-2 ring-everest-500' : 'border-gray-100'}`}>
-            <p className="text-gray-500 text-xs font-medium mb-1">{c.label}</p>
-            <p className="text-3xl font-extrabold">{(c.value || 0).toLocaleString()}</p>
+            <div className="flex items-center gap-2 mb-1">
+              <span>{c.icon}</span>
+              <p className="text-gray-500 text-xs font-medium">{c.label}</p>
+            </div>
+            <p className="text-2xl font-extrabold">{(c.value || 0).toLocaleString()}</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">{c.desc}</p>
           </button>
         ))}
       </div>
 
       {userFilter && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-gray-700">
-              {userFilter === "registration" ? t("قائمة الضيوف (Guest)", "Guest List") : userFilter === "student" ? t("قائمة الطلاب", "Student List") : t("قائمة المحظورين", "Blocked List")}
+              {userFilter === "registration" ? t("قائمة حسابات التسجيل", "Registration Account List") : userFilter === "student" ? t("قائمة الطلاب", "Student List") : t("قائمة المحظورين", "Blocked List")}
             </h3>
             <button onClick={() => { setUserFilter(null); setSelectedUser(null); }} className="text-sm text-gray-400 hover:text-gray-600">{t("إلغاء التصفية ✕", "Clear Filter ✕")}</button>
           </div>
@@ -334,11 +343,11 @@ function DashboardPage({ stats }) {
               <button onClick={() => setSelectedUser(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm bg-gray-50 rounded-xl p-4 mb-4">
-              <div><p className="text-gray-400">{t("الدور (Role)", "Role")}</p><p className="font-semibold text-gray-800">{selectedUser.role}</p></div>
-              <div><p className="text-gray-400">{t("الرتبة (Rank)", "Rank")}</p><p className="font-semibold text-gray-800">{selectedUser.rank || "–"}</p></div>
-              <div><p className="text-gray-400">{t("الحالة (Status)", "Status")}</p><p className={`font-semibold ${selectedUser.blocked ? 'text-red-600' : 'text-green-600'}`}>{selectedUser.blocked ? t('محظور', 'Blocked') : t('نشط', 'Active')}</p></div>
+              <div><p className="text-gray-400">{t("الدور", "Role")}</p><p className="font-semibold text-gray-800">{selectedUser.role}</p></div>
+              <div><p className="text-gray-400">{t("الرتبة", "Rank")}</p><p className="font-semibold text-gray-800">{selectedUser.rank || "–"}</p></div>
+              <div><p className="text-gray-400">{t("الحالة", "Status")}</p><p className={`font-semibold ${selectedUser.blocked ? 'text-red-600' : 'text-green-600'}`}>{selectedUser.blocked ? t('محظور', 'Blocked') : t('نشط', 'Active')}</p></div>
               <div><p className="text-gray-400">E-Money</p><p className="font-semibold text-gray-800">{selectedUser.e_money || 0}</p></div>
-              <div><p className="text-gray-400">{t("تم إنشاؤه", "Created")}</p><p className="font-semibold text-gray-800">{selectedUser.created_at ? selectedUser.created_at.slice(0,10) : ""}</p></div>
+              <div><p className="text-gray-400">{t("تم الإنشاء", "Created")}</p><p className="font-semibold text-gray-800">{selectedUser.created_at ? selectedUser.created_at.slice(0,10) : ""}</p></div>
             </div>
             <div className="flex justify-end gap-2">
               <button onClick={() => { setSelectedUser(null); setUserFilter(null); }} className="px-4 py-2 bg-gray-100 rounded-lg text-sm">{t("إغلاق", "Close")}</button>
@@ -347,18 +356,18 @@ function DashboardPage({ stats }) {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5" style={{animation: "slideUp 0.4s ease 1s both"}}>
-        <div className="flex items-center gap-2 mb-3"><span className="text-sm">📋</span><span className="text-sm font-bold text-gray-700">{t("تفاصيل إضافية", "Additional Details")}</span></div>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6" style={{animation: "slideUp 0.4s ease 1s both"}}>
+        <div className="flex items-center gap-2 mb-3"><span className="text-sm">📋</span><span className="text-sm font-bold text-gray-700">{t("ملخص المنصة", "Platform Summary")}</span></div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           {[
-            [t("إجمالي المسجلين", "Total Enrollments"), stats.totalEnrollments, "📋"],
-            [t("حسابات تسجيل", "Registration Accounts"), stats.totalRegistration, "📝"],
-            [t("إجمالي E-Money", "Total E-Money"), stats.totalEMoney, "💳"],
-            [t("كورسات منشورة", "Published Courses"), stats.publishedCourses, "✅"],
+            [t("إجمالي E-Money في المنصة", "Total E-Money in Platform"), stats.totalEMoney, "💳"],
+            [t("إجمالي الاشتراكات", "Total Enrollments"), stats.totalEnrollments, "📋"],
+            [t("حسابات التسجيل", "Registration Accounts"), stats.totalRegistration, "📝"],
+            [t("التقييمات", "Feedbacks"), stats.totalFeedbacks, "⭐"],
           ].map(([label, val, icon], i) => (
             <div key={i} className="flex items-center gap-2 bg-gray-50 rounded-xl px-4 py-3">
               <span>{icon}</span>
-              <div><p className="text-gray-500 text-xs">{label}</p><p className="font-bold text-gray-800">{val || 0}</p></div>
+              <div><p className="text-gray-500 text-xs">{label}</p><p className="font-bold text-gray-800">{(val || 0).toLocaleString()}</p></div>
             </div>
           ))}
         </div>

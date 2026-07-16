@@ -166,12 +166,13 @@ export function getSeedWeeklyHistory() {
 }
 
 export function getSeedLeaders() {
+  const av = (email) => `https://i.pravatar.cc/300?u=${encodeURIComponent(email)}`;
   return [
-    ["Amr Farouk","Senior Leader","\uD83C\uDFC6",1],
-    ["Youssef Karim","Executive Star","\uD83E\uDD48",2],
-    ["Omar Ali","Executive","\uD83E\uDD49",3],
-    ["Dina Hosny","Executive Star","\u2B50",4],
-    ["Ahmed Hassan","Star","\uD83C\uDF1F",5],
+    ["Amr Farouk","Senior Leader","\uD83C\uDFC6",1,av("amr@test.com")],
+    ["Youssef Karim","Executive Star","\uD83E\uDD48",2,av("youssef@test.com")],
+    ["Omar Ali","Executive","\uD83E\uDD49",3,av("omar@test.com")],
+    ["Dina Hosny","Executive Star","\u2B50",4,av("dina@test.com")],
+    ["Ahmed Hassan","Star","\uD83C\uDF1F",5,av("ahmed@test.com")],
   ];
 }
 

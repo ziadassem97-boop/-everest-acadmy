@@ -448,9 +448,9 @@ async function seedDataTurso(driver, exec) {
   }
 
   // Leaders
-  for (const [name,rank,icon,so] of getSeedLeaders()) {
-    await driver.execute({ sql: "INSERT INTO leaders (id,name,rank,icon,sort_order,created_at) VALUES (?,?,?,?,?,?)",
-      args: [uuidv4(),name,rank,icon,so,now] }).catch(()=>{});
+  for (const [name,rank,icon,so,avatar] of getSeedLeaders()) {
+    await driver.execute({ sql: "INSERT INTO leaders (id,name,rank,avatar,icon,sort_order,created_at) VALUES (?,?,?,?,?,?,?)",
+      args: [uuidv4(),name,rank,avatar||null,icon,so,now] }).catch(()=>{});
   }
 
   // Course reviews
@@ -603,10 +603,10 @@ function seedDataLocal(driver) {
   }
 
   // Leaders
-  for (const [name,rank,icon,so] of getSeedLeaders()) {
+  for (const [name,rank,icon,so,avatar] of getSeedLeaders()) {
     if (!exists("leaders","name = ?",[name])) {
-      driver.run("INSERT INTO leaders (id,name,rank,icon,sort_order,created_at) VALUES (?,?,?,?,?,?)",
-        [uuidv4(),name,rank,icon,so,now]);
+      driver.run("INSERT INTO leaders (id,name,rank,avatar,icon,sort_order,created_at) VALUES (?,?,?,?,?,?,?)",
+        [uuidv4(),name,rank,avatar||null,icon,so,now]);
     }
   }
 
