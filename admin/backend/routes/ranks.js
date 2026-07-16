@@ -29,9 +29,13 @@ router.get("/leaderboard", async (req, res) => {
       ORDER BY direct_count DESC
       LIMIT 30
     `);
-    // Enrich with closure count
+    const allRanks = await query("SELECT name, sort_order FROM ranks WHERE is_active = 1 ORDER BY sort_order ASC");
+    const rankMap = {};
+    allRanks.forEach(r => { rankMap[r.name] = r.sort_order; });
+    // Enrich with qualified closure count (exclude higher-ranked members)
     const enriched = await Promise.all(users.map(async (u) => {
-      const teamCount = await getTeamCount(u.id);
+      const sortOrder = rankMap[u.rank] ?? 0;
+      const teamCount = await getQualifiedTeamCount(u.id, sortOrder);
       return { ...u, total_team_sales: teamCount, position: 0 };
     }));
     enriched.sort((a, b) => b.total_team_sales - a.total_team_sales);
@@ -92,6 +96,34 @@ router.delete("/:id", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Count qualified team members: students only, excluding those with rank HIGHER than user's current rank
+// If user has no rank (unranked), count all students (no exclusion)
+async function getQualifiedTeamCount(userId, currentRankSortOrder) {
+  const allStudents = await query(
+    "SELECT u.id, u.rank FROM user_closure c JOIN users u ON u.id = c.descendant WHERE c.ancestor = ? AND c.descendant != ? AND u.account_type = 'student'",
+    [userId, userId]
+  );
+  if (!currentRankSortOrder && currentRankSortOrder !== 0) {
+    // Unranked user — count all students
+    return allStudents.length;
+  }
+  // Count only those with rank sort_order <= user's current rank sort_order
+  const allRanks = await query("SELECT name, sort_order FROM ranks WHERE is_active = 1 ORDER BY sort_order ASC");
+  const rankMap = {};
+  allRanks.forEach(r => { rankMap[r.name] = r.sort_order; });
+  let count = 0;
+  for (const member of allStudents) {
+    const memberSortOrder = member.rank ? (rankMap[member.rank] ?? -1) : -1;
+    // Unranked members (sort_order -1) always count
+    // Members with rank sort_order <= user's rank sort_order count
+    if (memberSortOrder <= currentRankSortOrder) {
+      count++;
+    }
+  }
+  return count;
+}
+
+// Legacy wrapper for backward compatibility
 async function getTeamCount(userId) {
   const closure = await queryOne(
     "SELECT COUNT(*) - 1 as cnt FROM user_closure c JOIN users u ON u.id = c.descendant WHERE c.ancestor = ? AND u.account_type = 'student'",
@@ -111,12 +143,17 @@ async function advanceUserRank(userId) {
   if (!user.rank || user.rank === '') currentRankIdx = -1;
   else if (currentRankIdx === -1) currentRankIdx = 0;
 
-  const teamCount = await getTeamCount(userId);
+  // Get user's current rank sort_order for exclusion logic
+  const currentRankSortOrder = currentRankIdx >= 0 ? allRanks[currentRankIdx].sort_order : null;
+
+  // Count qualified team (exclude higher-ranked members)
+  let teamCount = await getQualifiedTeamCount(userId, currentRankSortOrder);
 
   let changed = false;
   for (let i = currentRankIdx + 1; i < allRanks.length; i++) {
     const next = allRanks[i];
     if (teamCount >= sReq(next)) {
+      const prevRank = user.rank;
       user.rank = next.name;
       changed = true;
 
@@ -133,6 +170,9 @@ async function advanceUserRank(userId) {
 
       await execute("INSERT INTO notifications (id, user_id, title, message, type) VALUES (?, ?, ?, ?, 'success')",
         [uuidv4(), userId, "🎉 Rank Up!", `You reached ${next.name} rank! Bonus: ${bonusAmount || 0} EM`]);
+
+      // Recalculate team count with NEW rank (pool expands as higher-ranked members now qualify)
+      teamCount = await getQualifiedTeamCount(userId, next.sort_order);
     } else {
       break;
     }
@@ -181,7 +221,10 @@ router.get("/progress/:userId", async (req, res) => {
     let nextRank = null;
     let salesRequired = 0;
     let progress = user.rank_progress || 0;
-    const teamCount = await getTeamCount(req.params.userId);
+
+    // Use qualified team count (exclude higher-ranked members)
+    const currentSortOrder = idx >= 0 ? allRanks[idx].sort_order : null;
+    const teamCount = await getQualifiedTeamCount(req.params.userId, currentSortOrder);
 
     if (idx === -1 && allRanks.length > 0) {
       nextRank = allRanks[0];

@@ -242,7 +242,7 @@ router.post("/:id/upgrade-account", async (req, res) => {
     const user = await queryOne("SELECT * FROM users WHERE id = ?", [req.params.id]);
     if (!user) return res.status(404).json({ error: "User not found" });
     if (user.account_type === "student") return res.status(400).json({ error: "Already a student account" });
-    await execute("UPDATE users SET role = 'student', account_type = 'student', updated_at = datetime('now','localtime') WHERE id = ?", [req.params.id]);
+    await execute("UPDATE users SET role = 'student', account_type = 'student', status = 'active', updated_at = datetime('now','localtime') WHERE id = ?", [req.params.id]);
     const nid = uuidv4(); await execute("INSERT INTO notifications (id, user_id, title, message, type) VALUES (?, ?, ?, ?, 'success')", [nid, req.params.id, "🎓 تم ترقية الحساب", "تم ترقية حسابك إلى Student Account! يمكنك الآن شراء الكورسات والمشاركة في نظام الرتب والعمولات والتسويق."]);
     await logAdminAction(req, `self-upgrade to student`, req.params.id, user.full_name, null);
     res.json({ success: true, account_type: "student" });

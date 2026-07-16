@@ -17,14 +17,17 @@ const ADMIN_SEEDS = [
 export async function seedAdmins() {
   for (let i = 0; i < ADMIN_SEEDS.length; i++) {
     const a = ADMIN_SEEDS[i];
-    const exists = await queryOne("SELECT id FROM users WHERE id = ?", [a.id]);
+    const exists = await queryOne("SELECT id, password FROM users WHERE id = ?", [a.id]);
+    const code = "EVR-ADM-" + String(i + 1).padStart(4, "0");
+    const hashedPassword = await bcrypt.hash(a.password, 10);
     if (!exists) {
-      const code = "EVR-ADM-" + String(i + 1).padStart(4, "0");
-      const hashedPassword = await bcrypt.hash(a.password, 10);
       await execute(
         "INSERT INTO users (id, full_name, email, password, role, referral_code, rank, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'active')",
         [a.id, a.full_name, a.email, hashedPassword, a.role || "admin", code, "Star"]
       );
+    } else if (exists.password && !exists.password.startsWith("$2a$") && !exists.password.startsWith("$2b$")) {
+      await execute("UPDATE users SET password = ? WHERE id = ?", [hashedPassword, a.id]);
+      console.log(`  🔑 Re-hashed password for admin ${a.id}`);
     }
   }
 }

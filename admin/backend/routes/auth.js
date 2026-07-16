@@ -132,7 +132,7 @@ router.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await execute(
-      "INSERT INTO users (id, full_name, email, phone, address, password, referral_code, referred_by, status, rank) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', '')",
+      "INSERT INTO users (id, full_name, email, phone, address, password, referral_code, referred_by, status, role, account_type, rank) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'registration', 'registration', '')",
       [id, full_name, email, phone || null, address || null, hashedPassword, code, referredBy]
     );
 

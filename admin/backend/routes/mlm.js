@@ -215,10 +215,10 @@ router.post("/weekly-commission", async (req, res) => {
         continue;
       }
 
-      // Get user's rank details
-      const userRank = allRanks.find(r => r.name === user.rank) || allRanks[0];
+      // Get user's rank details — unranked users are NOT eligible for weekly commission
+      const userRank = allRanks.find(r => r.name === user.rank);
       if (!userRank) {
-        results.push({ user_id: user.id, rank: user.rank, eligible: false, reason: "no rank found" });
+        results.push({ user_id: user.id, rank: user.rank, eligible: false, reason: "no rank" });
         continue;
       }
 
@@ -329,15 +329,31 @@ router.get("/rank-progress/:userId", async (req, res) => {
   const currentRank = allRanks[currentRankIndex] || allRanks[0];
   const nextRank = allRanks[currentRankIndex + 1] || null;
 
+  // Calculate real-time qualified team count (exclude higher-ranked members)
+  const userSortOrder = currentRank ? currentRank.sort_order : null;
+  let qualifiedTeamCount = user.direct_count || 0;
+  if (userSortOrder !== null) {
+    const allTeam = await query(
+      "SELECT u.rank FROM user_closure c JOIN users u ON u.id = c.descendant WHERE c.ancestor = ? AND c.descendant != ? AND u.account_type = 'student'",
+      [user.id, user.id]
+    );
+    const rankSortMap = {};
+    allRanks.forEach(r => { rankSortMap[r.name] = r.sort_order; });
+    qualifiedTeamCount = allTeam.filter(tm => {
+      const tmSort = tm.rank ? (rankSortMap[tm.rank] ?? -1) : -1;
+      return tmSort <= userSortOrder;
+    }).length;
+  }
+
   res.json({
     user,
     currentRank,
     nextRank,
     allRanks,
-    qualifiedDirects: user.qualified_direct_count || 0,
+    qualifiedDirects: qualifiedTeamCount,
     totalDirects: user.direct_count,
     meetsMinDirects: user.direct_count >= 2,
-    progressToNext: nextRank ? Math.min(100, (user.direct_count / nextRank.min_direct) * 100) : 100
+    progressToNext: nextRank ? Math.min(100, (qualifiedTeamCount / (nextRank.sales_required || nextRank.min_direct || 1)) * 100) : 100
   });
 });
 
