@@ -34,7 +34,7 @@ const navItems = [
   { to: "/courses", label_ar: "الكورسات", label_en: "Courses", icon: "fa-solid fa-graduation-cap" },
   { to: "/rankings", label_ar: "الرتب", label_en: "Ranks", icon: "fa-solid fa-trophy", studentOnly: true },
   { to: "/affiliate?tab=team", label_ar: "التسويق", label_en: "Affiliate", icon: "fa-solid fa-handshake", studentOnly: true },
-  { to: "/top-saller", label_ar: "الأفضل", label_en: "Top", icon: "fa-solid fa-star", studentOnly: true },
+  { to: "/top-saller", label_ar: "الأفضل", label_en: "Top", icon: "fa-solid fa-star" },
   { to: "/feedback/new", label_ar: "التقييم", label_en: "Feedback", icon: "fa-solid fa-comment-dots" },
   { to: "/profile", label_ar: "الملف الشخصي", label_en: "Profile", icon: "fa-solid fa-user" },
 ];
@@ -45,7 +45,7 @@ const mobileTabItems = [
   { to: "/courses", label_ar: "الكورسات", label_en: "Courses", icon: "fa-solid fa-graduation-cap" },
   { to: "/rankings", label_ar: "الرتب", label_en: "Ranks", icon: "fa-solid fa-trophy", studentOnly: true },
   { to: "/affiliate?tab=team", label_ar: "التسويق", label_en: "Affiliate", icon: "fa-solid fa-handshake", studentOnly: true },
-  { to: "/top-saller", label_ar: "الأفضل", label_en: "Top", icon: "fa-solid fa-star", studentOnly: true },
+  { to: "/top-saller", label_ar: "الأفضل", label_en: "Top", icon: "fa-solid fa-star" },
   { to: "/feedback/new", label_ar: "التقييم", label_en: "Feedback", icon: "fa-solid fa-comment-dots" },
   { to: "/profile", label_ar: "حسابي", label_en: "Profile", icon: "fa-solid fa-user" },
 ];

@@ -114,15 +114,10 @@ export default function CourseViewPage() {
 
   const buyCourse = async (method = "emoney") => {
     if (!user) { nav("/login"); return; }
-    if (user.account_type === "registration") {
-      alert(t("حسابك من نوع Registration. يجب الترقية إلى Student أولاً من صفحة الملف الشخصي.", "Your account is Registration type. You must upgrade to Student first from your profile page."));
-      nav("/profile");
-      return;
-    }
     setBuying(true);
     try {
       const result = await api(`/api/courses/${id}/purchase`, {
-        method: "POST", body: JSON.stringify({ userId: user.id, payment_method: method })
+        method: "POST", body: JSON.stringify({ userId: user.id, payment_method: "emoney" })
       });
       setEnrollment(result);
       if (method === "emoney" && (result.status === "pending" || result.status === "approved")) {
@@ -130,12 +125,7 @@ export default function CourseViewPage() {
         login(user);
       }
     } catch (e) {
-      if (e.upgradeRequired) {
-        alert(t("حسابك من نوع Registration. يجب الترقية إلى Student أولاً.", "Your account is Registration type. You must upgrade to Student first."));
-        nav("/profile");
-      } else {
-        alert(t("خطأ: ", "Error: ") + (e.message || t("فشل عملية الشراء", "Purchase failed")));
-      }
+      alert(t("خطأ: ", "Error: ") + (e.message || t("فشل عملية الشراء", "Purchase failed")));
     }
     setBuying(false);
   };
@@ -357,7 +347,7 @@ export default function CourseViewPage() {
 
         {isRegistration && !isEnrolled && (
           <div style={{background:"rgba(179,135,40,.1)",border:"1px solid rgba(179,135,40,.2)",borderRadius:14,padding:m?12:16,marginBottom:m?12:20,color:"#e2c275",fontSize:m?13:14}}>
-            ⚠️ {t("حسابك من نوع Registration. يمكنك مشاهدة الدروس المجانية فقط.", "Your account is Registration type. You can only watch free lessons.")}
+            ⚠️ {t("حسابك من نوع Registration. يمكنك مشاهدة الدروس المجانية وشراء الكورسات بـ E-Money.", "Your account is Registration type. You can watch free lessons and buy courses with E-Money.")}
           </div>
         )}
 
@@ -367,7 +357,7 @@ export default function CourseViewPage() {
           </div>
         )}
 
-        {!isEnrolled && !isPending && !isFree && user?.account_type !== "registration" && !isStudentAccount && (
+        {!isEnrolled && !isPending && !isFree && !isStudentAccount && (
           <div style={{textAlign:"center",padding:m?"12px 0":"16px 0",marginBottom:m?12:20}}>
             {(user?.e_money || 0) < course.price && (
               <div style={{background:"rgba(255,91,91,.1)",border:"1px solid rgba(255,91,91,.2)",borderRadius:14,padding:m?10:12,marginBottom:m?10:16,color:"#ff5b5b",fontSize:m?12:13}}>
@@ -383,22 +373,6 @@ export default function CourseViewPage() {
                 style={{padding:m?"12px 18px":"14px 26px",background:"linear-gradient(135deg,#b38728,#e2c275)",border:"none",borderRadius:12,color:"#05030a",fontWeight:800,fontSize:m?13:14,cursor:"pointer",opacity:buying?0.6:1}}>
                 {buying ? t("جاري الشراء...", "Purchasing...") : `💳 ${t("اشتري بـ", "Buy for")} ${course.price} E-Money${course.price_egp > 0 ? ` / ${course.price_egp} ${t("ج.م", "EGP")}` : ""}`}
               </button>
-              <button onClick={() => buyCourse("cash")} disabled={buying}
-                style={{padding:m?"12px 18px":"14px 26px",background:c.bgInput,border:`1px solid ${c.borderLight}`,borderRadius:12,color:c.text,fontWeight:700,fontSize:m?13:14,cursor:"pointer",opacity:buying?0.6:1}}>
-                💵 {t("دفع كاش (للادمن)", "Cash Payment (for Admin)")}
-              </button>
-              {gateways.some(g => g.type === "vodafone") && (
-                <Link to={`/courses/${id}/vodafone-cash`}
-                  style={{padding:m?"12px 18px":"14px 26px",background:c.bgInput,border:`1px solid ${c.borderLight}`,borderRadius:12,color:c.text,fontWeight:700,fontSize:m?13:14,cursor:"pointer",textDecoration:"none",display:"inline-flex",alignItems:"center"}}>
-                  📱 {t("فودافون كاش", "Vodafone Cash")}
-                </Link>
-              )}
-              {gateways.some(g => g.type === "instapay") && (
-                <Link to={`/courses/${id}/instapay`}
-                  style={{padding:m?"12px 18px":"14px 26px",background:c.bgInput,border:`1px solid ${c.borderLight}`,borderRadius:12,color:c.text,fontWeight:700,fontSize:m?13:14,cursor:"pointer",textDecoration:"none",display:"inline-flex",alignItems:"center"}}>
-                  🏦 {t("انستاباي", "InstaPay")}
-                </Link>
-              )}
             </div>
             <p style={{color:c.textMuted,fontSize:12,marginTop:8}}>{t("رصيدك الحالي:", "Your current balance:")} {user?.e_money || 0} E-Money</p>
           </div>
@@ -432,13 +406,19 @@ export default function CourseViewPage() {
                   </Link>
                 </div>
               </div>
-            ) : current && (isRegistration || (!canWatchAll && !current.is_free)) ? (
+            ) : current && (isEnrolled ? false : isRegistration && !current.is_free ? true : (!canWatchAll && !current.is_free)) ? (
               <div style={{textAlign:"center",color:"#555",padding:m?16:30}}>
                 <p style={{fontSize:m?32:48,marginBottom:m?6:12}}>🔒</p>
                 {isRegistration ? (
                   <>
-                    <p style={{fontWeight:700,color:c.text,marginBottom:4,fontSize:m?13:16}}>{t("الكورسات متاحة للطلاب فقط", "Courses Available for Students Only")}</p>
-                    <p style={{fontSize:m?11:13,color:c.textMuted,marginBottom:m?10:16,lineHeight:1.5}}>{t("حسابك من نوع Registration. لمشاهدة الدروس، يرجى الترقية إلى حساب Student أولاً.", "Your account is Registration type. Please upgrade to a Student account first.")}</p>
+                    <p style={{fontWeight:700,color:c.text,marginBottom:4,fontSize:m?13:16}}>{t("هذا الدرس مقفل", "This lesson is locked")}</p>
+                    <p style={{fontSize:m?11:13,color:c.textMuted,marginBottom:m?10:16,lineHeight:1.5}}>{t("اشترِ الكورس بـ E-Money أو ترقّ إلى حساب Student للمشاهدة الكاملة.", "Buy the course with E-Money or upgrade to a Student account for full access.")}</p>
+                    <button onClick={() => {
+                      if ((user?.e_money || 0) < course.price) { alert(t("رصيد E-Money غير كافٍ", "Insufficient E-Money balance")); return; }
+                      buyCourse("emoney");
+                    }} style={{display:"inline-flex",alignItems:"center",gap:8,padding:m?"10px 18px":"10px 24px",background:"linear-gradient(135deg,#b38728,#e2c275)",borderRadius:10,color:"#05030a",fontWeight:800,fontSize:m?12:13,border:"none",cursor:"pointer"}}>
+                      💳 {t("اشترِ بـ", "Buy for")} {course.price} E-Money
+                    </button>
                   </>
                 ) : (
                   <>
