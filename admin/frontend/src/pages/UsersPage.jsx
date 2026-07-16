@@ -295,6 +295,7 @@ export default function UsersPage() {
                 <>
                   <div className="grid grid-cols-3 gap-3 mb-4">
                     {[
+                      { label: t("المعرف", "User ID"), value: selectedUser.id },
                       { label: t("البريد الإلكتروني", "Email"), value: selectedUser.email },
                       { label: t("رقم الهاتف", "Phone"), value: selectedUser.phone || "—" },
                       { label: t("العنوان", "Address"), value: selectedUser.address || "—" },
