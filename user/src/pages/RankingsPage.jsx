@@ -28,8 +28,8 @@ const rankKeyframes = `
 @keyframes rkShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 `;
 
-const salesReq = (r) => r.sales_required !== undefined ? r.sales_required : r.min_direct;
-const bonusVal = (r) => r.bonus !== undefined ? r.bonus : r.weekly_bonus;
+const salesReq = (r) => r ? (r.sales_required !== undefined ? r.sales_required : r.min_direct) : 0;
+const bonusVal = (r) => r ? (r.bonus !== undefined ? r.bonus : r.weekly_bonus) : 0;
 
 const cardStyle = (c, extra) => ({
   background: c.bgCard, border: `1px solid ${c.borderLight}`, borderRadius: 20,
