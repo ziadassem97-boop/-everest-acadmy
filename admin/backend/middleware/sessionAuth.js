@@ -9,7 +9,7 @@ export default async function sessionAuth(req, res, next) {
   // Chat POST is public (no auth for chatbot)
   if (req.path.startsWith("/chat") && req.method === "POST") return next();
 
-  // Public GET endpoints: course catalog, ranks, leaders, public feedbacks, proofs, dashboard stats
+  // Public GET endpoints: course catalog, ranks, leaders, public feedbacks, proofs, dashboard stats, customer service
   if (req.method === "GET" && (
     req.path === "/courses" ||
     req.path.startsWith("/courses/") && !req.path.includes("/my") && !req.path.includes("/quiz-progress") ||
@@ -21,7 +21,8 @@ export default async function sessionAuth(req, res, next) {
     req.path === "/proofs" ||
     req.path === "/dashboard" ||
     req.path.startsWith("/payment-gateways/active") ||
-    req.path.startsWith("/chat/")
+    req.path.startsWith("/chat/") ||
+    req.path === "/customer-service"
   )) {
     return next();
   }
