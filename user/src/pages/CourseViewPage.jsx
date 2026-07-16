@@ -232,8 +232,9 @@ export default function CourseViewPage() {
   const idx = allLessons.findIndex((l) => l.id === current?.id);
   const isYoutube = (url) => url && (url.includes("youtube.com") || url.includes("youtu.be") || url.includes("youtube.com/embed"));
   const isBunny = (url) => url && (url.includes("player.mediadelivery.net") || url.includes("bunnycdn.com") || url.includes(".b-cdn.net"));
+  const getBunnyEmbed = (url) => { return url.replace("/play/", "/embed/").replace(/(\?.*)?$/, "?autoplay=true"); };
   const getYtEmbed = (url) => { const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/); return m ? `https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0` : null; };
-  const videoSrc = current?.video_url ? (isYoutube(current.video_url) ? getYtEmbed(current.video_url) : current.video_url) : null;
+  const videoSrc = current?.video_url ? (isYoutube(current.video_url) ? getYtEmbed(current.video_url) : isBunny(current.video_url) ? getBunnyEmbed(current.video_url) : current.video_url) : null;
 
   // Check if the current lesson is blocked by a quiz
   const currentLessonQuiz = current ? getCurrentLessonQuiz(current) : null;

@@ -41,8 +41,9 @@ export default function FreeCourseViewPage() {
   const current = playing || freeLessons[0] || null;
   const isYoutube = (url) => url && (url.includes("youtube.com") || url.includes("youtu.be") || url.includes("youtube.com/embed"));
   const isBunny = (url) => url && (url.includes("player.mediadelivery.net") || url.includes("bunnycdn.com") || url.includes(".b-cdn.net"));
+  const getBunnyEmbed = (url) => { return url.replace("/play/", "/embed/").replace(/(\?.*)?$/, "?autoplay=true"); };
   const getYtEmbed = (url) => { const m2 = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/); return m2 ? `https://www.youtube.com/embed/${m2[1]}?autoplay=1&rel=0` : null; };
-  const videoSrc = current?.video_url ? (isYoutube(current.video_url) ? getYtEmbed(current.video_url) : current.video_url) : null;
+  const videoSrc = current?.video_url ? (isYoutube(current.video_url) ? getYtEmbed(current.video_url) : isBunny(current.video_url) ? getBunnyEmbed(current.video_url) : current.video_url) : null;
 
   const bg = theme === "dark" ? "#1a1a2e" : "#fafafa";
   const card = theme === "dark" ? "#1e1e2f" : "#fff";
