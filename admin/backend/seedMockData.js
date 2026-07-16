@@ -5,25 +5,26 @@ const now = new Date().toISOString().replace("T", " ").split(".")[0];
 
 export function getSeedUsers() {
   const pw = bcrypt.hashSync("password123", 10);
+  const av = (email) => `https://i.pravatar.cc/300?u=${encodeURIComponent(email)}`;
   return [
-    { id:"2000000001", name:"Ahmed Hassan", email:"ahmed@test.com", role:"student", type:"student", rank:"Star", em:5000, status:"active", ref:null, ds:3, ts:3 },
-    { id:"2000000002", name:"Sara Mohamed", email:"sara@test.com", role:"student", type:"student", rank:"Star", em:3000, status:"active", ref:"2000000001", ds:2, ts:2 },
-    { id:"2000000003", name:"Omar Ali", email:"omar@test.com", role:"student", type:"student", rank:"Executive", em:7500, status:"active", ref:"2000000001", ds:5, ts:5 },
-    { id:"2000000004", name:"Fatima Youssef", email:"fatima@test.com", role:"registration", type:"registration", rank:"", em:0, status:"active", ref:"2000000001" },
-    { id:"2000000005", name:"Khaled Nasser", email:"khaled@test.com", role:"student", type:"student", rank:"Star", em:2000, status:"active", ref:"2000000002", ds:2, ts:2 },
-    { id:"2000000006", name:"Nour Ibrahim", email:"nour@test.com", role:"registration", type:"registration", rank:"", em:500, status:"active", ref:"2000000002" },
-    { id:"2000000007", name:"Youssef Karim", email:"youssef@test.com", role:"student", type:"student", rank:"Executive Star", em:12000, status:"active", ref:"2000000003", ds:10, ts:10 },
-    { id:"2000000008", name:"Layla Ahmad", email:"layla@test.com", role:"student", type:"student", rank:"Team Leader", em:20000, status:"active", ref:"2000000003", ds:20, ts:20 },
-    { id:"2000000009", name:"Mohamed Sami", email:"mohamed@test.com", role:"registration", type:"registration", rank:"", em:1000, status:"active", ref:"2000000003" },
-    { id:"2000000010", name:"Hana Mahmoud", email:"hana@test.com", role:"student", type:"student", rank:"", em:0, status:"pending", ref:"2000000005" },
-    { id:"2000000011", name:"Tarek Saleh", email:"tarek@test.com", role:"registration", type:"registration", rank:"", em:0, status:"pending", ref:"2000000007" },
-    { id:"2000000012", name:"Reem Adel", email:"reem@test.com", role:"student", type:"student", rank:"", em:0, status:"rejected", ref:"2000000003" },
-    { id:"2000000013", name:"Amr Farouk", email:"amr@test.com", role:"student", type:"student", rank:"Senior Leader", em:35000, status:"active", ref:"2000000007", ds:40, ts:40 },
-    { id:"2000000014", name:"Dina Hosny", email:"dina@test.com", role:"student", type:"student", rank:"Executive Star", em:8000, status:"active", ref:"2000000008", ds:10, ts:10 },
-    { id:"2000000015", name:"Hamza Mostafa", email:"hamza@test.com", role:"registration", type:"registration", rank:"", em:2000, status:"active", ref:"2000000008" },
-    { id:"2000000016", name:"Walid Rageh", email:"walid@test.com", role:"student", type:"student", rank:"", em:500, status:"active", blocked:1, ref:"2000000001" },
-    { id:"2000000017", name:"Mona Fawzy", email:"mona@test.com", role:"student", type:"student", rank:"Executive", em:6000, status:"active", ref:"2000000005", ds:5, ts:5 },
-    { id:"2000000018", name:"Zain Hossam", email:"zain@test.com", role:"student", type:"student", rank:"", em:1500, status:"active", ref:"2000000005" },
+    { id:"2000000001", name:"Ahmed Hassan", email:"ahmed@test.com", role:"student", type:"student", rank:"Star", em:5000, status:"active", ref:null, ds:3, ts:3, avatar:av("ahmed@test.com") },
+    { id:"2000000002", name:"Sara Mohamed", email:"sara@test.com", role:"student", type:"student", rank:"Star", em:3000, status:"active", ref:"2000000001", ds:2, ts:2, avatar:av("sara@test.com") },
+    { id:"2000000003", name:"Omar Ali", email:"omar@test.com", role:"student", type:"student", rank:"Executive", em:7500, status:"active", ref:"2000000001", ds:5, ts:5, avatar:av("omar@test.com") },
+    { id:"2000000004", name:"Fatima Youssef", email:"fatima@test.com", role:"registration", type:"registration", rank:"", em:0, status:"active", ref:"2000000001", avatar:av("fatima@test.com") },
+    { id:"2000000005", name:"Khaled Nasser", email:"khaled@test.com", role:"student", type:"student", rank:"Star", em:2000, status:"active", ref:"2000000002", ds:2, ts:2, avatar:av("khaled@test.com") },
+    { id:"2000000006", name:"Nour Ibrahim", email:"nour@test.com", role:"registration", type:"registration", rank:"", em:500, status:"active", ref:"2000000002", avatar:av("nour@test.com") },
+    { id:"2000000007", name:"Youssef Karim", email:"youssef@test.com", role:"student", type:"student", rank:"Executive Star", em:12000, status:"active", ref:"2000000003", ds:10, ts:10, avatar:av("youssef@test.com") },
+    { id:"2000000008", name:"Layla Ahmad", email:"layla@test.com", role:"student", type:"student", rank:"Team Leader", em:20000, status:"active", ref:"2000000003", ds:20, ts:20, avatar:av("layla@test.com") },
+    { id:"2000000009", name:"Mohamed Sami", email:"mohamed@test.com", role:"registration", type:"registration", rank:"", em:1000, status:"active", ref:"2000000003", avatar:av("mohamed@test.com") },
+    { id:"2000000010", name:"Hana Mahmoud", email:"hana@test.com", role:"student", type:"student", rank:"", em:0, status:"pending", ref:"2000000005", avatar:av("hana@test.com") },
+    { id:"2000000011", name:"Tarek Saleh", email:"tarek@test.com", role:"registration", type:"registration", rank:"", em:0, status:"pending", ref:"2000000007", avatar:av("tarek@test.com") },
+    { id:"2000000012", name:"Reem Adel", email:"reem@test.com", role:"student", type:"student", rank:"", em:0, status:"rejected", ref:"2000000003", avatar:av("reem@test.com") },
+    { id:"2000000013", name:"Amr Farouk", email:"amr@test.com", role:"student", type:"student", rank:"Senior Leader", em:35000, status:"active", ref:"2000000007", ds:40, ts:40, avatar:av("amr@test.com") },
+    { id:"2000000014", name:"Dina Hosny", email:"dina@test.com", role:"student", type:"student", rank:"Executive Star", em:8000, status:"active", ref:"2000000008", ds:10, ts:10, avatar:av("dina@test.com") },
+    { id:"2000000015", name:"Hamza Mostafa", email:"hamza@test.com", role:"registration", type:"registration", rank:"", em:2000, status:"active", ref:"2000000008", avatar:av("hamza@test.com") },
+    { id:"2000000016", name:"Walid Rageh", email:"walid@test.com", role:"student", type:"student", rank:"", em:500, status:"active", blocked:1, ref:"2000000001", avatar:av("walid@test.com") },
+    { id:"2000000017", name:"Mona Fawzy", email:"mona@test.com", role:"student", type:"student", rank:"Executive", em:6000, status:"active", ref:"2000000005", ds:5, ts:5, avatar:av("mona@test.com") },
+    { id:"2000000018", name:"Zain Hossam", email:"zain@test.com", role:"student", type:"student", rank:"", em:1500, status:"active", ref:"2000000005", avatar:av("zain@test.com") },
   ];
 }
 

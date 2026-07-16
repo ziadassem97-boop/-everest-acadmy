@@ -368,8 +368,8 @@ async function seedDataTurso(driver, exec) {
   const users = getSeedUsers();
   for (const u of users) {
     const rc = "EVR-" + u.id;
-    await driver.execute({ sql: "INSERT INTO users (id,full_name,email,password,role,account_type,referral_code,referred_by,rank,e_money,status,blocked,direct_count,total_sales,negative_allowed,membership_days,membership_progress,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-      args: [u.id,u.name,u.email,pw,u.role,u.type,rc,u.ref||null,u.rank||"",u.em,u.status,u.blocked||0,u.ds||0,u.ts||0,1,365,65,now,now] }).catch(()=>{});
+    await driver.execute({ sql: "INSERT INTO users (id,full_name,email,password,role,account_type,referral_code,referred_by,rank,e_money,status,blocked,direct_count,total_sales,avatar,negative_allowed,membership_days,membership_progress,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      args: [u.id,u.name,u.email,pw,u.role,u.type,rc,u.ref||null,u.rank||"",u.em,u.status,u.blocked||0,u.ds||0,u.ts||0,u.avatar||null,1,365,65,now,now] }).catch(()=>{});
   }
 
   // Closure table
@@ -502,10 +502,10 @@ function seedDataLocal(driver) {
 
   const users = getSeedUsers();
   const pw = bcrypt.hashSync("password123", 10);
-  const stmt = driver.prepare("INSERT INTO users (id,full_name,email,password,role,account_type,referral_code,referred_by,rank,e_money,status,blocked,direct_count,total_sales,negative_allowed,membership_days,membership_progress,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+  const stmt = driver.prepare("INSERT INTO users (id,full_name,email,password,role,account_type,referral_code,referred_by,rank,e_money,status,blocked,direct_count,total_sales,avatar,negative_allowed,membership_days,membership_progress,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
   for (const u of users) {
     const rc = "EVR-" + u.id;
-    safe(() => stmt.run([u.id,u.name,u.email,pw,u.role,u.type,rc,u.ref||null,u.rank,u.em,u.status,u.blocked||0,u.ds||0,u.ts||0,1,365,65,now,now]));
+    safe(() => stmt.run([u.id,u.name,u.email,pw,u.role,u.type,rc,u.ref||null,u.rank||"",u.em,u.status,u.blocked||0,u.ds||0,u.ts||0,u.avatar||null,1,365,65,now,now]));
   }
   stmt.free();
 

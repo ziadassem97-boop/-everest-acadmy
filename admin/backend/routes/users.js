@@ -22,7 +22,7 @@ const logAdminAction = async (req, action, targetId, targetName, details) => {
 };
 
 router.get("/", async (req, res) => {
-  const users = await query("SELECT id, full_name, email, phone, address, role, account_type, referral_code, rank, e_money, academic_points, total_team_sales, direct_count, qualified_direct_count, negative_allowed, blocked, status, created_at FROM users ORDER BY created_at DESC");
+  const users = await query("SELECT id, full_name, email, phone, address, role, account_type, referral_code, rank, e_money, academic_points, total_team_sales, direct_count, qualified_direct_count, negative_allowed, blocked, status, avatar, created_at FROM users ORDER BY created_at DESC");
   res.json(users);
 });
 
