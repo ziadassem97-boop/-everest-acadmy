@@ -3,6 +3,14 @@ import initSqlJs from "sql.js";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import fs from "fs";
+import bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from "uuid";
+import {
+  getSeedUsers, getSeedCourses, getSeedTopics, getSeedLessons,
+  getSeedQuizzes, getSeedEnrollments, getSeedQuizAttempts,
+  getSeedCommissions, getSeedFeedbacks, getSeedNotifications,
+  getSeedWeeklyHistory, getSeedLeaders, getSeedCourseReviews, getSeedSettings
+} from "./seedMockData.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -332,6 +340,7 @@ function createSchema(driver, isTursoDb) {
 }
 
 async function seedDataTurso(driver, exec) {
+  const now = new Date().toISOString().replace("T"," ").split(".")[0];
   const rankRes = await exec("SELECT COUNT(*) as c FROM ranks");
   if (!rankRes.length || rankRes[0].c === 0) {
     const ranks = [
@@ -350,9 +359,123 @@ async function seedDataTurso(driver, exec) {
     await driver.execute({ sql: "INSERT INTO users (id,full_name,email,password,role,referral_code,rank,status) VALUES (?,?,?,?,?,?,?,'active')",
       args: ["admin-001","Admin Everest","admin@everest.com","admin123","admin","EVEREST-ADMIN","Star"] });
   }
+
+  // Check if mock users already seeded
+  const mockCheck = await exec("SELECT id FROM users WHERE email = 'ahmed@test.com'");
+  if (mockCheck.length) return;
+
+  const pw = await bcrypt.hash("password123", 10);
+  const users = getSeedUsers();
+  for (const u of users) {
+    const rc = "EVR-" + u.id;
+    await driver.execute({ sql: "INSERT INTO users (id,full_name,email,password,role,account_type,referral_code,referred_by,rank,e_money,status,blocked,direct_count,total_sales,negative_allowed,membership_days,membership_progress,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      args: [u.id,u.name,u.email,pw,u.role,u.type,rc,u.ref||null,u.rank||"",u.em,u.status,u.blocked||0,u.ds||0,u.ts||0,1,365,65,now,now] }).catch(()=>{});
+  }
+
+  // Closure table
+  for (const u of users) {
+    await driver.execute({ sql: "INSERT OR IGNORE INTO user_closure (ancestor,descendant,depth) VALUES (?,?,0)", args: [u.id,u.id] }).catch(()=>{});
+    if (u.ref) await driver.execute({ sql: "INSERT OR IGNORE INTO user_closure (ancestor,descendant,depth) VALUES (?,?,1)", args: [u.ref,u.id] }).catch(()=>{});
+  }
+  for (const u of users) {
+    if (!u.ref) continue;
+    const gp = await exec("SELECT referred_by FROM users WHERE id = ?", [u.ref]);
+    if (gp.length && gp[0].referred_by) {
+      await driver.execute({ sql: "INSERT OR IGNORE INTO user_closure (ancestor,descendant,depth) VALUES (?,?,2)", args: [gp[0].referred_by,u.id] }).catch(()=>{});
+    }
+  }
+
+  // Courses
+  for (const c of getSeedCourses()) {
+    await driver.execute({ sql: "INSERT INTO courses (id,title,title_ar,description,description_ar,category,category_ar,difficulty,price,price_egp,is_free,status,author_id,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      args: [c.id,c.title,c.title_ar,c.description,c.description_ar,c.category,c.category_ar,c.difficulty,c.price,c.price_egp,c.is_free,c.status,"admin-001",now,now] }).catch(()=>{});
+  }
+
+  // Topics
+  for (const t of getSeedTopics()) {
+    await driver.execute({ sql: "INSERT INTO topics (id,course_id,title,title_ar,summary,summary_ar,sort_order,created_at) VALUES (?,?,?,?,?,?,?,?)",
+      args: [t.id,t.cid,t.title,t.title_ar,t.summary,t.summary_ar,t.sort_order,now] }).catch(()=>{});
+  }
+
+  // Lessons
+  for (const l of getSeedLessons()) {
+    await driver.execute({ sql: "INSERT INTO lessons (id,topic_id,title,title_ar,content,content_ar,duration,sort_order,is_free,video_url,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+      args: [l.id,l.tid,l.title,l.title_ar,l.content,l.content_ar,l.duration,0,l.is_free,l.video_url,now] }).catch(()=>{});
+  }
+
+  // Quizzes
+  for (const q of getSeedQuizzes()) {
+    await driver.execute({ sql: "INSERT INTO quizzes (id,topic_id,course_id,type,title,questions,total_marks,pass_mark,quiz_type,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
+      args: [q.id,q.topic_id,q.course_id,q.type,q.title,q.questions,q.total_marks,q.pass_mark,"mixed",now] }).catch(()=>{});
+  }
+
+  // Enrollments
+  for (const [uid,cid,st,pm,pr] of getSeedEnrollments()) {
+    await driver.execute({ sql: "INSERT INTO enrollments (id,user_id,course_id,status,payment_method,progress,enrolled_at) VALUES (?,?,?,?,?,?,?)",
+      args: [uuidv4(),uid,cid,st,pm,pr,now] }).catch(()=>{});
+  }
+
+  // Quiz attempts
+  for (const [qid,uid,tot,earn,cor,inc,res] of getSeedQuizAttempts()) {
+    await driver.execute({ sql: "INSERT INTO quiz_attempts (id,quiz_id,user_id,total_marks,earned_marks,correct_answers,incorrect_answers,result,created_at) VALUES (?,?,?,?,?,?,?,?,?)",
+      args: [uuidv4(),qid,uid,tot,earn,cor,inc,res,now] }).catch(()=>{});
+  }
+
+  // Commissions
+  for (const [from,to,lvl,amt] of getSeedCommissions()) {
+    await driver.execute({ sql: "INSERT INTO commissions (id,from_user_id,to_user_id,level,amount,created_at) VALUES (?,?,?,?,?,?)",
+      args: [uuidv4(),from,to,lvl,amt,now] }).catch(()=>{});
+  }
+
+  // Feedbacks
+  for (const [uid,msg,rat] of getSeedFeedbacks()) {
+    await driver.execute({ sql: "INSERT INTO feedbacks (id,user_id,message,rating,created_at) VALUES (?,?,?,?,?)",
+      args: [uuidv4(),uid,msg,rat,now] }).catch(()=>{});
+  }
+
+  // Notifications
+  for (const [uid,title,msg,type] of getSeedNotifications()) {
+    await driver.execute({ sql: "INSERT INTO notifications (id,user_id,title,message,type,created_at) VALUES (?,?,?,?,?,?)",
+      args: [uuidv4(),uid,title,msg,type,now] }).catch(()=>{});
+  }
+
+  // Weekly history
+  for (const r of getSeedWeeklyHistory()) {
+    const [uid,ws,we,pr,cr,tds,sds,rds,qds,qtc,qnc,sm,rm,he,ie,comm,cs,ps,fr] = r;
+    const det = JSON.stringify({qualifiedTeamCount:qtc,qualifiedNetworkCount:qnc,studentMembers:sm,registrationMembers:rm,weeklyCommission:comm,commissionStatus:cs,promotionStatus:ps,failureReason:fr});
+    await driver.execute({ sql: "INSERT INTO weekly_history (id,user_id,week_start,week_end,calculation_date,previous_rank,current_rank,total_direct_sales,student_direct_sales,registration_direct_sales,qualified_direct_sales,qualified_team_count,qualified_network_count,student_members,registration_members,higher_rank_excluded,inactive_excluded,weekly_commission,commission_status,promotion_status,failure_reason,details) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      args: [uuidv4(),uid,ws,we,now,pr||null,cr,tds,sds,rds,qds,qtc,qnc,sm,rm,he,ie,comm,cs,ps,fr||null,det] }).catch(()=>{});
+  }
+
+  // Leaders
+  for (const [name,rank,icon,so] of getSeedLeaders()) {
+    await driver.execute({ sql: "INSERT INTO leaders (id,name,rank,icon,sort_order,created_at) VALUES (?,?,?,?,?,?)",
+      args: [uuidv4(),name,rank,icon,so,now] }).catch(()=>{});
+  }
+
+  // Course reviews
+  for (const [cid,uid,rat,cmt] of getSeedCourseReviews()) {
+    await driver.execute({ sql: "INSERT INTO course_reviews (id,course_id,user_id,rating,comment,created_at) VALUES (?,?,?,?,?,?)",
+      args: [uuidv4(),cid,uid,rat,cmt,now] }).catch(()=>{});
+  }
+
+  // Settings
+  for (const [k,v] of getSeedSettings()) {
+    await driver.execute({ sql: "INSERT OR IGNORE INTO settings (key,value) VALUES (?,?)", args: [k,v] }).catch(()=>{});
+  }
+
+  console.log("  Turso mock data seeded: 18 users, 3 courses, 5 topics, 11 lessons, 8 quizzes");
 }
 
 function seedDataLocal(driver) {
+  const now = new Date().toISOString().replace("T"," ").split(".")[0];
+  function safe(fn) { try { fn(); } catch(e) {} }
+  function exists(table, where, params) {
+    const r = driver.exec(`SELECT 1 FROM ${table} WHERE ${where}`, params);
+    return r.length > 0 && r[0].values.length > 0;
+  }
+
+  // Ranks
   const rankExists = driver.exec("SELECT COUNT(*) as c FROM ranks");
   if (!rankExists.length || !rankExists[0].values.length || rankExists[0].values[0][0] === 0) {
     const ranks = [
@@ -366,11 +489,141 @@ function seedDataLocal(driver) {
     for (const r of ranks) stmt.run(r);
     stmt.free();
   }
+
+  // Admin
   const adminExists = driver.exec("SELECT id FROM users WHERE email = 'admin@everest.com'");
   if (!adminExists.length || !adminExists[0].values.length) {
     driver.run("INSERT INTO users (id,full_name,email,password,role,referral_code,rank,status) VALUES (?,?,?,?,?,?,?,'active')",
       ["admin-001","Admin Everest","admin@everest.com","admin123","admin","EVEREST-ADMIN","Star"]);
   }
+
+  // Check if mock users already seeded
+  if (exists("users", "email = ?", ["ahmed@test.com"])) return;
+
+  const users = getSeedUsers();
+  const pw = bcrypt.hashSync("password123", 10);
+  const stmt = driver.prepare("INSERT INTO users (id,full_name,email,password,role,account_type,referral_code,referred_by,rank,e_money,status,blocked,direct_count,total_sales,negative_allowed,membership_days,membership_progress,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+  for (const u of users) {
+    const rc = "EVR-" + u.id;
+    safe(() => stmt.run([u.id,u.name,u.email,pw,u.role,u.type,rc,u.ref||null,u.rank,u.em,u.status,u.blocked||0,u.ds||0,u.ts||0,1,365,65,now,now]));
+  }
+  stmt.free();
+
+  // Closure table
+  for (const u of users) {
+    safe(() => driver.run("INSERT OR IGNORE INTO user_closure (ancestor,descendant,depth) VALUES (?,?,0)", [u.id,u.id]));
+    if (u.ref) safe(() => driver.run("INSERT OR IGNORE INTO user_closure (ancestor,descendant,depth) VALUES (?,?,1)", [u.ref,u.id]));
+  }
+  for (const u of users) {
+    if (!u.ref) continue;
+    const gp = driver.exec("SELECT referred_by FROM users WHERE id = ?", [u.ref]);
+    if (gp.length && gp[0].values.length && gp[0].values[0][0]) {
+      safe(() => driver.run("INSERT OR IGNORE INTO user_closure (ancestor,descendant,depth) VALUES (?,?,2)", [gp[0].values[0][0],u.id]));
+    }
+  }
+
+  // Courses
+  for (const c of getSeedCourses()) {
+    if (!exists("courses","id = ?",[c.id])) {
+      driver.run("INSERT INTO courses (id,title,title_ar,description,description_ar,category,category_ar,difficulty,price,price_egp,is_free,status,author_id,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [c.id,c.title,c.title_ar,c.description,c.description_ar,c.category,c.category_ar,c.difficulty,c.price,c.price_egp,c.is_free,c.status,"admin-001",now,now]);
+    }
+  }
+
+  // Topics
+  for (const t of getSeedTopics()) {
+    if (!exists("topics","id = ?",[t.id])) {
+      driver.run("INSERT INTO topics (id,course_id,title,title_ar,summary,summary_ar,sort_order,created_at) VALUES (?,?,?,?,?,?,?,?)",
+        [t.id,t.cid,t.title,t.title_ar,t.summary,t.summary_ar,t.sort_order,now]);
+    }
+  }
+
+  // Lessons
+  for (const l of getSeedLessons()) {
+    if (!exists("lessons","id = ?",[l.id])) {
+      driver.run("INSERT INTO lessons (id,topic_id,title,title_ar,content,content_ar,duration,sort_order,is_free,video_url,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        [l.id,l.tid,l.title,l.title_ar,l.content,l.content_ar,l.duration,0,l.is_free,l.video_url,now]);
+    }
+  }
+
+  // Quizzes
+  for (const q of getSeedQuizzes()) {
+    if (!exists("quizzes","id = ?",[q.id])) {
+      driver.run("INSERT INTO quizzes (id,topic_id,course_id,type,title,questions,total_marks,pass_mark,quiz_type,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
+        [q.id,q.topic_id,q.course_id,q.type,q.title,q.questions,q.total_marks,q.pass_mark,"mixed",now]);
+    }
+  }
+
+  // Enrollments
+  for (const [uid,cid,st,pm,pr] of getSeedEnrollments()) {
+    if (!exists("enrollments","user_id = ? AND course_id = ?",[uid,cid])) {
+      driver.run("INSERT INTO enrollments (id,user_id,course_id,status,payment_method,progress,enrolled_at) VALUES (?,?,?,?,?,?,?)",
+        [uuidv4(),uid,cid,st,pm,pr,now]);
+    }
+  }
+
+  // Quiz attempts
+  for (const [qid,uid,tot,earn,cor,inc,res] of getSeedQuizAttempts()) {
+    if (!exists("quiz_attempts","quiz_id = ? AND user_id = ?",[qid,uid])) {
+      driver.run("INSERT INTO quiz_attempts (id,quiz_id,user_id,total_marks,earned_marks,correct_answers,incorrect_answers,result,created_at) VALUES (?,?,?,?,?,?,?,?,?)",
+        [uuidv4(),qid,uid,tot,earn,cor,inc,res,now]);
+    }
+  }
+
+  // Commissions
+  for (const [from,to,lvl,amt] of getSeedCommissions()) {
+    if (!exists("commissions","from_user_id = ? AND to_user_id = ?",[from,to])) {
+      driver.run("INSERT INTO commissions (id,from_user_id,to_user_id,level,amount,created_at) VALUES (?,?,?,?,?,?)",
+        [uuidv4(),from,to,lvl,amt,now]);
+    }
+  }
+
+  // Feedbacks
+  for (const [uid,msg,rat] of getSeedFeedbacks()) {
+    if (!exists("feedbacks","user_id = ?",[uid])) {
+      driver.run("INSERT INTO feedbacks (id,user_id,message,rating,created_at) VALUES (?,?,?,?,?)",
+        [uuidv4(),uid,msg,rat,now]);
+    }
+  }
+
+  // Notifications
+  for (const [uid,title,msg,type] of getSeedNotifications()) {
+    driver.run("INSERT INTO notifications (id,user_id,title,message,type,created_at) VALUES (?,?,?,?,?,?)",
+      [uuidv4(),uid,title,msg,type,now]);
+  }
+
+  // Weekly history
+  for (const r of getSeedWeeklyHistory()) {
+    const [uid,ws,we,pr,cr,tds,sds,rds,qds,qtc,qnc,sm,rm,he,ie,comm,cs,ps,fr] = r;
+    const det = JSON.stringify({qualifiedTeamCount:qtc,qualifiedNetworkCount:qnc,studentMembers:sm,registrationMembers:rm,weeklyCommission:comm,commissionStatus:cs,promotionStatus:ps,failureReason:fr});
+    if (!exists("weekly_history","user_id = ? AND week_start = ?",[uid,ws])) {
+      driver.run("INSERT INTO weekly_history (id,user_id,week_start,week_end,calculation_date,previous_rank,current_rank,total_direct_sales,student_direct_sales,registration_direct_sales,qualified_direct_sales,qualified_team_count,qualified_network_count,student_members,registration_members,higher_rank_excluded,inactive_excluded,weekly_commission,commission_status,promotion_status,failure_reason,details) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [uuidv4(),uid,ws,we,now,pr||null,cr,tds,sds,rds,qds,qtc,qnc,sm,rm,he,ie,comm,cs,ps,fr||null,det]);
+    }
+  }
+
+  // Leaders
+  for (const [name,rank,icon,so] of getSeedLeaders()) {
+    if (!exists("leaders","name = ?",[name])) {
+      driver.run("INSERT INTO leaders (id,name,rank,icon,sort_order,created_at) VALUES (?,?,?,?,?,?)",
+        [uuidv4(),name,rank,icon,so,now]);
+    }
+  }
+
+  // Course reviews
+  for (const [cid,uid,rat,cmt] of getSeedCourseReviews()) {
+    safe(() => driver.run("INSERT OR IGNORE INTO course_reviews (id,course_id,user_id,rating,comment,created_at) VALUES (?,?,?,?,?,?)",
+      [uuidv4(),cid,uid,rat,cmt,now]));
+  }
+
+  // Settings
+  for (const [k,v] of getSeedSettings()) {
+    if (!exists("settings","key = ?",[k])) {
+      driver.run("INSERT INTO settings (key,value) VALUES (?,?)", [k,v]);
+    }
+  }
+
+  console.log("  Mock data seeded: 18 users, 3 courses, 5 topics, 11 lessons, 8 quizzes");
 }
 
 export function saveDb() {
