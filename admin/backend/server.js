@@ -114,6 +114,16 @@ app.use("/api/proofs", proofsRoutes);
 app.use("/api/admin-logs", adminAuth, adminLogsRoutes);
 app.use("/api/settings", adminAuth, settingsRoutes);
 
+// Public customer service settings (no auth needed)
+app.get("/api/customer-service", async (req, res) => {
+  try {
+    const rows = await query("SELECT * FROM settings WHERE key IN ('customer_service_whatsapp', 'customer_service_email')");
+    const obj = {};
+    for (const r of rows) obj[r.key] = r.value;
+    res.json(obj);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error("❌ Server error:", err);

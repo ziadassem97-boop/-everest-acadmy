@@ -47,7 +47,7 @@ export default function ProfilePage() {
   }, [profile?.id]);
 
   useEffect(() => {
-    api("/api/settings").then(d => {
+    api("/api/customer-service").then(d => {
       setCsWhatsapp(d.customer_service_whatsapp || "");
       setCsEmail(d.customer_service_email || "");
     }).catch(() => {});

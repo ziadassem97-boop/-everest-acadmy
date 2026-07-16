@@ -12,7 +12,7 @@ export default function PendingActivationPage() {
   const [csEmail, setCsEmail] = useState("");
 
   useEffect(() => {
-    api("/api/settings")
+    api("/api/customer-service")
       .then((d) => {
         setCsWhatsapp(d.customer_service_whatsapp || "");
         setCsEmail(d.customer_service_email || "");
