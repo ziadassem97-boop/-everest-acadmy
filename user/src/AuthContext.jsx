@@ -41,8 +41,11 @@ export function AuthProvider({ children }) {
       if (u && u.id && u.session_token) {
         fetch(`${API}/auth/logout`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user_id: u.id, session_token: u.session_token }),
+          headers: {
+            "Content-Type": "application/json",
+            "x-user-id": u.id,
+            "x-session-token": u.session_token,
+          },
         }).catch(() => {});
       }
     } catch {}

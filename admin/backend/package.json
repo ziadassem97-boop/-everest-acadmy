@@ -9,9 +9,11 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@libsql/client": "^0.17.4",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "express": "^4.21.0",
+    "express-rate-limit": "^8.5.2",
     "multer": "^2.2.0",
     "sql.js": "^1.11.0",
     "uuid": "^9.0.0"

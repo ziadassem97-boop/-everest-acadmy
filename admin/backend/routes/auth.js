@@ -1,6 +1,7 @@
 import express from "express";
 import { query, queryOne, execute } from "../db.js";
 import { v4 as uuidv4 } from "uuid";
+import bcrypt from "bcryptjs";
 
 const router = express.Router();
 
@@ -21,8 +22,10 @@ async function generateUserId() {
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  const user = await queryOne("SELECT * FROM users WHERE email = ? AND password = ?", [email, password]);
+  const user = await queryOne("SELECT * FROM users WHERE email = ?", [email]);
   if (!user) return res.status(401).json({ error: "Invalid credentials" });
+  const valid = await bcrypt.compare(password, user.password || "");
+  if (!valid) return res.status(401).json({ error: "Invalid credentials" });
   if (user.blocked) return res.status(403).json({ error: "تم حظر حسابك. يرجى التواصل مع الإدارة." });
   if (user.status === 'pending') return res.status(403).json({ error: "حسابك قيد المراجعة. يرجى الانتظار حتى يتم تفعيله من الإدارة." });
 
@@ -64,17 +67,19 @@ router.post("/login", async (req, res) => {
   await execute("UPDATE users SET session_token = ? WHERE id = ?", [session_token, user.id]);
 
   user.session_token = session_token;
+  delete user.password;
   res.json({ user, session_token });
 });
 
 router.post("/logout", async (req, res) => {
   try {
-    const { user_id, session_token } = req.body;
-    if (user_id) {
-      // Delete ALL sessions for this user (single active device)
-      await execute("DELETE FROM user_sessions WHERE user_id = ?", [user_id]);
-      await execute("UPDATE users SET session_token = NULL WHERE id = ?", [user_id]);
-    }
+    const userId = req.headers["x-user-id"];
+    const sessionToken = req.headers["x-session-token"];
+    if (!userId || !sessionToken) return res.status(401).json({ error: "Unauthorized" });
+    const user = await queryOne("SELECT id, session_token FROM users WHERE id = ?", [userId]);
+    if (!user || user.session_token !== sessionToken) return res.status(401).json({ error: "Session invalid" });
+    await execute("DELETE FROM user_sessions WHERE user_id = ?", [userId]);
+    await execute("UPDATE users SET session_token = NULL WHERE id = ?", [userId]);
     res.json({ success: true });
   } catch (e) {
     res.json({ success: true });
@@ -84,7 +89,12 @@ router.post("/logout", async (req, res) => {
 // Cleanup expired/orphan sessions (optional, run on startup)
 router.post("/cleanup-sessions", async (req, res) => {
   try {
-    // Delete sessions where the user no longer exists
+    const userId = req.headers["x-user-id"];
+    const sessionToken = req.headers["x-session-token"];
+    if (!userId || !sessionToken) return res.status(401).json({ error: "Unauthorized" });
+    const user = await queryOne("SELECT id, session_token, role FROM users WHERE id = ?", [userId]);
+    if (!user || user.session_token !== sessionToken) return res.status(401).json({ error: "Session invalid" });
+    if (user.role !== "admin" && user.role !== "manager") return res.status(403).json({ error: "Admin access required" });
     await execute("DELETE FROM user_sessions WHERE user_id NOT IN (SELECT id FROM users)");
     res.json({ success: true });
   } catch (e) {
@@ -120,9 +130,10 @@ router.post("/register", async (req, res) => {
       if (refUser) referredBy = refUser.id;
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
     await execute(
       "INSERT INTO users (id, full_name, email, phone, address, password, referral_code, referred_by, status, rank) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', '')",
-      [id, full_name, email, phone || null, address || null, password, code, referredBy]
+      [id, full_name, email, phone || null, address || null, hashedPassword, code, referredBy]
     );
 
     // Populate closure table (for tree visibility — commissions handled on admin approval)
@@ -140,7 +151,7 @@ router.post("/register", async (req, res) => {
         [referredBy, id]);
     }
 
-    const user = await queryOne("SELECT * FROM users WHERE id = ?", [id]);
+    const user = await queryOne("SELECT id, full_name, email, phone, address, referral_code, referred_by, status, rank, e_money, account_type, created_at FROM users WHERE id = ?", [id]);
     res.json({ user });
   } catch (err) {
     console.error("Register error:", err);

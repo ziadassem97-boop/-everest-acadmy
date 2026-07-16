@@ -1,16 +1,28 @@
 import { queryOne } from "../db.js";
 
-const publicPaths = ["/auth/login", "/auth/register", "/auth/logout", "/auth/heartbeat", "/payment-gateways/active", "/admin-auth"];
-const chatPublicPaths = ["/chat"];
+// Truly public paths — no auth needed
+const publicPaths = ["/auth/login", "/auth/register", "/admin-auth"];
 
 export default async function sessionAuth(req, res, next) {
   if (publicPaths.some(p => req.path.startsWith(p))) return next();
 
-  if (req.path.startsWith("/chat")) {
-    if (req.method === "POST") return next();
-  }
+  // Chat POST is public (no auth for chatbot)
+  if (req.path.startsWith("/chat") && req.method === "POST") return next();
 
-  if (req.method === "GET" && (req.path.startsWith("/courses") || req.path.startsWith("/ranks") || req.path.startsWith("/leaders") || req.path.startsWith("/feedbacks") || req.path.startsWith("/proofs") || req.path.startsWith("/dashboard"))) {
+  // Public GET endpoints: course catalog, ranks, leaders, public feedbacks, proofs, dashboard stats
+  if (req.method === "GET" && (
+    req.path === "/courses" ||
+    req.path.startsWith("/courses/") && !req.path.includes("/my") && !req.path.includes("/quiz-progress") ||
+    req.path === "/free-courses" ||
+    req.path === "/ranks" ||
+    req.path === "/leaders" ||
+    req.path.startsWith("/leaders/") ||
+    req.path === "/feedbacks" ||
+    req.path === "/proofs" ||
+    req.path === "/dashboard" ||
+    req.path.startsWith("/payment-gateways/active") ||
+    req.path.startsWith("/chat/")
+  )) {
     return next();
   }
 
@@ -26,4 +38,24 @@ export default async function sessionAuth(req, res, next) {
   if (user && user.session_token === sessionToken) return next();
 
   res.status(401).json({ error: "Session expired. تم تسجيل الخروج من جهاز آخر. يرجى تسجيل الدخول مرة أخرى.", session_expired: true });
+}
+
+// Admin-only middleware — checks role is admin or manager
+export async function adminAuth(req, res, next) {
+  const userId = req.headers["x-user-id"];
+  const sessionToken = req.headers["x-session-token"];
+
+  if (!userId || !sessionToken) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const user = await queryOne("SELECT id, session_token, role FROM users WHERE id = ?", [userId]);
+  if (!user || user.session_token !== sessionToken) {
+    return res.status(401).json({ error: "Session expired" });
+  }
+  if (user.role !== "admin" && user.role !== "manager") {
+    return res.status(403).json({ error: "Admin access required" });
+  }
+  req.adminUser = user;
+  next();
 }

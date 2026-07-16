@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import fs from "fs";
@@ -21,6 +22,10 @@ app.use(cors({
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(join(__dirname, "uploads")));
+
+const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 500, message: { error: "Too many requests. يرجى المحاولة لاحقاً." } });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, message: { error: "Too many login attempts. يرجى المحاولة بعد 15 دقيقة." } });
+const uploadLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 50, message: { error: "Too many uploads." } });
 
 // Serve built frontends if dist folders exist
 // Admin frontend at /admin
@@ -70,7 +75,7 @@ if (fs.existsSync(userPublic)) {
   console.log("✅ Serving public assets from", userPublic);
 }
 
-import sessionAuth from "./middleware/sessionAuth.js";
+import sessionAuth, { adminAuth } from "./middleware/sessionAuth.js";
 import authRoutes from "./routes/auth.js";
 import usersRoutes from "./routes/users.js";
 import coursesRoutes from "./routes/courses.js";
@@ -90,24 +95,24 @@ import adminLogsRoutes from "./routes/admin_logs.js";
 import settingsRoutes from "./routes/settings.js";
 import adminAuthRoutes, { seedAdmins } from "./routes/admin_auth.js";
 
-app.use("/api", sessionAuth);
-app.use("/api/auth", authRoutes);
-app.use("/api/admin-auth", adminAuthRoutes);
+app.use("/api", sessionAuth, apiLimiter);
+app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/admin-auth", authLimiter, adminAuthRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/courses", coursesRoutes);
-app.use("/api/wallets", walletsRoutes);
+app.use("/api/wallets", adminAuth, walletsRoutes);
 app.use("/api/mlm", mlmRoutes);
 app.use("/api/ranks", ranksRoutes);
 app.use("/api/leaders", leadersRoutes);
 app.use("/api/notifications", notificationsRoutes);
-app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/upload", uploadRoutes);
+app.use("/api/dashboard", adminAuth, dashboardRoutes);
+app.use("/api/upload", adminAuth, uploadLimiter, uploadRoutes);
 app.use("/api/payment-gateways", paymentGatewayRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/feedbacks", feedbacksRoutes);
 app.use("/api/proofs", proofsRoutes);
-app.use("/api/admin-logs", adminLogsRoutes);
-app.use("/api/settings", settingsRoutes);
+app.use("/api/admin-logs", adminAuth, adminLogsRoutes);
+app.use("/api/settings", adminAuth, settingsRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

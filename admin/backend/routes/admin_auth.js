@@ -1,6 +1,7 @@
 import express from "express";
 import { query, queryOne, execute } from "../db.js";
 import { v4 as uuidv4 } from "uuid";
+import bcrypt from "bcryptjs";
 
 const router = express.Router();
 
@@ -19,9 +20,10 @@ export async function seedAdmins() {
     const exists = await queryOne("SELECT id FROM users WHERE id = ?", [a.id]);
     if (!exists) {
       const code = "EVR-ADM-" + String(i + 1).padStart(4, "0");
+      const hashedPassword = await bcrypt.hash(a.password, 10);
       await execute(
         "INSERT INTO users (id, full_name, email, password, role, referral_code, rank, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'active')",
-        [a.id, a.full_name, a.email, a.password, a.role || "admin", code, "Star"]
+        [a.id, a.full_name, a.email, hashedPassword, a.role || "admin", code, "Star"]
       );
     }
   }
@@ -31,8 +33,10 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: "Email and password required" });
 
-  const user = await queryOne("SELECT * FROM users WHERE email = ? AND password = ? AND (role = 'admin' OR role = 'manager')", [email, password]);
+  const user = await queryOne("SELECT * FROM users WHERE email = ? AND (role = 'admin' OR role = 'manager')", [email]);
   if (!user) return res.status(401).json({ error: "Invalid admin credentials" });
+  const valid = await bcrypt.compare(password, user.password || "");
+  if (!valid) return res.status(401).json({ error: "Invalid admin credentials" });
 
   const session_token = uuidv4() + "-" + Date.now();
   await execute("UPDATE users SET session_token = ? WHERE id = ?", [session_token, user.id]);
@@ -61,8 +65,9 @@ router.put("/me", async (req, res) => {
 
   const { full_name, email, phone, address, bio, password } = req.body;
   if (password) {
+    const hashedPassword = await bcrypt.hash(password, 10);
     await execute("UPDATE users SET full_name=?, email=?, phone=?, address=?, bio=?, password=?, updated_at=datetime('now','localtime') WHERE id=?",
-      [full_name, email, phone || null, address || null, bio || null, password, userId]);
+      [full_name, email, phone || null, address || null, bio || null, hashedPassword, userId]);
   } else {
     await execute("UPDATE users SET full_name=?, email=?, phone=?, address=?, bio=?, updated_at=datetime('now','localtime') WHERE id=?",
       [full_name, email, phone || null, address || null, bio || null, userId]);
@@ -99,8 +104,9 @@ router.post("/list", async (req, res) => {
   const exists = await queryOne("SELECT id FROM users WHERE id = ? OR email = ?", [id, email]);
   if (exists) return res.status(400).json({ error: "ID or email already exists" });
 
+  const hashedPassword = await bcrypt.hash(password, 10);
   await execute("INSERT INTO users (id, full_name, email, password, role, referral_code, rank, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'active')",
-    [id, full_name, email, password, role || "admin", "ADM-" + id.slice(-4), "Star"]);
+    [id, full_name, email, hashedPassword, role || "admin", "ADM-" + id.slice(-4), "Star"]);
   res.json({ success: true, id });
 });
 
@@ -115,8 +121,9 @@ router.put("/list/:id", async (req, res) => {
 
   const { full_name, email, password, role } = req.body;
   if (password) {
+    const hashedPassword = await bcrypt.hash(password, 10);
     await execute("UPDATE users SET full_name=?, email=?, password=?, role=?, updated_at=datetime('now','localtime') WHERE id=?",
-      [full_name, email, password, role, req.params.id]);
+      [full_name, email, hashedPassword, role, req.params.id]);
   } else {
     await execute("UPDATE users SET full_name=?, email=?, role=?, updated_at=datetime('now','localtime') WHERE id=?",
       [full_name, email, role, req.params.id]);

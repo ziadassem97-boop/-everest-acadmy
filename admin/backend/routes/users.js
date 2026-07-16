@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from "uuid";
 
 const router = express.Router();
 
+const stripPassword = (u) => { if (u) delete u.password; return u; };
+
 const logAdminAction = async (req, action, targetId, targetName, details) => {
   try {
     const adminName = req.headers["x-user-name"] || "Admin";
@@ -30,7 +32,7 @@ router.get("/pending-registrations", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  const user = await queryOne("SELECT * FROM users WHERE id = ?", [req.params.id]);
+  const user = await queryOne("SELECT id, full_name, email, phone, address, role, account_type, referral_code, rank, e_money, academic_points, total_team_sales, direct_count, qualified_direct_count, negative_allowed, blocked, status, bio, avatar, created_at, membership_expires_at FROM users WHERE id = ?", [req.params.id]);
   if (!user) return res.status(404).json({ error: "User not found" });
   const teamLevels = await query(`
     SELECT u.id, u.full_name, u.email, u.role, u.rank, u.e_money, u.created_at, uc.depth
@@ -49,12 +51,12 @@ router.put("/:id", async (req, res) => {
   for (const key of ["full_name","email","phone","address","role","bio","avatar"]) {
     if (req.body[key] !== undefined) { fields.push(`${key}=?`); vals.push(req.body[key]); }
   }
-  if (fields.length === 0) return res.json(await queryOne("SELECT * FROM users WHERE id=?", [req.params.id]));
+  if (fields.length === 0) return res.json(stripPassword(await queryOne("SELECT * FROM users WHERE id=?", [req.params.id])));
   fields.push("updated_at=datetime('now','localtime')");
   vals.push(req.params.id);
   await execute(`UPDATE users SET ${fields.join(",")} WHERE id=?`, vals);
   const user = await queryOne("SELECT * FROM users WHERE id = ?", [req.params.id]);
-  res.json(user);
+  res.json(stripPassword(user));
 });
 
 router.put("/:id/role", async (req, res) => {

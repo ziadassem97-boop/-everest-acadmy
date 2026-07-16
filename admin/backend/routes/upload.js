@@ -12,6 +12,9 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+const ALLOWED_MIMES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml", "video/mp4", "video/webm", "application/pdf"];
+const ALLOWED_EXTS = ["jpg", "jpeg", "png", "gif", "webp", "svg", "mp4", "webm", "pdf"];
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
@@ -20,7 +23,17 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage, limits: { fileSize: 200 * 1024 * 1024 } });
+const upload = multer({
+  storage,
+  limits: { fileSize: 200 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const ext = (file.originalname.split(".").pop() || "").toLowerCase();
+    if (!ALLOWED_EXTS.includes(ext) || !ALLOWED_MIMES.includes(file.mimetype)) {
+      return cb(new Error("File type not allowed. نوع الملف غير مسموح به."), false);
+    }
+    cb(null, true);
+  }
+});
 
 const router = express.Router();
 

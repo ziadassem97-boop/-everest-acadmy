@@ -202,7 +202,8 @@ export default function CourseViewPage() {
   const isApproved = enrollment?.status === "approved";
   const isPending = enrollment?.status === "pending";
   const isEnrolled = isApproved || (isFree && enrollment);
-  const canWatchAll = isEnrolled || isFree;
+  const isStudentAccount = user?.account_type === "student";
+  const canWatchAll = isEnrolled || isFree || isStudentAccount;
   const isRegistration = user?.account_type === "registration";
 
   const allLessons = (course.topics || []).flatMap((t) => (t.lessons || []).map((l) => ({ ...l, topicTitle: t.title_ar || t.title, topicId: t.id })));
@@ -335,7 +336,7 @@ export default function CourseViewPage() {
           </div>
         )}
 
-        {!isEnrolled && !isPending && !isFree && user?.account_type !== "registration" && (
+        {!isEnrolled && !isPending && !isFree && user?.account_type !== "registration" && !isStudentAccount && (
           <div style={{textAlign:"center",padding:m?"12px 0":"16px 0",marginBottom:m?12:20}}>
             {(user?.e_money || 0) < course.price && (
               <div style={{background:"rgba(255,91,91,.1)",border:"1px solid rgba(255,91,91,.2)",borderRadius:14,padding:m?10:12,marginBottom:m?10:16,color:"#ff5b5b",fontSize:m?12:13}}>
