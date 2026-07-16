@@ -7,6 +7,7 @@ export default function UsersPage() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [teamTab, setTeamTab] = useState(1);
+  const [profileTab, setProfileTab] = useState("details");
   const [amount, setAmount] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [search, setSearch] = useState("");
@@ -16,6 +17,10 @@ export default function UsersPage() {
   const [editForm, setEditForm] = useState({});
   const [saving, setSaving] = useState(false);
   const [dbRanks, setDbRanks] = useState([]);
+  const [rankProgress, setRankProgress] = useState(null);
+  const [weeklyHistory, setWeeklyHistory] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [historyDetail, setHistoryDetail] = useState(null);
 
   const loadUsers = () => api("/api/users").then(setUsers);
   useEffect(() => { loadUsers(); api("/api/ranks").then(d => setDbRanks(Array.isArray(d) ? d : [])).catch(() => {}); }, []);
@@ -34,7 +39,14 @@ export default function UsersPage() {
       });
       setEditing(false);
       setTeamTab(1);
+      setProfileTab("details");
       setAmount("");
+      setRankProgress(null);
+      setWeeklyHistory([]);
+      setHistoryDetail(null);
+      api(`/api/mlm/rank-progress/${data.id}`).then(setRankProgress).catch(() => {});
+      api(`/api/mlm/weekly-history/${data.id}`).then(d => setWeeklyHistory(Array.isArray(d) ? d : [])).catch(() => {});
+      api("/api/mlm/leaderboard").then(d => setLeaderboard(Array.isArray(d) ? d : [])).catch(() => {});
     });
   };
 
@@ -243,6 +255,23 @@ export default function UsersPage() {
                 </div>
               </div>
 
+              {!editing && (
+                <div className="flex gap-2 mb-5 flex-wrap border-b pb-3">
+                  {[
+                    { key: "details", icon: "👤", label: t("البيانات", "Details") },
+                    { key: "activity", icon: "📈", label: t("النشاط الأسبوعي", "Weekly Activity") },
+                    { key: "network", icon: "🌐", label: t("الشبكة المؤهلة", "Qualified Network") },
+                    { key: "history", icon: "📜", label: t("السجل الأسبوعي", "Weekly History") },
+                    { key: "leaderboard", icon: "🏆", label: t("لوحة المتصدرين", "Leaderboard") },
+                  ].map(tb => (
+                    <button key={tb.key} onClick={() => setProfileTab(tb.key)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${profileTab === tb.key ? "bg-everest-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+                      {tb.icon} {tb.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {editing ? (
                 <div className="space-y-3 mb-6">
                   <div className="grid grid-cols-2 gap-3">
@@ -288,201 +317,388 @@ export default function UsersPage() {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-3 gap-3 mb-4">
-                    {[
-                      { label: t("المعرف", "User ID"), value: selectedUser.id },
-                      { label: t("البريد الإلكتروني", "Email"), value: selectedUser.email },
-                      { label: t("رقم الهاتف", "Phone"), value: selectedUser.phone || "—" },
-                      { label: t("العنوان", "Address"), value: selectedUser.address || "—" },
-                    ].map((item, i) => (
-                      <div key={i} className="bg-gray-50 rounded-lg p-3">
-                        <p className="text-xs text-gray-400">{item.label}</p>
-                        <p className="text-sm font-medium mt-1">{item.value}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-                    <div className="border rounded-lg p-3">
-                      <p className="text-xs text-gray-400">{t("كود الإحالة", "Referral Code")}</p>
-                      <p className="text-sm font-bold text-purple-600 mt-1">{selectedUser.referral_code}</p>
-                    </div>
-                    <div className="border rounded-lg p-3">
-                      <p className="text-xs text-gray-400">{t("الرتبة الحالية", "Current Rank")}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        {(() => {
-                          const rankData = dbRanks.find(r => r.name === selectedUser.rank);
-                          if (rankData?.image) return <img src={rankData.image} alt={selectedUser.rank} className="w-5 h-5 rounded object-cover" />;
-                          const icons = {"Star":"⭐","Executive":"🚀","Executive Star":"💎","Team Leader":"🏆","Senior Leader":"🌍","Regional Leader":"⚡","Everest Elite":"🔱","Everest Master":"🔥","Everest Legend":"🌟","Everest Ambassador":"👑"};
-                          return <span>{icons[selectedUser.rank] || "🏅"}</span>;
-                        })()}
-                        <p className="text-sm font-bold">{selectedUser.rank || "—"}</p>
-                      </div>
-                    </div>
-                    <div className="border rounded-lg p-3">
-                      <p className="text-xs text-gray-400">{t("مبيعات الفريق", "Team Sales")}</p>
-                      <p className="text-sm font-bold mt-1">{selectedUser.total_team_sales || 0}</p>
-                    </div>
-                    <div className="border rounded-lg p-3">
-                      <p className="text-xs text-gray-400">{t("رصيد E-Money", "E-Money Balance")}</p>
-                      <p className="text-sm font-bold text-green-600 mt-1">{selectedUser.e_money}</p>
-                    </div>
-                  </div>
-
-                  {/* Account Type Quick Change */}
-                  {selectedUser.role !== "admin" && (
-                    <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                      <h4 className="font-bold mb-3">{t("🔄 نوع الحساب", "🔄 Account Type")}</h4>
-                      <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          selectedUser.account_type === "student" ? "bg-green-100 text-green-700" :
-                          "bg-emerald-100 text-emerald-700"
-                        }`}>{selectedUser.account_type || "student"}</span>
-                        {["student", "registration"].filter(t => t !== (selectedUser.account_type || "student")).map(newType => (
-                          <button key={newType} onClick={async () => {
-                            try {
-                              await api(`/api/users/${selectedUser.id}/account-type`, { method: "PUT", body: JSON.stringify({ account_type: newType }) });
-                              const updated = await api(`/api/users/${selectedUser.id}`);
-                              setSelectedUser(updated);
-                              loadUsers();
-                            } catch (e) { alert(e.message); }
-                          }} className="px-3 py-1 text-xs font-medium bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                            → {newType === "student" ? "🎓 Student" : "👤 Registration"}
-                          </button>
+                  {profileTab === "details" && (
+                    <>
+                      <div className="grid grid-cols-3 gap-3 mb-4">
+                        {[
+                          { label: t("المعرف", "User ID"), value: selectedUser.id },
+                          { label: t("البريد الإلكتروني", "Email"), value: selectedUser.email },
+                          { label: t("رقم الهاتف", "Phone"), value: selectedUser.phone || "—" },
+                          { label: t("العنوان", "Address"), value: selectedUser.address || "—" },
+                        ].map((item, i) => (
+                          <div key={i} className="bg-gray-50 rounded-lg p-3">
+                            <p className="text-xs text-gray-400">{item.label}</p>
+                            <p className="text-sm font-medium mt-1">{item.value}</p>
+                          </div>
                         ))}
                       </div>
-                    </div>
-                  )}
-                </>
-              )}
 
-              {!editing && (
-                <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                  <h4 className="font-bold mb-3">{t("💰 إضافة / خصم رصيد", "💰 Add / Deduct Balance")}</h4>
-                  <div className="flex gap-3">
-                    <input
-                      type="number" value={amount} onChange={(e) => setAmount(e.target.value)}
-                      placeholder={t("مثال: 50 أو -50", "e.g. 50 or -50")}
-                      className="flex-1 px-4 py-2 border rounded-lg text-sm"
-                    />
-                    <button onClick={processEMoneyOnProfile} className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium text-sm hover:bg-green-700">{t("تنفيذ", "Apply")}</button>
-                  </div>
-                </div>
-              )}
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+                        <div className="border rounded-lg p-3">
+                          <p className="text-xs text-gray-400">{t("كود الإحالة", "Referral Code")}</p>
+                          <p className="text-sm font-bold text-purple-600 mt-1">{selectedUser.referral_code}</p>
+                        </div>
+                        <div className="border rounded-lg p-3">
+                          <p className="text-xs text-gray-400">{t("الرتبة الحالية", "Current Rank")}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            {(() => {
+                              const rankData = dbRanks.find(r => r.name === selectedUser.rank);
+                              if (rankData?.image) return <img src={rankData.image} alt={selectedUser.rank} className="w-5 h-5 rounded object-cover" />;
+                              const icons = {"Star":"⭐","Executive":"🚀","Executive Star":"💎","Team Leader":"🏆","Senior Leader":"🌍","Regional Leader":"⚡","Everest Elite":"🔱","Everest Master":"🔥","Everest Legend":"🌟","Everest Ambassador":"👑"};
+                              return <span>{icons[selectedUser.rank] || "🏅"}</span>;
+                            })()}
+                            <p className="text-sm font-bold">{selectedUser.rank || "—"}</p>
+                          </div>
+                        </div>
+                        <div className="border rounded-lg p-3">
+                          <p className="text-xs text-gray-400">{t("مبيعات الفريق", "Team Sales")}</p>
+                          <p className="text-sm font-bold mt-1">{selectedUser.total_team_sales || 0}</p>
+                        </div>
+                        <div className="border rounded-lg p-3">
+                          <p className="text-xs text-gray-400">{t("رصيد E-Money", "E-Money Balance")}</p>
+                          <p className="text-sm font-bold text-green-600 mt-1">{selectedUser.e_money}</p>
+                        </div>
+                      </div>
 
-              {!editing && selectedUser.role !== "admin" && (
-                <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                  <h4 className="font-bold mb-3">{t("🔑 تغيير كلمة المرور", "🔑 Change Password")}</h4>
-                  <div className="flex gap-3">
-                    <input
-                      type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder={t("كلمة المرور الجديدة", "New password")}
-                      className="flex-1 px-4 py-2 border rounded-lg text-sm"
-                    />
-                    <button onClick={async () => {
-                      if (!newPassword || newPassword.length < 4) { alert(t("كلمة المرور يجب أن تكون 4 أحرف على الأقل", "Password must be at least 4 characters")); return; }
-                      try {
-                        await api(`/api/users/${selectedUser.id}`, { method: "PUT", body: JSON.stringify({ password: newPassword }) });
-                        setNewPassword("");
-                        alert(t("تم تغيير كلمة المرور بنجاح", "Password changed successfully"));
-                      } catch (e) { alert(t("خطأ:", "Error:") + " " + e.message); }
-                    }} className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700">
-                      {t("حفظ", "Save")}
-                    </button>
-                  </div>
-                </div>
-              )}
+                      {/* Account Type Quick Change */}
+                      {selectedUser.role !== "admin" && (
+                        <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                          <h4 className="font-bold mb-3">{t("🔄 نوع الحساب", "🔄 Account Type")}</h4>
+                          <div className="flex items-center gap-3">
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                              selectedUser.account_type === "student" ? "bg-green-100 text-green-700" :
+                              "bg-emerald-100 text-emerald-700"
+                            }`}>{selectedUser.account_type || "student"}</span>
+                            {["student", "registration"].filter(t => t !== (selectedUser.account_type || "student")).map(newType => (
+                              <button key={newType} onClick={async () => {
+                                try {
+                                  await api(`/api/users/${selectedUser.id}/account-type`, { method: "PUT", body: JSON.stringify({ account_type: newType }) });
+                                  const updated = await api(`/api/users/${selectedUser.id}`);
+                                  setSelectedUser(updated);
+                                  loadUsers();
+                                } catch (e) { alert(e.message); }
+                              }} className="px-3 py-1 text-xs font-medium bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                                → {newType === "student" ? "🎓 Student" : "👤 Registration"}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
-              {!editing && (
-                <div className="flex flex-wrap gap-2 mb-6">
-                  <button onClick={() => toggleBlock(selectedUser)} className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedUser.blocked ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}>
-                    {selectedUser.blocked ? t("🔓 فك الحظر", "🔓 Unblock User") : t("🔒 حظر المستخدم", "🔒 Block User")}
-                  </button>
-                  <button onClick={async () => {
-                    await api(`/api/users/${selectedUser.id}/negative-toggle`, { method: "PUT" });
-                    const updated = await api(`/api/users/${selectedUser.id}`);
-                    setSelectedUser(updated);
-                  }} className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedUser.negative_allowed ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-600"}`}>
-                    {selectedUser.negative_allowed ? "✅ " + t("السماح بالسالب مفعل", "Negative Allowed") : "⛔ " + t("السماح بالسالب", "Allow Negative")}
-                  </button>
-                  {selectedUser.role !== "admin" && (
-                    <button onClick={() => { setConfirmDelete(selectedUser); }} className="px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium">
-                      🗑️ {t("حذف المستخدم", "Delete User")}
-                    </button>
-                  )}
-                </div>
-              )}
+                      <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                        <h4 className="font-bold mb-3">{t("💰 إضافة / خصم رصيد", "💰 Add / Deduct Balance")}</h4>
+                        <div className="flex gap-3">
+                          <input
+                            type="number" value={amount} onChange={(e) => setAmount(e.target.value)}
+                            placeholder={t("مثال: 50 أو -50", "e.g. 50 or -50")}
+                            className="flex-1 px-4 py-2 border rounded-lg text-sm"
+                          />
+                          <button onClick={processEMoneyOnProfile} className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium text-sm hover:bg-green-700">{t("تنفيذ", "Apply")}</button>
+                        </div>
+                      </div>
 
-              {!editing && (
-                <>
-                  {/* Rank Achievements */}
-                  {selectedUser.rankBonuses && selectedUser.rankBonuses.length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="font-bold mb-3">{t("🏆 الرتب المحققة", "🏆 Achieved Ranks")}</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {[...new Set(selectedUser.rankBonuses.map(rb => rb.rank_name))].map((rankName, i) => {
-                          const bonus = selectedUser.rankBonuses.find(rb => rb.rank_name === rankName);
+                      {selectedUser.role !== "admin" && (
+                        <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                          <h4 className="font-bold mb-3">{t("🔑 تغيير كلمة المرور", "🔑 Change Password")}</h4>
+                          <div className="flex gap-3">
+                            <input
+                              type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+                              placeholder={t("كلمة المرور الجديدة", "New password")}
+                              className="flex-1 px-4 py-2 border rounded-lg text-sm"
+                            />
+                            <button onClick={async () => {
+                              if (!newPassword || newPassword.length < 4) { alert(t("كلمة المرور يجب أن تكون 4 أحرف على الأقل", "Password must be at least 4 characters")); return; }
+                              try {
+                                await api(`/api/users/${selectedUser.id}`, { method: "PUT", body: JSON.stringify({ password: newPassword }) });
+                                setNewPassword("");
+                                alert(t("تم تغيير كلمة المرور بنجاح", "Password changed successfully"));
+                              } catch (e) { alert(t("خطأ:", "Error:") + " " + e.message); }
+                            }} className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700">
+                              {t("حفظ", "Save")}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        <button onClick={() => toggleBlock(selectedUser)} className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedUser.blocked ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`}>
+                          {selectedUser.blocked ? t("🔓 فك الحظر", "🔓 Unblock User") : t("🔒 حظر المستخدم", "🔒 Block User")}
+                        </button>
+                        <button onClick={async () => {
+                          await api(`/api/users/${selectedUser.id}/negative-toggle`, { method: "PUT" });
+                          const updated = await api(`/api/users/${selectedUser.id}`);
+                          setSelectedUser(updated);
+                        }} className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedUser.negative_allowed ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-600"}`}>
+                          {selectedUser.negative_allowed ? "✅ " + t("السماح بالسالب مفعل", "Negative Allowed") : "⛔ " + t("السماح بالسالب", "Allow Negative")}
+                        </button>
+                        {selectedUser.role !== "admin" && (
+                          <button onClick={() => { setConfirmDelete(selectedUser); }} className="px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium">
+                            🗑️ {t("حذف المستخدم", "Delete User")}
+                          </button>
+                        )}
+                      </div>
+
+                      {selectedUser.rankBonuses && selectedUser.rankBonuses.length > 0 && (
+                        <div className="mb-6">
+                          <h4 className="font-bold mb-3">{t("🏆 الرتب المحققة", "🏆 Achieved Ranks")}</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {[...new Set(selectedUser.rankBonuses.map(rb => rb.rank_name))].map((rankName, i) => {
+                              const bonus = selectedUser.rankBonuses.find(rb => rb.rank_name === rankName);
+                              return (
+                                <div key={i} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-xl">
+                                  <span className="text-lg">⭐</span>
+                                  <div>
+                                    <p className="text-sm font-bold text-yellow-700">{rankName}</p>
+                                    {bonus?.amount > 0 && <p className="text-xs text-yellow-600">+{bonus.amount} bonus</p>}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      <div>
+                        <h4 className="font-bold mb-3">{t("👥 فريق التسويق", "👥 Marketing Team")}</h4>
+                        {(() => {
+                          const levels = selectedUser.teamLevels || [];
+                          const maxLevel = levels.length > 0 ? Math.max(...levels.map(m => m.depth)) : 0;
+                          const tabs = Array.from({ length: maxLevel }, (_, i) => i + 1);
+                          const filtered = levels.filter(m => m.depth === teamTab);
+                          const totalByLevel = {};
+                          levels.forEach(m => { totalByLevel[m.depth] = (totalByLevel[m.depth] || 0) + 1; });
                           return (
-                            <div key={i} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-xl">
-                              <span className="text-lg">⭐</span>
-                              <div>
-                                <p className="text-sm font-bold text-yellow-700">{rankName}</p>
-                                {bonus?.amount > 0 && <p className="text-xs text-yellow-600">+{bonus.amount} bonus</p>}
-                              </div>
-                            </div>
+                            <>
+                              {tabs.length > 0 && (
+                                <div className="flex gap-2 mb-3 flex-wrap">
+                                  {tabs.map(lvl => (
+                                    <button key={lvl} onClick={() => setTeamTab(lvl)} className={`px-4 py-1.5 rounded-lg text-sm font-medium ${teamTab === lvl ? "bg-everest-600 text-white" : "bg-gray-100 text-gray-600"}`}>
+                                      {t("مستوى", "Level")} {lvl} <span className="text-xs opacity-70">({totalByLevel[lvl] || 0})</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              {tabs.length === 0 ? (
+                                <p className="text-center text-gray-400 py-4">{t("لا يوجد فريق تسويق", "No marketing team")}</p>
+                              ) : (
+                                <table className="w-full table-data border rounded-lg">
+                                  <thead>
+                                    <tr className="bg-gray-50"><th>{t("الاسم", "Name")}</th><th>{t("البريد", "Email")}</th><th>ID</th><th>{t("الرتبة", "Rank")}</th><th>{t("الدور", "Role")}</th></tr>
+                                  </thead>
+                                  <tbody>
+                                    {filtered.length > 0 ? filtered.map(m => (
+                                      <tr key={m.id} className="border-t">
+                                        <td className="font-medium">{m.full_name}</td>
+                                        <td className="text-xs text-gray-500">{m.email}</td>
+                                        <td className="text-xs text-gray-400 font-mono">{m.id}</td>
+                                        <td className="text-xs">⭐ {m.rank || "—"}</td>
+                                        <td><span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">{m.role}</span></td>
+                                      </tr>
+                                    )) : (
+                                      <tr><td colSpan="5" className="text-center text-gray-400 py-4">{t("لا يوجد أعضاء في هذا المستوى", "No members at this level")}</td></tr>
+                                    )}
+                                  </tbody>
+                                </table>
+                              )}
+                            </>
                           );
-                        })}
+                        })()}
+                      </div>
+                    </>
+                  )}
+
+                  {profileTab === "activity" && (
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-lg mb-4">📈 {t("النشاط الأسبوعي", "Weekly Activity")}</h4>
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <h5 className="font-bold mb-3">{t("📊 المبيعات المباشرة", "📊 Direct Sales")}</h5>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                          {[
+                            { label: t("إجمالي المبيعات", "Total Direct Sales"), value: rankProgress?.totalDirectSales ?? 0, color: "text-blue-700" },
+                            { label: t("🎓 مبيعات طلاب", "🎓 Student Sales"), value: rankProgress?.studentDirectSales ?? 0, color: "text-green-600" },
+                            { label: t("📋 مبيعات تسجيل", "📋 Registration Sales"), value: rankProgress?.registrationDirectSales ?? 0, color: "text-yellow-600" },
+                            { label: t("المبيعات المؤهلة", "Qualified Sales"), value: rankProgress?.qualifiedDirectSales ?? 0, color: rankProgress?.meetsMinDirects ? "text-green-600" : "text-red-500" },
+                          ].map((s, i) => (
+                            <div key={i} className="bg-white rounded-lg p-3 border">
+                              <p className="text-xs text-gray-400">{s.label}</p>
+                              <p className={`text-2xl font-black mt-1 ${s.color}`}>{s.value}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <h5 className="font-bold mb-3">{t("🎯 ملخص الأهلية", "🎯 Eligibility Summary")}</h5>
+                        <div className="grid gap-2">
+                          {[
+                            { label: t("الرتبة", "Rank"), value: selectedUser.rank || t("لا يوجد", "None"), icon: "🏅" },
+                            { label: t("الأعضاء المؤهلين", "Qualified Members"), value: rankProgress?.qualifiedDirects ?? 0, icon: "👥" },
+                            { label: t("التقدم للرتبة التالية", "Progress to Next"), value: `${Math.round(rankProgress?.progressToNext ?? 0)}%`, icon: "📈" },
+                            { label: t("الحد الأدنى المبيعات", "Min Direct Sales"), value: rankProgress?.meetsMinDirects ? "✅ 2+" : "❌ < 2", icon: "📏" },
+                          ].map((item, i) => (
+                            <div key={i} className="flex items-center justify-between py-2 px-3 bg-white rounded-lg">
+                              <span className="text-sm text-gray-500">{item.icon} {item.label}</span>
+                              <span className="text-sm font-bold">{item.value}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Marketing Team */}
-                  <div>
-                    <h4 className="font-bold mb-3">{t("👥 فريق التسويق", "👥 Marketing Team")}</h4>
-                    {(() => {
-                      const levels = selectedUser.teamLevels || [];
-                      const maxLevel = levels.length > 0 ? Math.max(...levels.map(m => m.depth)) : 0;
-                      const tabs = Array.from({ length: maxLevel }, (_, i) => i + 1);
-                      const filtered = levels.filter(m => m.depth === teamTab);
-                      const totalByLevel = {};
-                      levels.forEach(m => { totalByLevel[m.depth] = (totalByLevel[m.depth] || 0) + 1; });
-                      return (
-                        <>
-                          {tabs.length > 0 && (
-                            <div className="flex gap-2 mb-3 flex-wrap">
-                              {tabs.map(lvl => (
-                                <button key={lvl} onClick={() => setTeamTab(lvl)} className={`px-4 py-1.5 rounded-lg text-sm font-medium ${teamTab === lvl ? "bg-everest-600 text-white" : "bg-gray-100 text-gray-600"}`}>
-                                  {t("مستوى", "Level")} {lvl} <span className="text-xs opacity-70">({totalByLevel[lvl] || 0})</span>
-                                </button>
-                              ))}
+                  {profileTab === "network" && (
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-lg mb-4">🌐 {t("الشبكة المؤهلة", "Qualified Network")}</h4>
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <div className="grid grid-cols-3 gap-3">
+                          {[
+                            { label: t("أعضاء الفريق المؤهلين", "Qualified Team"), value: rankProgress?.qualifiedDirects ?? 0, color: "text-blue-700" },
+                            { label: t("🎓 أعضاء طلاب", "🎓 Student Members"), value: rankProgress?.studentMembers ?? 0, color: "text-green-600" },
+                            { label: t("📋 أعضاء تسجيل", "📋 Registration Members"), value: rankProgress?.registrationMembers ?? 0, color: "text-yellow-600" },
+                          ].map((s, i) => (
+                            <div key={i} className="bg-white rounded-lg p-3 border text-center">
+                              <p className="text-xs text-gray-400">{s.label}</p>
+                              <p className={`text-2xl font-black mt-1 ${s.color}`}>{s.value}</p>
                             </div>
-                          )}
-                          {tabs.length === 0 ? (
-                            <p className="text-center text-gray-400 py-4">{t("لا يوجد فريق تسويق", "No marketing team")}</p>
-                          ) : (
-                            <table className="w-full table-data border rounded-lg">
-                              <thead>
-                                <tr className="bg-gray-50"><th>{t("الاسم", "Name")}</th><th>{t("البريد", "Email")}</th><th>ID</th><th>{t("الرتبة", "Rank")}</th><th>{t("الدور", "Role")}</th></tr>
-                              </thead>
-                              <tbody>
-                                {filtered.length > 0 ? filtered.map(m => (
-                                  <tr key={m.id} className="border-t">
-                                    <td className="font-medium">{m.full_name}</td>
-                                    <td className="text-xs text-gray-500">{m.email}</td>
-                                    <td className="text-xs text-gray-400 font-mono">{m.id}</td>
-                                    <td className="text-xs">⭐ {m.rank || "—"}</td>
-                                    <td><span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">{m.role}</span></td>
-                                  </tr>
-                                )) : (
-                                  <tr><td colSpan="5" className="text-center text-gray-400 py-4">{t("لا يوجد أعضاء في هذا المستوى", "No members at this level")}</td></tr>
-                                )}
-                              </tbody>
-                            </table>
-                          )}
-                        </>
-                      );
-                    })()}
-                  </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <h5 className="font-bold mb-3">{t("🚫 الأعضاء المستبعدون", "🚫 Excluded Members")}</h5>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-white rounded-lg p-3 border">
+                            <p className="text-xs text-gray-400">{t("رتبة أعلى", "Excluded Higher Rank")}</p>
+                            <p className={`text-xl font-bold mt-1 ${(rankProgress?.higherRankExcluded ?? 0) > 0 ? "text-red-500" : "text-green-500"}`}>{rankProgress?.higherRankExcluded ?? 0}</p>
+                          </div>
+                          <div className="bg-white rounded-lg p-3 border">
+                            <p className="text-xs text-gray-400">{t("غير نشط", "Excluded Inactive")}</p>
+                            <p className={`text-xl font-bold mt-1 ${(rankProgress?.inactiveExcluded ?? 0) > 0 ? "text-red-500" : "text-green-500"}`}>{rankProgress?.inactiveExcluded ?? 0}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                        <h5 className="font-bold text-sm text-yellow-700 mb-2">📝 {t("قواعد الشبكة المؤهلة", "Qualified Network Rules")}</h5>
+                        <ul className="text-xs text-gray-500 space-y-1 ml-4 list-disc">
+                          <li>{t("الأعضاء النشطون فقط (status = active)", "Only active members (status = active)")}</li>
+                          <li>{t("رتبة العضو ≤ رتبة المستخدم", "Member's rank ≤ user's rank")}</li>
+                          <li>{t("كلتا الحسابين (طالب + تسجيل) تُحسب", "Both Student and Registration count")}</li>
+                          <li>{t("الأعضاء بترتبة أعلى مستبعدون", "Members with higher rank are excluded")}</li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+
+                  {profileTab === "history" && (
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-lg mb-4">📜 {t("السجل الأسبوعي", "Weekly History")}</h4>
+                      {weeklyHistory.length === 0 ? (
+                        <div className="bg-gray-50 rounded-xl p-8 text-center">
+                          <p className="text-gray-400">{t("لا يوجد سجل بعد. سيتم التسجيل عند الحساب الأسبوعي.", "No history yet. Records will be created during weekly processing.")}</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {weeklyHistory.map((wh) => (
+                            <div key={wh.id} className="border rounded-lg overflow-hidden">
+                              <div className="flex items-center justify-between p-3 bg-gray-50 cursor-pointer hover:bg-gray-100 transition"
+                                onClick={() => setHistoryDetail(historyDetail === wh.id ? null : wh.id)}>
+                                <div>
+                                  <p className="text-sm font-bold">{wh.week_start} → {wh.week_end}</p>
+                                  <p className="text-xs text-gray-400">{wh.previous_rank || "None"} → {wh.current_rank || "None"}</p>
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-sm">S:{wh.student_direct_sales} R:{wh.registration_direct_sales}</p>
+                                  <p className="text-xs text-gray-400">{t("مؤهل:", "Qualified:")} {wh.qualified_direct_sales}</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className={`text-sm font-bold ${wh.weekly_commission > 0 ? "text-green-600" : "text-gray-400"}`}>
+                                    {wh.weekly_commission > 0 ? `${wh.weekly_commission.toLocaleString()} EM` : "—"}
+                                  </p>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                    wh.commission_status === 'paid' ? 'bg-green-100 text-green-700' :
+                                    wh.commission_status === 'not_eligible' ? 'bg-red-100 text-red-700' :
+                                    'bg-gray-100 text-gray-500'
+                                  }`}>
+                                    {wh.commission_status === 'paid' ? '✅ Paid' :
+                                     wh.commission_status === 'not_eligible' ? '❌ Not Eligible' :
+                                     wh.commission_status}
+                                  </span>
+                                </div>
+                              </div>
+                              {historyDetail === wh.id && (
+                                <div className="p-3 bg-gray-50 border-t">
+                                  {wh.failure_reason && (
+                                    <div className="p-2 bg-red-50 text-red-600 text-xs rounded mb-2">❌ {wh.failure_reason}</div>
+                                  )}
+                                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                                    {[
+                                      [t("مبيعات مباشرة", "Direct Sales"), wh.total_direct_sales],
+                                      [t("طلاب", "Students"), wh.student_direct_sales],
+                                      [t("تسجيل", "Registration"), wh.registration_direct_sales],
+                                      [t("مؤهلة", "Qualified"), wh.qualified_direct_sales],
+                                      [t("فريق مؤهل", "Qualified Team"), wh.qualified_team_count],
+                                      [t("شبكة مؤهلة", "Qualified Network"), wh.qualified_network_count],
+                                      [t("أعضاء طلاب", "Student Members"), wh.student_members],
+                                      [t("أعضاء تسجيل", "Registration Members"), wh.registration_members],
+                                      [t("مستبعدون (رتبة أعلى)", "Excluded (Higher Rank)"), wh.higher_rank_excluded],
+                                      [t("مستبعدون (غير نشط)", "Excluded (Inactive)"), wh.inactive_excluded],
+                                    ].map(([label, val], i) => (
+                                      <div key={i} className="flex justify-between px-2 py-1 bg-white rounded text-xs">
+                                        <span className="text-gray-400">{label}</span>
+                                        <span className="font-bold">{val}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {profileTab === "leaderboard" && (
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-lg mb-4">🏆 {t("لوحة المتصدرين", "Leaderboard")}</h4>
+                      {leaderboard.length === 0 ? (
+                        <div className="bg-gray-50 rounded-xl p-8 text-center">
+                          <p className="text-gray-400">{t("لا يوجد أعضاء بعد", "No members yet")}</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {leaderboard.map((u, i) => {
+                            const rk = dbRanks.find(r => r.name === u.rank);
+                            const isCurrentUser = u.id === selectedUser?.id;
+                            return (
+                              <div key={u.id} className={`flex items-center justify-between rounded-xl p-3 border transition ${
+                                isCurrentUser ? "bg-blue-50 border-blue-300" : i < 3 ? "bg-yellow-50 border-yellow-200" : "bg-gray-50 border-gray-200"
+                              }`}>
+                                <div className="flex items-center gap-3">
+                                  <span className={`text-lg font-black w-8 text-center ${i < 3 ? "text-yellow-600" : "text-gray-400"}`}>#{u.position}</span>
+                                  <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                    {u.avatar?.trim() ? <img src={u.avatar} className="w-full h-full object-cover" alt="" /> : <span className="text-sm font-bold text-gray-500">{(u.full_name || "U")[0]}</span>}
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-bold">
+                                      {u.full_name}
+                                      {isCurrentUser && <span className="text-xs text-blue-500 ml-1">({t("هذا المستخدم", "This User")})</span>}
+                                      {u.account_type === 'registration' && <span className="text-xs text-yellow-600 ml-1 px-1.5 py-0.5 bg-yellow-100 rounded">REG</span>}
+                                    </p>
+                                    <p className="text-xs text-gray-400">
+                                      {rk?.image && <img src={rk.image} alt="" className="w-4 h-4 rounded inline mr-1 object-cover" />}
+                                      {u.rank} · {u.total_team_sales || 0} {t("مبيعات", "sales")}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-sm font-bold text-green-600">{u.e_money} EM</p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
             </div>
