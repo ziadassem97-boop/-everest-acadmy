@@ -321,12 +321,8 @@ export default function CoursesListPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">{t("السعر (E-Money)", "Price (E-Money)")}</label>
+                  <label className="text-sm font-medium">E-Money {t("السعر", "Price")}</label>
                   <input type="number" value={cv.price || 0} onChange={(e) => setCv("price", parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border rounded-lg text-sm" />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">{t("السعر (ج.م EGP)", "Price (EGP)")}</label>
-                  <input type="number" value={cv.price_egp || 0} onChange={(e) => setCv("price_egp", parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
                 <div className="flex items-center gap-3 pt-6">
                   <label className="flex items-center gap-2 text-sm">
@@ -789,7 +785,7 @@ export default function CoursesListPage() {
                   {c.title && c.title_ar && <p className="text-xs text-gray-400 mt-0.5">{c.title_ar}</p>}
                 </td>
                 <td className="p-3 text-xs text-gray-500">{c.category_ar || c.category || "—"}</td>
-                <td className="p-3 text-sm font-medium">{c.is_free ? (t("مجاني", "Free")) : `${c.price} ${t("ج.م", "EGP")}`}</td>
+                <td className="p-3 text-sm font-medium">{c.is_free ? (t("مجاني", "Free")) : `${c.price} E-Money`}</td>
                 <td className="p-3 text-xs">{c.author_name || "—"}</td>
                 <td className="p-3">
                   <select value={c.status || "draft"} onChange={async (e) => {

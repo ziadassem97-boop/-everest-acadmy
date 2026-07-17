@@ -57,15 +57,15 @@ const makeStyles = (c, m) => ({
 
 const ranks = [
   { icon: "⭐", name: "Star", req: "2 ينضمو من خلال الكود بتاعك", reqEn: "2 joins through your referral code", reward: "دخول المجتمع والتقدير", rewardEn: "Community access & recognition." },
-  { icon: "🚀", name: "Executive", req: "5 مبيعات الفريق", reqEn: "5 Team Sales.", reward: "مكافأة 1,500 جنيه", rewardEn: "1,500 EGP Bonus." },
-  { icon: "💎", name: "Executive Star", req: "10 مبيعات الفريق", reqEn: "10 Team Sales.", reward: "مكافأة 3,000 جنيه", rewardEn: "3,000 EGP Bonus." },
-  { icon: "👑", name: "Team Leader", req: "20 مبيعات الفريق", reqEn: "20 Team Sales.", reward: "مكافأة 5,000 جنيه", rewardEn: "5,000 EGP Bonus." },
-  { icon: "🏆", name: "Senior Leader", req: "40 مبيعات الفريق", reqEn: "40 Team Sales.", reward: "مكافأة 8,000 جنيه", rewardEn: "8,000 EGP Bonus." },
-  { icon: "🌍", name: "Regional Leader", req: "70 مبيعات الفريق", reqEn: "70 Team Sales.", reward: "مكافأة 12,000 جنيه", rewardEn: "12,000 EGP Bonus." },
-  { icon: "⚡", name: "Everest Elite", req: "120 مبيعات الفريق", reqEn: "120 Team Sales.", reward: "مكافأة 18,000 جنيه", rewardEn: "18,000 EGP Bonus." },
-  { icon: "🔱", name: "Everest Master", req: "200 مبيعات الفريق", reqEn: "200 Team Sales.", reward: "مكافأة 28,000 جنيه", rewardEn: "28,000 EGP Bonus." },
-  { icon: "🔥", name: "Everest Legend", req: "350 مبيعات الفريق", reqEn: "350 Team Sales.", reward: "مكافأة 45,000 جنيه", rewardEn: "45,000 EGP Bonus." },
-  { icon: "🌟", name: "Everest Ambassador", req: "600 مبيعات الفريق", reqEn: "600 Team Sales.", reward: "مكافأة 75,000 جنيه", rewardEn: "75,000 EGP Bonus." },
+  { icon: "🚀", name: "Executive", req: "5 مبيعات الفريق", reqEn: "5 Team Sales.", reward: "مكافأة 1,500 EM", rewardEn: "1,500 EM Bonus." },
+  { icon: "💎", name: "Executive Star", req: "10 مبيعات الفريق", reqEn: "10 Team Sales.", reward: "مكافأة 3,000 EM", rewardEn: "3,000 EM Bonus." },
+  { icon: "👑", name: "Team Leader", req: "20 مبيعات الفريق", reqEn: "20 Team Sales.", reward: "مكافأة 5,000 EM", rewardEn: "5,000 EM Bonus." },
+  { icon: "🏆", name: "Senior Leader", req: "40 مبيعات الفريق", reqEn: "40 Team Sales.", reward: "مكافأة 8,000 EM", rewardEn: "8,000 EM Bonus." },
+  { icon: "🌍", name: "Regional Leader", req: "70 مبيعات الفريق", reqEn: "70 Team Sales.", reward: "مكافأة 12,000 EM", rewardEn: "12,000 EM Bonus." },
+  { icon: "⚡", name: "Everest Elite", req: "120 مبيعات الفريق", reqEn: "120 Team Sales.", reward: "مكافأة 18,000 EM", rewardEn: "18,000 EM Bonus." },
+  { icon: "🔱", name: "Everest Master", req: "200 مبيعات الفريق", reqEn: "200 Team Sales.", reward: "مكافأة 28,000 EM", rewardEn: "28,000 EM Bonus." },
+  { icon: "🔥", name: "Everest Legend", req: "350 مبيعات الفريق", reqEn: "350 Team Sales.", reward: "مكافأة 45,000 EM", rewardEn: "45,000 EM Bonus." },
+  { icon: "🌟", name: "Everest Ambassador", req: "600 مبيعات الفريق", reqEn: "600 Team Sales.", reward: "مكافأة 75,000 EM", rewardEn: "75,000 EM Bonus." },
 ];
 
 const rankClassMap = {
@@ -373,7 +373,7 @@ export default function HomePage() {
               <div style={s.courseFooter}>
                 <div>
                   <div style={{color:"#ffb800",fontSize:"0.85rem"}}>{course.avg_rating > 0 ? `⭐ ${course.avg_rating} (${course.review_count})` : "⭐⭐⭐⭐⭐"}</div>
-                  <div style={{fontSize:"0.9rem",color:c.text,marginTop:3,fontWeight:700}}>{course.price} E-Money{course.price_egp > 0 ? ` / ${course.price_egp} ${t("ج.م","EGP")}` : ""}</div>
+                  <div style={{fontSize:"0.9rem",color:c.text,marginTop:3,fontWeight:700}}>{course.price} E-Money</div>
                 </div>
               </div>
               <div style={{display:"flex",gap:8,marginTop:10}}>
@@ -524,7 +524,7 @@ export default function HomePage() {
               </div>
               <div style={{display:"flex",flexWrap:"wrap",gap:10,marginBottom:20}}>
                 {modal.price > 0 && <span style={{fontWeight:800,fontSize:16,color:"#d4af37"}}>{modal.price} E-Money</span>}
-                {modal.price_egp > 0 && <span style={{fontWeight:700,fontSize:15,color:"#d4af37",opacity:.7}}>{modal.price_egp} {t("ج.م","EGP")}</span>}
+                
               </div>
               <Link to={`/courses/${modal.id}`} style={{display:"inline-flex",alignItems:"center",gap:8,padding:"14px 32px",background:"linear-gradient(135deg,#d4af37,#b8922a)",color:"#0a0a1a",fontWeight:800,fontSize:15,borderRadius:14,textDecoration:"none",transition:"0.3s"}}>
                 {t("اشترك الآن","Enroll Now")}

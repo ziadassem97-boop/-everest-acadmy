@@ -231,7 +231,7 @@ export default function CoursesPage() {
                       </div>
                       <div className="cp-card-bottom">
                         <span className="cp-price-text">{Number(c.price).toLocaleString()} E-Money</span>
-                        {c.price_egp > 0 && <span style={{fontSize:".8rem",color:"#999",fontWeight:600}}>{Number(c.price_egp).toLocaleString()} {t("ج.م", "EGP")}</span>}
+
                       </div>
                       <div className="cp-card-actions">
                         <Link to={`/courses/${c.id}`} className="cp-buy-btn">{user?.account_type === "student" ? t("مشاهدة", "Watch") : t("اشتري الآن", "Buy Now")}</Link>
@@ -275,7 +275,7 @@ export default function CoursesPage() {
                       </div>
                       <div className="cp-card-bottom">
                         <span className="cp-price-text">{Number(c.price).toLocaleString()} E-Money</span>
-                        {c.price_egp > 0 && <span style={{fontSize:".8rem",color:"#999",fontWeight:600}}>{Number(c.price_egp).toLocaleString()} {t("ج.م", "EGP")}</span>}
+
                       </div>
                       <div className="cp-card-actions">
                         <Link to={`/courses/${c.id}`} className="cp-buy-btn">{user?.account_type === "student" ? t("مشاهدة", "Watch") : t("اشتري الآن", "Buy Now")}</Link>

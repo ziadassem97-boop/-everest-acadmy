@@ -310,7 +310,7 @@ export default function CourseViewPage() {
                     setBalanceError(""); await buyCourse("emoney");
                   }} disabled={buying}
                     style={{padding:m?"12px 18px":"14px 26px",background:"linear-gradient(135deg,#b38728,#e2c275)",border:"none",borderRadius:12,color:"#05030a",fontWeight:800,fontSize:m?13:14,cursor:"pointer",opacity:buying?0.6:1}}>
-                    {buying ? t("جاري الشراء...", "Purchasing...") : `💳 ${t("اشتري بـ", "Buy for")} ${course.price} E-Money${course.price_egp > 0 ? ` / ${course.price_egp} ${t("ج.م", "EGP")}` : ""}`}
+                    {buying ? t("جاري الشراء...", "Purchasing...") : `💳 ${t("اشتري بـ", "Buy for")} ${course.price} E-Money`}
                   </button>
                 </div>
                 <p style={{color:c.textMuted,fontSize:12,marginTop:8}}>{t("رصيدك الحالي:", "Your current balance:")} {user?.e_money || 0} E-Money</p>
@@ -381,7 +381,7 @@ export default function CourseViewPage() {
                     <p style={{fontWeight:700,color:c.text,marginBottom:4,fontSize:m?13:16}}>{t("هذا الدرس مقفل", "This lesson is locked")}</p>
                     <p style={{fontSize:m?11:13,color:c.textMuted,marginBottom:m?10:16}}>{t("اشترِ الكورس للمشاهدة الكاملة", "Buy the course for full access")}</p>
                     <Link to={`/courses/${id}`} style={{display:"inline-flex",alignItems:"center",gap:8,padding:m?"10px 18px":"10px 24px",background:"linear-gradient(135deg,#b38728,#e2c275)",borderRadius:10,color:"#05030a",fontWeight:800,fontSize:m?12:13,textDecoration:"none"}}>
-                      💳 {t("اشترِ الكورس", "Buy Course")} — {course.price} E-Money{course.price_egp > 0 ? ` / ${course.price_egp} ${t("ج.م", "EGP")}` : ""}
+                      💳 {t("اشترِ الكورس", "Buy Course")} — {course.price} E-Money
                     </Link>
                   </>
                 )}
@@ -524,7 +524,7 @@ export default function CourseViewPage() {
             <div style={{background:c.bgInput,borderRadius:10,padding:m?"10px 12px":"14px 16px"}}>
               <p style={{fontSize:m?10:11,color:c.textMuted,margin:"0 0 3px",fontWeight:600}}>{t("السعر", "Price")}</p>
               <p style={{fontSize:m?12:14,fontWeight:700,color:c.text,margin:0}}>
-                {!isFree && `${course.price} E-Money`}{!isFree && course.price_egp > 0 ? ` / ${course.price_egp} ${t("ج.م", "EGP")}` : ""}{isFree && t("مجاني", "Free")}
+                {!isFree && `${course.price} E-Money`}{isFree && t("مجاني", "Free")}
               </p>
             </div>
             {reviewData.avg_rating > 0 && (

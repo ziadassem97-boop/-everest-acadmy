@@ -154,7 +154,7 @@ export default function FreeCoursesSettingsPage() {
             </div>
 
             <div className="col-span-1 text-right text-xs text-gray-400">
-              {course.is_free ? "🆓" : `${course.price_egp || course.price}`}
+              {course.is_free ? "🆓" : `${course.price} EM`}
             </div>
           </div>
         ))}

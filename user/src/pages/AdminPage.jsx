@@ -298,7 +298,7 @@ function BuildCourseTab() {
         <div><label style={labelStyle}>{t("التصنيف (إنجليزي)","Category (English)")}</label>
           <input value={form.category} onChange={(e) => setForm({...form,category:e.target.value})} placeholder={t("e.g. Marketing, Coding","مثال: تسويق, برمجة")} style={inputStyle} /></div>
       </div>
-      <div style={{marginBottom:16}}><label style={labelStyle}>{t("السعر (EGP)","Price (EGP)")}</label>
+      <div style={{marginBottom:16}}><label style={labelStyle}>{t("السعر (E-Money)","Price (E-Money)")}</label>
         <input type="number" min="0" value={form.price} onChange={(e) => setForm({...form,price:Number(e.target.value)})} style={inputStyle} /></div>
       <div style={{marginBottom:20}}><label style={labelStyle}>{t("المستوى","Level")}</label>
         <select value={form.difficulty} onChange={(e) => setForm({...form,difficulty:e.target.value})} style={{...inputStyle,background:"rgba(20,16,36,.8)"}}>
@@ -416,7 +416,7 @@ function CoursesListTab() {
                   <div style={{fontSize:11,color:"#9a95b0",marginTop:2}}>{c.topic_count || 0} {t("مواضيع","topics")} · {c.lesson_count || 0} {t("دروس","lessons")} · {c.quiz_count || 0} {t("اختبارات","quizzes")}</div>
                 </td>
                 <td style={{padding:"10px",color:"#9a95b0"}}>{c.category_ar || c.category || "—"}</td>
-                <td style={{padding:"10px",color:"#e2c275",fontWeight:700}}>{c.price === 0 ? t("مجاني","Free") : c.price + " " + t("ج.م","EGP")}</td>
+                <td style={{padding:"10px",color:"#e2c275",fontWeight:700}}>{c.price === 0 ? t("مجاني","Free") : c.price + " E-Money"}</td>
                 <td style={{padding:"10px",color:"#9a95b0"}}>{c.author_name || "—"}</td>
                 <td style={{padding:"10px"}}>
                   <span style={{padding:"3px 10px",borderRadius:999,fontSize:11,fontWeight:600,
