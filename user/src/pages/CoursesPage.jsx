@@ -301,7 +301,7 @@ export default function CoursesPage() {
           <span className="cp-premium-label">{t("لماذا إيفرست؟", "WHY EVEREST?")}</span>
           <h2>{t("أكثر من مجرد تعلم", "More Than Just Learning")}</h2>
           <p>{t("نقدم تجربة تعليمية متكاملة مصممة لمساعدة الطلاب على النمو والحفاظ على حماسهم وتحقيق نتائج حقيقية من خلال محتوى عملي ودعم مستمر.", "We provide a complete learning experience designed to help students grow, stay motivated and achieve real results through practical content and continuous support.")}</p>
-             <div className="fcp-premium-features">
+          <div className="cp-premium-features">
             <div className="fcp-feature">{t("🎯 مسار تعليمي شخصي", "Personalized Learning Journey")}</div>
             <div className="fcp-feature">{t("🚀 حماس مستمر", "Continuous Motivation")}</div>
             <div className="fcp-feature">{t("📚 محتوى محدث", "Updated Content")}</div>
