@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLang } from "../LangContext";
-import { api } from "../api.js";
+import { api, getAdminSession, BACKEND_URL } from "../api.js";
 
 export default function FeedbacksPage() {
   const { lang } = useLang();
@@ -51,16 +51,19 @@ export default function FeedbacksPage() {
     if (!file) { alert(t("اختر صورة أولاً", "Select an image first")); return; }
     setUploading(true);
     try {
-      const reader = new FileReader();
-      const base64 = await new Promise((resolve, reject) => {
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(new Error(t("فشل قراءة الملف", "Failed to read file")));
-        reader.readAsDataURL(file);
-      });
-      const result = await api("/api/proofs", {
-        method: "POST",
-        body: JSON.stringify({ image: base64, caption }),
-      });
+      const fd = new FormData();
+      fd.append("image", file);
+      fd.append("caption", caption);
+      const s = getAdminSession();
+      const headers = {};
+      if (s.userId) headers["x-user-id"] = s.userId;
+      if (s.token) headers["x-session-token"] = s.token;
+      const r = await fetch(`${BACKEND_URL}/api/proofs`, { method: "POST", headers, body: fd });
+      if (!r.ok) {
+        let errMsg = "Upload failed";
+        try { const d = await r.json(); errMsg = d.error || errMsg; } catch {}
+        throw new Error(errMsg + ` (${r.status})`);
+      }
       setFile(null); setCaption("");
       document.getElementById("proof-file-input").value = "";
       await loadProofs();
