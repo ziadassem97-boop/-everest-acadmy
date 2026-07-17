@@ -41,18 +41,9 @@ export default function FreeCoursesPage() {
     }).catch(() => {});
   }, []);
 
-  const uniqueCourses = Object.values(coursesMap);
-
-  const filteredLessons = lessons.filter((l) => {
+  const uniqueCourses = Object.values(coursesMap).filter((course) => {
     const q = search.toLowerCase();
-    const matchSearch = !q || (l.title || "").toLowerCase().includes(q) || (l.title_ar || "").includes(q) || (l.course_title || "").toLowerCase().includes(q) || (l.course_title_ar || "").includes(q);
-    return matchSearch;
-  });
-
-  const groupedByCourse = {};
-  filteredLessons.forEach((l) => {
-    if (!groupedByCourse[l.course_id]) groupedByCourse[l.course_id] = [];
-    groupedByCourse[l.course_id].push(l);
+    return !q || (course.title || "").toLowerCase().includes(q) || (course.title_ar || "").includes(q) || (course.description || "").toLowerCase().includes(q) || (course.description_ar || "").includes(q);
   });
 
   const cats = [
