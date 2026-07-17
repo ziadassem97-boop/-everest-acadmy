@@ -15,7 +15,7 @@ export default function FreeCoursesPage() {
   const [coursesMap, setCoursesMap] = useState({});
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [popupLesson, setPopupLesson] = useState(null);
+  const [popupCourse, setPopupCourse] = useState(null);
 
   useEffect(() => {
     api("/api/courses/free-lessons").then((data) => {
@@ -238,60 +238,55 @@ export default function FreeCoursesPage() {
         </div>
       </section>
 
-      {/* ===== FREE LESSONS TRENDING ===== */}
+      {/* ===== FREE COURSES ===== */}
       <section className="fcp-trending" id="lessons">
         <div className="fcp-section-heading">
-          <span>{t("دروس مجانية", "FREE LESSONS")}</span>
+          <span>{t("كورسات مجانية", "FREE COURSES")}</span>
           <h2>{t("جرّب قبل ما تشتري", "Preview Before You Buy")}</h2>
         </div>
 
-        {filteredLessons.length === 0 ? (
+        {uniqueCourses.length === 0 ? (
           <div className="fcp-emp">
             <div style={{fontSize:48,marginBottom:16}}>📚</div>
-            <h3>{t("لا توجد دروس مجانية متاحة", "No Free Lessons Available")}</h3>
+            <h3>{t("لا توجد كورسات مجانية متاحة", "No Free Courses Available")}</h3>
             <p>{t("جرّب كلمات بحث مختلفة أو عدّ لاحقاً", "Try different search terms or check back later")}</p>
           </div>
         ) : (
           <div className="fcp-cards-row">
-            {filteredLessons.map((lesson) => {
-              const course = coursesMap[lesson.course_id] || {};
-              return (
-                <div key={lesson.id} className="fcp-trend-card">
-                  <div className="fcp-free-tag">🔓 {t("مجاني", "Free")}</div>
-                  <div className="fcp-card-img-wrap">
-                    {course.image ? (
-                      <img src={course.image} alt={lesson.title_ar || lesson.title} />
-                    ) : (
-                      <div style={{width:"100%",height:180,background:"#f0f0f0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:40,color:"#ddd"}}>📚</div>
-                    )}
+            {uniqueCourses.map((course) => (
+              <div key={course.id} className="fcp-trend-card">
+                <div className="fcp-free-tag">🔓 {t("مجاني", "Free")}</div>
+                <div className="fcp-card-img-wrap">
+                  {course.image ? (
+                    <img src={course.image} alt={course.title_ar || course.title} />
+                  ) : (
+                    <div style={{width:"100%",height:180,background:"#f0f0f0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:40,color:"#ddd"}}>📚</div>
+                  )}
+                </div>
+                <div className="fcp-trend-info">
+                  <h3>{course.title_ar || course.title}</h3>
+                  <p>{course.description_ar || course.description || ""}</p>
+                  <div className="fcp-course-meta">
+                    <span style={{display:"flex",alignItems:"center",gap:5}}>
+                      <span style={{width:6,height:6,borderRadius:"50%",background:getDiffColor(course.difficulty),display:"inline-block"}}></span>
+                      {getDiffLabel(course.difficulty)}
+                    </span>
+                    <span>{course.freeCount} {t("مجانية", "Free")}</span>
                   </div>
-                  <div className="fcp-trend-info">
-                    <h3 style={{cursor:"pointer"}} onClick={() => setPopupLesson({ ...lesson, courseTitle: course.title_ar || course.title, courseDesc: course.description_ar || course.description, courseImage: course.image, coursePrice: course.price, courseDifficulty: course.difficulty })}>
-                      {lesson.title_ar || lesson.title}
-                    </h3>
-                    <p>{course.description_ar || course.description || ""}</p>
-                    <div className="fcp-course-meta">
-                      <span style={{display:"flex",alignItems:"center",gap:5}}>
-                        <span style={{width:6,height:6,borderRadius:"50%",background:getDiffColor(course.difficulty),display:"inline-block"}}></span>
-                        {getDiffLabel(course.difficulty)}
-                      </span>
-                      <span>{course.freeCount} {t("مجانية", "Free")}</span>
-                    </div>
-                    <div className="fcp-card-bottom">
-                      <span className="fcp-price-text">{Number(course.price).toLocaleString()} E-Money</span>
-                    </div>
-                    <div className="fcp-card-actions">
-                      <button className="fcp-preview-btn" onClick={() => setPopupLesson({ ...lesson, courseTitle: course.title_ar || course.title, courseDesc: course.description_ar || course.description, courseImage: course.image, coursePrice: course.price, courseDifficulty: course.difficulty })}>
-                        {t("معاينة", "Preview")}
-                      </button>
-                      <Link to={`/courses/${lesson.course_id}`} className="fcp-buy-btn">
-                        {t("اشتري الآن", "Buy Now")}
-                      </Link>
-                    </div>
+                  <div className="fcp-card-bottom">
+                    <span className="fcp-price-text">{Number(course.price).toLocaleString()} E-Money</span>
+                  </div>
+                  <div className="fcp-card-actions">
+                    <button className="fcp-preview-btn" onClick={() => setPopupCourse(course)}>
+                      {t("معاينة", "Preview")}
+                    </button>
+                    <Link to={`/courses/${course.id}`} className="fcp-buy-btn">
+                      {t("اشتري الآن", "Buy Now")}
+                    </Link>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
       </section>
@@ -319,39 +314,52 @@ export default function FreeCoursesPage() {
         </div>
       </section>
 
-      {/* ===== LESSON PREVIEW MODAL ===== */}
-      <div className={`fcp-modal-overlay ${popupLesson ? "open" : ""}`} onClick={(e) => { if (e.target.classList.contains("fcp-modal-overlay")) setPopupLesson(null); }}>
-        {popupLesson && (
+      {/* ===== COURSE PREVIEW MODAL ===== */}
+      <div className={`fcp-modal-overlay ${popupCourse ? "open" : ""}`} onClick={(e) => { if (e.target.classList.contains("fcp-modal-overlay")) setPopupCourse(null); }}>
+        {popupCourse && (
           <div className="fcp-modal-box">
             <div className="fcp-modal-header">
-              <h3>{popupLesson.title_ar || popupLesson.title}</h3>
-              <button className="fcp-modal-close" onClick={() => setPopupLesson(null)}>✕</button>
+              <h3>{popupCourse.title_ar || popupCourse.title}</h3>
+              <button className="fcp-modal-close" onClick={() => setPopupCourse(null)}>✕</button>
             </div>
             <div className="fcp-modal-body">
-              {popupLesson.courseImage ? (
-                <img src={popupLesson.courseImage} alt="" className="fcp-modal-img" />
+              {popupCourse.image ? (
+                <img src={popupCourse.image} alt="" className="fcp-modal-img" />
               ) : (
                 <div style={{width:"100%",height:220,background:"#f0f0f0",borderRadius:20,display:"flex",alignItems:"center",justifyContent:"center",fontSize:50}}>📚</div>
               )}
-              <h3 className="fcp-modal-title">{popupLesson.title_ar || popupLesson.title}</h3>
-              <p className="fcp-modal-desc">
-                <strong>{popupLesson.courseTitle}</strong> — {popupLesson.courseDesc}
-              </p>
-              <div className="fcp-modal-perks">
-                <div className="fcp-modal-perk">
-                  <i className="fa-solid fa-shield-halved"></i>
-                  {t("هذا درس مجاني — اشترِ الكورس للمشاهدة الكاملة", "This is a free lesson — buy the course for full access")}
-                </div>
-                <div className="fcp-modal-perk">
-                  <i className="fa-solid fa-trophy"></i>
-                  {t("شهادة مهنية معتمدة فور إتمام المسار", "Professional certificate upon path completion")}
-                </div>
+              <h3 className="fcp-modal-title">{popupCourse.title_ar || popupCourse.title}</h3>
+              <p className="fcp-modal-desc">{popupCourse.description_ar || popupCourse.description || ""}</p>
+              <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20,flexWrap:"wrap"}}>
+                <span style={{display:"flex",alignItems:"center",gap:5,fontSize:14,color:"#555"}}>
+                  <span style={{width:8,height:8,borderRadius:"50%",background:getDiffColor(popupCourse.difficulty),display:"inline-block"}}></span>
+                  {getDiffLabel(popupCourse.difficulty)}
+                </span>
+                <span style={{fontSize:14,color:"#d4af37",fontWeight:700}}>{Number(popupCourse.price).toLocaleString()} E-Money</span>
+                <span style={{fontSize:13,color:"#059669",fontWeight:600}}>🔓 {popupCourse.freeCount} {t("درس مجاني", "Free Lessons")}</span>
               </div>
-              <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-                <Link to={`/courses/${popupLesson.course_id}?lesson=${popupLesson.id}`} className="fcp-modal-start" onClick={() => setPopupLesson(null)}>
-                  {t("شاهد الدرس الآن", "Watch Lesson Now")}
+              <div className="fcp-modal-perks">
+                {lessons.filter((l) => l.course_id === popupCourse.id).map((lesson) => (
+                  <Link
+                    key={lesson.id}
+                    to={`/courses/${popupCourse.id}?lesson=${lesson.id}`}
+                    className="fcp-modal-perk"
+                    onClick={() => setPopupCourse(null)}
+                    style={{cursor:"pointer",textDecoration:"none"}}
+                  >
+                    <span style={{color:"#d4af37",fontSize:16}}>🎬</span>
+                    <div style={{flex:1}}>
+                      <p style={{margin:0,fontWeight:600,color:"#333",fontSize:14}}>{lesson.title_ar || lesson.title}</p>
+                      <p style={{margin:0,fontSize:12,color:"#999"}}>{lesson.duration ? `${lesson.duration} ${t("دقيقة", "min")}` : ""}</p>
+                    </div>
+                    <span style={{color:"#d4af37",fontSize:12,fontWeight:600}}>→</span>
+                  </Link>
+                ))}
+              </div>
+              <div style={{display:"flex",gap:12,flexWrap:"wrap",marginTop:20}}>
+                <Link to={`/courses/${popupCourse.id}`} className="fcp-modal-start" onClick={() => setPopupCourse(null)}>
+                  {t("اشتري الآن", "Buy Now")}
                 </Link>
-                
               </div>
             </div>
           </div>
