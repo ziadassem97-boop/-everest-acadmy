@@ -413,7 +413,7 @@ router.get("/rank-progress/:userId", async (req, res) => {
 
     // Direct sales breakdown
     const directs = await query(
-      "SELECT u.id, u.account_type, u.status FROM users u WHERE u.referred_by = ?",
+      "SELECT u.id, u.full_name, u.email, u.phone, u.avatar, u.account_type, u.rank, u.e_money, u.status, u.created_at FROM users u WHERE u.referred_by = ?",
       [user.id]
     );
     const activeDirects = directs.filter(d => d.status === 'active');
@@ -454,6 +454,7 @@ router.get("/rank-progress/:userId", async (req, res) => {
       currentRank,
       nextRank,
       allRanks,
+      directs: directs.map(d => ({ id: d.id, full_name: d.full_name, email: d.email, phone: d.phone, avatar: d.avatar, account_type: d.account_type, rank: d.rank, e_money: d.e_money, status: d.status, created_at: d.created_at })),
       qualifiedDirects: qualifiedTeamCount,
       totalDirects: user.direct_count,
       totalDirectSales,

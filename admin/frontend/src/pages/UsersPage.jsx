@@ -526,6 +526,43 @@ export default function UsersPage() {
                           ))}
                         </div>
                       </div>
+                      {rankProgress?.directs && rankProgress.directs.length > 0 && (
+                        <div className="bg-gray-50 rounded-xl p-4">
+                          <h5 className="font-bold mb-3">{t("👥 الأعضاء المباشرين", "👥 Direct Members")} ({rankProgress.directs.length})</h5>
+                          <div className="space-y-2">
+                            {rankProgress.directs.map((d) => (
+                              <div key={d.id} className={`flex items-center justify-between p-3 rounded-xl border transition ${
+                                d.status === 'active' ? 'bg-white' : 'bg-red-50 border-red-200'
+                              }`}>
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                    {d.avatar ? <img src={d.avatar} className="w-full h-full object-cover" alt="" /> : <span className="text-sm font-bold text-gray-500">{(d.full_name || "U")[0]}</span>}
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-bold">
+                                      {d.full_name}
+                                      <span className={`text-xs mx-1 px-1.5 py-0.5 rounded ${d.account_type === 'student' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                        {d.account_type === 'student' ? 'Student' : 'REG'}
+                                      </span>
+                                    </p>
+                                    <p className="text-xs text-gray-400">{d.email}</p>
+                                  </div>
+                                </div>
+                                <div className="text-right text-xs">
+                                  <p className="font-bold text-gray-600">{d.e_money ?? 0} EM</p>
+                                  <p className={`font-bold ${d.status === 'active' ? 'text-green-500' : 'text-red-500'}`}>{d.status}</p>
+                                  <p className="text-gray-400">{new Date(d.created_at).toLocaleDateString()}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {rankProgress?.directs && rankProgress.directs.length === 0 && (
+                        <div className="bg-gray-50 rounded-xl p-4 text-center">
+                          <p className="text-gray-400">{t("لا يوجد أعضاء مباشرين", "No direct members")}</p>
+                        </div>
+                      )}
                       <div className="bg-gray-50 rounded-xl p-4">
                         <h5 className="font-bold mb-3">{t("🎯 ملخص الأهلية", "🎯 Eligibility Summary")}</h5>
                         <div className="grid gap-2">
@@ -562,6 +599,45 @@ export default function UsersPage() {
                           ))}
                         </div>
                       </div>
+                      {rankProgress?.directs && rankProgress.directs.length > 0 && (
+                        <div className="bg-gray-50 rounded-xl p-4">
+                          <h5 className="font-bold mb-3">{t("👥 أعضاء الفريق المباشرين", "👥 Direct Team Members")}</h5>
+                          <div className="space-y-2">
+                            {rankProgress.directs.map((d) => {
+                              const isActive = d.status === 'active';
+                              const allRanks = rankProgress.allRanks || [];
+                              const userRankIdx = allRanks.findIndex(r => r.name === rankProgress.currentRank?.name);
+                              const memberRankIdx = allRanks.findIndex(r => r.name === d.rank);
+                              const excludedHigher = isActive && memberRankIdx > userRankIdx && userRankIdx >= 0;
+                              return (
+                                <div key={d.id} className={`flex items-center justify-between p-3 rounded-xl border transition ${
+                                  !isActive ? 'bg-red-50 border-red-200' : excludedHigher ? 'bg-orange-50 border-orange-200' : 'bg-white'
+                                }`}>
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                      {d.avatar ? <img src={d.avatar} className="w-full h-full object-cover" alt="" /> : <span className="text-sm font-bold text-gray-500">{(d.full_name || "U")[0]}</span>}
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-bold">{d.full_name}
+                                        <span className={`text-xs mx-1 px-1.5 py-0.5 rounded ${d.account_type === 'student' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                          {d.account_type === 'student' ? 'Student' : 'REG'}
+                                        </span>
+                                      </p>
+                                      <p className="text-xs text-gray-400">{d.email}</p>
+                                    </div>
+                                  </div>
+                                  <div className="text-right text-xs">
+                                    <p className="font-bold text-gray-600">{d.e_money ?? 0} EM</p>
+                                    {!isActive && <p className="text-red-500 font-bold">❌ {t("غير نشط", "Inactive")}</p>}
+                                    {excludedHigher && <p className="text-orange-500 font-bold">⚠️ {t("رتبة أعلى", "Higher rank")}</p>}
+                                    {isActive && !excludedHigher && <p className="text-green-500 font-bold">✅ {t("مؤهل", "Qualified")}</p>}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                       <div className="bg-gray-50 rounded-xl p-4">
                         <h5 className="font-bold mb-3">{t("🚫 الأعضاء المستبعدون", "🚫 Excluded Members")}</h5>
                         <div className="grid grid-cols-2 gap-3">
