@@ -57,7 +57,7 @@ router.get("/upline/:userId", async (req, res) => {
     `, [req.params.userId, req.params.userId]);
     if (upline.length === 0) {
       const me = await queryOne("SELECT referred_by FROM users WHERE id = ?", [req.params.userId]);
-      if (me && me.referred_by) {
+      if (me && me.referred_by && me.referred_by !== '') {
         const sponsor = await queryOne("SELECT id, full_name, email, role, rank, e_money, direct_count, avatar FROM users WHERE id = ?", [me.referred_by]);
         if (sponsor) upline = [{ ...sponsor, depth: 1 }];
       }
