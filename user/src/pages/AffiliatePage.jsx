@@ -79,9 +79,6 @@ function TeamMemberNode({ member, depth, t, c, total, dbRanks }) {
             }}>
               {member.account_type === "student" ? "🎓 Student" : "📝 Registration"}
             </span>
-            <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 6px", borderRadius: 6, background: "#d4af3718", color: "#d4af37" }}>
-              💰 {member.e_money ?? 0} EM
-            </span>
           </div>
         </div>
 
@@ -393,7 +390,6 @@ export default function AffiliatePage() {
                         <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 6, background: `${GOLD}15`, color: GOLD }}>
                           {(() => { const rk = (dbRanks || []).find(r => r.name === upline.rank); return rk?.image ? <img src={rk.image} alt="" style={{width:12,height:12,borderRadius:3,objectFit:"cover",verticalAlign:"middle",marginRight:3}} /> : (rankIcons[upline.rank] || "⭐"); })()} {upline.rank || "Star"}
                         </span>
-                        <span style={{ fontSize: 10, color: c.textMuted, fontWeight: 600 }}>{upline.e_money ?? 0} EM</span>
                       </div>
                     </div>
                     <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 8, background: `${GOLD}15`, color: GOLD }}>
@@ -432,9 +428,6 @@ export default function AffiliatePage() {
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2, flexWrap: "wrap" }}>
                     <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 6, background: `${GOLD}15`, color: GOLD }}>
                       {(() => { if (!user?.rank) return null; const rk = (dbRanks || []).find(r => r.name === user.rank); return rk?.image ? <img src={rk.image} alt="" style={{width:12,height:12,borderRadius:3,objectFit:"cover",verticalAlign:"middle",marginRight:3}} /> : (rankIcons[user.rank] || "⭐"); })()} {user?.rank || "—"}
-                    </span>
-                    <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 6px", borderRadius: 6, background: "#d4af3718", color: "#d4af37" }}>
-                      💰 {user?.e_money ?? 0} EM
                     </span>
                   </div>
                 </div>

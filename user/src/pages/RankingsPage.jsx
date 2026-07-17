@@ -52,7 +52,6 @@ export default function RankingsPage() {
   const { colors: c } = useTheme();
   const m = useIsMobile();
   const [progress, setProgress] = useState(null);
-  const [leaderboard, setLeaderboard] = useState([]);
   const [ranks, setRanks] = useState([]);
   const [weeklyHistory, setWeeklyHistory] = useState([]);
   const [tab, setTab] = useState("ranks");
@@ -65,14 +64,9 @@ export default function RankingsPage() {
 
   useEffect(() => {
     if (!user?.id) return;
-    api("/api/ranks/update", { method: "POST" }).then(() => {
-      api(`/api/mlm/rank-progress/${user.id}`).then(setProgress).catch(() => {});
-    }).catch(() => {
-      api(`/api/mlm/rank-progress/${user.id}`).then(setProgress).catch(() => {});
-    });
+    api(`/api/mlm/rank-progress/${user.id}`).then(setProgress).catch(() => {});
     api(`/api/mlm/directs/${user.id}`).then(d => setDirectMembers(Array.isArray(d) ? d : [])).catch(() => {});
-    api("/api/ranks/leaderboard").then(setLeaderboard).catch(() => {});
-    api("/api/ranks").then((d) => Array.isArray(d) ? setRanks(d) : setRanks([])).catch(() => {});
+    api(`/api/ranks`).then((d) => Array.isArray(d) ? setRanks(d) : setRanks([])).catch(() => {});
     api(`/api/mlm/weekly-history/${user.id}`).then(setWeeklyHistory).catch(() => {});
   }, [user?.id]);
 
@@ -153,10 +147,6 @@ export default function RankingsPage() {
             <p>{t("أكمل المهام، وافتح ترتبات جديدة، وكن أحد قادة أكاديمية إيفرست.", "Complete missions, unlock new ranks, and become one of Everest Academy leaders.")}</p>
 
             <div style={{ display: "flex", gap: 14, marginBottom: 20, flexWrap: "wrap", justifyContent: m ? "center" : "flex-start" }}>
-              <div style={statCard(c, true)}>
-                <div style={miniLabel}>💰 {t("عمولة أسبوعية", "Weekly Commission")}</div>
-                <div style={miniVal(c)}>{(weeklyCommission || 0).toLocaleString()} <span style={{ fontSize: 14, color: "#9a9aae" }}>EM</span></div>
-              </div>
               <div style={statCard(c)}>
                 <div style={miniLabel}>🎯 {t("مبيعات الفريق", "Team Sales")}</div>
                 <div style={miniVal(c)}>{teamCount}</div>
@@ -172,7 +162,6 @@ export default function RankingsPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                   <span style={{ fontSize: 13, color: "#ccc" }}>
                     {t("الترتيب التالي:", "Next:")} <strong style={{ color: "#d4af37" }}>{nextRankName}</strong>
-                    {" · "}{t("المكافأة:", "Bonus:")} <strong style={{ color: "#d4af37" }}>{bonusVal(nextRankData)?.toLocaleString()} EM</strong>
                   </span>
                   <span style={{ fontSize: 18, fontWeight: 900, color: "#d4af37" }}>{progressPct}%</span>
                 </div>
@@ -217,7 +206,6 @@ export default function RankingsPage() {
             { key: "activity", icon: "📈", label: t("النشاط الأسبوعي", "Weekly Activity") },
             { key: "network", icon: "🌐", label: t("الشبكة المؤهلة", "Qualified Network") },
             { key: "history", icon: "📜", label: t("السجل الأسبوعي", "Weekly History") },
-            { key: "leaderboard", icon: "🏆", label: t("لوحة المتصدرين", "Leaderboard") },
           ].map(tb => (
             <button key={tb.key} className="rk-tab-btn" onClick={() => setTab(tb.key)}
               style={{ background: tab === tb.key ? "rgba(212,175,55,.12)" : c.bgCard, color: tab === tb.key ? gold : c.textSoft, border: tab === tb.key ? `1px solid rgba(212,175,55,.3)` : `1px solid ${c.borderLight}` }}>
@@ -334,11 +322,10 @@ export default function RankingsPage() {
                           </div>
                         </div>
                         <div style={{ textAlign: "right" }}>
-                          <p style={{ fontSize: 13, fontWeight: 700, color: c.text, margin: 0 }}>{d.e_money ?? 0} EM</p>
-                          <p style={{ fontSize: 11, color: c.textMuted, margin: "2px 0 0" }}>
+                          <p style={{ fontSize: 11, color: c.textMuted, margin: 0 }}>
                             {d.status === 'active' ? '✅' : '❌'} {d.status}
                           </p>
-                          <p style={{ fontSize: 10, color: c.textMuted, margin: 0 }}>
+                          <p style={{ fontSize: 10, color: c.textMuted, margin: "2px 0 0" }}>
                             {d.rank || t("بدون رتبة", "No rank")} · {new Date(d.created_at).toLocaleDateString()}
                           </p>
                         </div>
@@ -355,8 +342,6 @@ export default function RankingsPage() {
               <div style={{ display: "grid", gap: 10 }}>
                 {[
                   { label: t("الرتبة", "Rank"), value: currentRankName || t("لا يوجد", "None"), icon: "🏅", color: c.text },
-                  { label: t("عمولة أسبوعية", "Weekly Commission"), value: `${(weeklyCommission || 0).toLocaleString()} EM`, icon: "💰", color: "#d4af37" },
-                  { label: t("مكافأة الرتبة", "Rank Bonus"), value: `${(rankData?.bonus || 0).toLocaleString()} EM`, icon: "🎁", color: "#22c55e" },
                   { label: t("الرتبة التالية", "Next Rank"), value: nextRankName || t("أعلى رتبة", "Highest Rank"), icon: "➡️", color: c.text },
                   { label: t("الأعضاء المؤهلين", "Qualified Members"), value: `${qualifiedTeam} / ${nextSalesReq || "∞"}`, icon: "👥", color: qualifiedTeam >= (nextSalesReq || 0) ? "#22c55e" : c.text },
                   { label: t("الحد الأدنى المبيعات", "Min Direct Sales"), value: `${t("المطلوب:", "Required:")} 2`, icon: "📏", color: meetsMinDirects ? "#22c55e" : "#ef4444" },
@@ -437,11 +422,10 @@ export default function RankingsPage() {
                               </div>
                             </div>
                             <div style={{ textAlign: "right" }}>
-                              <p style={{ fontSize: 13, fontWeight: 700, color: c.text, margin: 0 }}>{d.e_money ?? 0} EM</p>
-                              {!isActive && <p style={{ fontSize: 11, color: "#ef4444", fontWeight: 600, margin: "2px 0 0" }}>❌ {t("غير نشط", "Inactive")}</p>}
-                              {excludedHigher && <p style={{ fontSize: 11, color: "#f97316", fontWeight: 600, margin: "2px 0 0" }}>⚠️ {t("رتبة أعلى", "Higher rank")}</p>}
-                              {isActive && !excludedHigher && <p style={{ fontSize: 11, color: "#22c55e", fontWeight: 600, margin: "2px 0 0" }}>✅ {t("مؤهل", "Qualified")}</p>}
-                              <p style={{ fontSize: 10, color: c.textMuted, margin: 0 }}>
+                              {!isActive && <p style={{ fontSize: 11, color: "#ef4444", fontWeight: 600, margin: 0 }}>❌ {t("غير نشط", "Inactive")}</p>}
+                              {excludedHigher && <p style={{ fontSize: 11, color: "#f97316", fontWeight: 600, margin: 0 }}>⚠️ {t("رتبة أعلى", "Higher rank")}</p>}
+                              {isActive && !excludedHigher && <p style={{ fontSize: 11, color: "#22c55e", fontWeight: 600, margin: 0 }}>✅ {t("مؤهل", "Qualified")}</p>}
+                              <p style={{ fontSize: 10, color: c.textMuted, margin: "2px 0 0" }}>
                                 {d.rank || t("بدون رتبة", "No rank")} · {new Date(d.created_at).toLocaleDateString()}
                               </p>
                             </div>
@@ -568,49 +552,6 @@ export default function RankingsPage() {
           </div>
         )}
 
-        {/* TAB: Leaderboard */}
-        {tab === "leaderboard" && (
-          <div className="rk-section" style={cardStyle(c)}>
-            <h3 style={{ margin: "0 0 20px", fontSize: 18, color: c.text }}>🏆 {t("أبرز المتميزين", "Top Achievers")}</h3>
-            {leaderboard.length === 0 ? (
-              <p style={{ color: c.textMuted, textAlign: "center", padding: 30 }}>{t("لا يوجد أعضاء بعد", "No members yet")}</p>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {leaderboard.map((u, i) => {
-                  const rk = ranks.find(rr => rr.name === u.rank);
-                  return (
-                    <div key={u.id} style={{
-                      display: "flex", alignItems: "center", justifyContent: "space-between",
-                      background: i < 3 ? "rgba(212,175,55,.06)" : c.bgSoft,
-                      border: `1px solid ${c.borderLight}`, borderRadius: 14, padding: "12px 16px"
-                    }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                        <span style={{ fontSize: 18, fontWeight: 800, color: i < 3 ? gold : c.textMuted, width: 30 }}>#{u.position}</span>
-                        <div style={{ width: 40, height: 40, borderRadius: "50%", background: c.bgInput, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                          {u.avatar?.trim() ? <img src={u.avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: 18, fontWeight: 800, color: gold }}>{(u.full_name || "U")[0].toUpperCase()}</span>}
-                        </div>
-                        <div>
-                          <p style={{ fontWeight: 600, color: c.text, margin: 0 }}>
-                            {u.full_name}
-                            {u.id === user?.id && <span style={{ fontSize: 11, color: gold, marginLeft: 6 }}>({t("أنت", "You")})</span>}
-                            {u.account_type === 'registration' && <span style={{ fontSize: 10, color: "#f59e0b", marginLeft: 6, padding: "1px 6px", background: "rgba(245,158,11,.1)", borderRadius: 8 }}>REG</span>}
-                          </p>
-                          <p style={{ fontSize: 12, color: c.textMuted, margin: "2px 0 0" }}>
-                            {rk?.image ? <img src={rk.image} alt={u.rank} style={{ width: 16, height: 16, borderRadius: 3, verticalAlign: "middle", marginRight: 4, objectFit: "cover" }} /> : null}
-                            {u.rank} · {u.total_team_sales || 0} {t("مبيعات الفريق", "Team Sales")}
-                          </p>
-                        </div>
-                      </div>
-                      <div style={{ textAlign: "right" }}>
-                        <p style={{ fontWeight: 700, color: gold, margin: 0 }}>{u.e_money} EM</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       <FooterSection />
