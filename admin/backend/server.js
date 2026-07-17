@@ -132,7 +132,7 @@ app.use("/api/settings", adminAuth, settingsRoutes);
 // Public customer service settings (no auth needed)
 app.get("/api/customer-service", async (req, res) => {
   try {
-    const rows = await query("SELECT * FROM settings WHERE key IN ('customer_service_whatsapp', 'customer_service_email')");
+    const rows = await query("SELECT * FROM settings WHERE key IN ('customer_service_whatsapp', 'customer_service_email', 'social_instagram', 'social_telegram', 'social_tiktok')");
     const obj = {};
     for (const r of rows) obj[r.key] = r.value;
     res.json(obj);
