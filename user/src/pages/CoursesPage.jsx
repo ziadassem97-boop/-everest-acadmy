@@ -73,11 +73,9 @@ export default function CoursesPage() {
         .cp-course-meta{display:flex;justify-content:space-between;margin-top:15px;font-size:.85rem;color:#555}
         .cp-card-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:20px}
         .cp-price-text{color:#c7a44c;font-weight:800;font-size:1rem}
-        .cp-card-actions{display:flex;gap:10px;margin-top:18px}
-        .cp-preview-btn{flex:1;height:42px;border:none;border-radius:12px;background:#f5f5f5;color:#111;cursor:pointer;font-weight:700;font-family:'Cairo',sans-serif;transition:.2s}
-        .cp-preview-btn:hover{background:#ececec}
-        .cp-buy-btn{flex:1;height:42px;border:none;border-radius:12px;background:linear-gradient(135deg,#d4af37,#f5d76e);color:#111;cursor:pointer;font-weight:800;font-family:'Cairo',sans-serif;transition:.3s;text-decoration:none;display:flex;align-items:center;justify-content:center}
-        .cp-buy-btn:hover{transform:translateY(-2px)}
+        .cp-card-actions{margin-top:18px}
+        .cp-buy-btn{width:100%;height:46px;border:none;border-radius:14px;background:linear-gradient(135deg,#d4af37,#f5d76e);color:#111;cursor:pointer;font-weight:800;font-family:'Cairo',sans-serif;transition:.3s;text-decoration:none;display:flex;align-items:center;justify-content:center;font-size:.95rem;letter-spacing:.3px}
+        .cp-buy-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(212,175,55,.35)}
         .cp-premium-section{max-width:1300px;margin:70px auto;padding:70px;border-radius:40px;background:linear-gradient(135deg,#0f0f0f,#1c1c1c);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:60px;overflow:hidden;position:relative}
         .cp-premium-section::before{content:'';position:absolute;width:500px;height:500px;background:#d4af37;opacity:.07;border-radius:50%;top:-250px;right:-150px}
         .cp-premium-label{color:#d4af37;font-weight:700;letter-spacing:2px;font-size:.85rem}
@@ -152,8 +150,6 @@ export default function CoursesPage() {
         [data-theme="dark"] .cp-trend-info h3{color:#f0f0f0}
         [data-theme="dark"] .cp-trend-info p{color:#aaa}
         [data-theme="dark"] .cp-course-meta{color:#aaa}
-        [data-theme="dark"] .cp-preview-btn{background:#2a2a3e;color:#f0f0f0}
-        [data-theme="dark"] .cp-preview-btn:hover{background:#3a3a4e}
         [data-theme="dark"] .cp-emp h3{color:#aaa}
         [data-theme="dark"] .cp-emp i{color:#555}
         [data-theme="dark"] .cp-modal-overlay{background:rgba(0,0,0,.7)}
@@ -238,7 +234,6 @@ export default function CoursesPage() {
                         {c.price_egp > 0 && <span style={{fontSize:".8rem",color:"#999",fontWeight:600}}>{Number(c.price_egp).toLocaleString()} {t("ج.م", "EGP")}</span>}
                       </div>
                       <div className="cp-card-actions">
-                        <button className="cp-preview-btn" onClick={() => setPopupCourse(c)}>{t("معاينة", "Preview")}</button>
                         <Link to={`/courses/${c.id}`} className="cp-buy-btn">{user?.account_type === "student" ? t("مشاهدة", "Watch") : t("اشتري الآن", "Buy Now")}</Link>
                       </div>
                     </div>
@@ -283,7 +278,6 @@ export default function CoursesPage() {
                         {c.price_egp > 0 && <span style={{fontSize:".8rem",color:"#999",fontWeight:600}}>{Number(c.price_egp).toLocaleString()} {t("ج.م", "EGP")}</span>}
                       </div>
                       <div className="cp-card-actions">
-                        <button className="cp-preview-btn" onClick={() => setPopupCourse(c)}>{t("معاينة", "Preview")}</button>
                         <Link to={`/courses/${c.id}`} className="cp-buy-btn">{user?.account_type === "student" ? t("مشاهدة", "Watch") : t("اشتري الآن", "Buy Now")}</Link>
                       </div>
                     </div>
@@ -354,7 +348,7 @@ export default function CoursesPage() {
                 <Link to={`/courses/${popupCourse.id}`} className="cp-modal-start" onClick={() => setPopupCourse(null)}>
                   {t("ابدأ المسار الآن", "Start the Path Now")}
                 </Link>
-                <button className="cp-preview-btn" style={{width:"auto",padding:"0 24px",height:48}} onClick={() => setPopupCourse(null)}>
+                <button style={{width:"auto",padding:"0 24px",height:48,border:"none",borderRadius:18,background:"#f0f0f0",color:"#111",cursor:"pointer",fontWeight:700,fontFamily:"'Cairo',sans-serif",transition:".3s",fontSize:".9rem"}} onClick={() => setPopupCourse(null)}>
                   {t("إغلاق", "Close")}
                 </button>
               </div>
