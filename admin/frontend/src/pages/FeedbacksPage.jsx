@@ -48,23 +48,26 @@ export default function FeedbacksPage() {
 
   const uploadProof = async (e) => {
     e.preventDefault();
-    if (!file) return;
+    if (!file) { alert(t("اختر صورة أولاً", "Select an image first")); return; }
     setUploading(true);
     try {
       const reader = new FileReader();
       const base64 = await new Promise((resolve, reject) => {
         reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
+        reader.onerror = () => reject(new Error(t("فشل قراءة الملف", "Failed to read file")));
         reader.readAsDataURL(file);
       });
-      await api("/api/proofs", {
+      const result = await api("/api/proofs", {
         method: "POST",
         body: JSON.stringify({ image: base64, caption }),
       });
       setFile(null); setCaption("");
       document.getElementById("proof-file-input").value = "";
       await loadProofs();
-    } catch (e) { alert(e.message); }
+    } catch (e) {
+      console.error("Upload error:", e);
+      alert(t("خطأ في الرفع: " + e.message, "Upload error: " + e.message));
+    }
     setUploading(false);
   };
 

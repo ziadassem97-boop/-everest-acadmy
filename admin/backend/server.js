@@ -46,6 +46,7 @@ if (fs.existsSync(adminDist)) {
     res.send(html);
   };
   app.get("/admin", serveAdmin);
+  app.get("/admin/", serveAdmin);
   app.get("/admin/*", serveAdmin);
   console.log("✅ Serving admin frontend from", adminDist);
 }
