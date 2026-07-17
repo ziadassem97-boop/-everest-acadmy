@@ -46,15 +46,27 @@ router.get("/directs/:userId", async (req, res) => {
 });
 
 router.get("/upline/:userId", async (req, res) => {
-  const upline = await query(`
-    SELECT u.id, u.full_name, u.email, u.role, u.rank, u.e_money,
-           u.direct_count, c.depth
-    FROM user_closure c
-    JOIN users u ON u.id = c.ancestor
-    WHERE c.descendant = ? AND c.ancestor != ?
-    ORDER BY c.depth ASC
-  `, [req.params.userId, req.params.userId]);
-  res.json(upline);
+  try {
+    let upline = await query(`
+      SELECT u.id, u.full_name, u.email, u.role, u.rank, u.e_money,
+             u.direct_count, u.avatar, c.depth
+      FROM user_closure c
+      JOIN users u ON u.id = c.ancestor
+      WHERE c.descendant = ? AND c.ancestor != ?
+      ORDER BY c.depth ASC
+    `, [req.params.userId, req.params.userId]);
+    if (upline.length === 0) {
+      const me = await queryOne("SELECT referred_by FROM users WHERE id = ?", [req.params.userId]);
+      if (me && me.referred_by) {
+        const sponsor = await queryOne("SELECT id, full_name, email, role, rank, e_money, direct_count, avatar FROM users WHERE id = ?", [me.referred_by]);
+        if (sponsor) upline = [{ ...sponsor, depth: 1 }];
+      }
+    }
+    res.json(upline);
+  } catch (err) {
+    console.error("mlm/upline error:", err.message);
+    res.json([]);
+  }
 });
 
 router.get("/transfer/validate", async (req, res) => {
@@ -82,21 +94,21 @@ router.post("/transfer", async (req, res) => {
       WHERE (referred_by = ? AND id = ?) OR (referred_by = ? AND id = ?)
     `, [to_user_id, from_user_id, from_user_id, to_user_id]);
     if (!relation) return res.status(403).json({ error: "Transfer allowed only between direct upline/downline" });
-    const fromUser = await queryOne("SELECT e_money, negative_allowed FROM users WHERE id = ?", [from_user_id]);
+    const fromUser = await queryOne("SELECT e_money, negative_allowed, full_name FROM users WHERE id = ?", [from_user_id]);
     if (!fromUser) return res.status(404).json({ error: "Sender not found" });
     if (fromUser.e_money < amount && !fromUser.negative_allowed) return res.status(400).json({ error: `Insufficient balance. Available: ${fromUser.e_money}, required: ${amount}` });
-    const toUser = await queryOne("SELECT id FROM users WHERE id = ?", [to_user_id]);
+    const toUser = await queryOne("SELECT id, full_name FROM users WHERE id = ?", [to_user_id]);
     if (!toUser) return res.status(404).json({ error: "Receiver not found" });
     const tid = uuidv4();
     await execute("UPDATE users SET e_money = e_money - ? WHERE id = ?", [amount, from_user_id]);
     await execute("UPDATE users SET e_money = e_money + ? WHERE id = ?", [amount, to_user_id]);
     await execute("INSERT INTO transfers (id, from_user_id, to_user_id, amount, status) VALUES (?, ?, ?, ?, 'completed')", [tid, from_user_id, to_user_id, amount]);
     const txFromId = uuidv4();
-    await execute("INSERT INTO wallet_transactions (id, user_id, amount, type, description, status) VALUES (?, ?, ?, ?, ?, 'completed')", [txFromId, from_user_id, amount, "debit", `تحويل إلى ${to_user_id.slice(0,8)}`]);
+    await execute("INSERT INTO wallet_transactions (id, user_id, amount, type, description, status) VALUES (?, ?, ?, ?, ?, 'completed')", [txFromId, from_user_id, amount, "debit", `تحويل إلى ${toUser.full_name}`]);
     const txToId = uuidv4();
-    await execute("INSERT INTO wallet_transactions (id, user_id, amount, type, description, status) VALUES (?, ?, ?, ?, ?, 'completed')", [txToId, to_user_id, amount, "credit", `تحويل من ${from_user_id.slice(0,8)}`]);
-    const nid1 = uuidv4(); await execute("INSERT INTO notifications (id, user_id, title, message, type) VALUES (?, ?, ?, ?, 'transfer')", [nid1, from_user_id, "💰 تحويل صادر", `تم تحويل ${amount} E-Money إلى حساب آخر`]);
-    const nid2 = uuidv4(); await execute("INSERT INTO notifications (id, user_id, title, message, type) VALUES (?, ?, ?, ?, 'transfer')", [nid2, to_user_id, "💰 تحويل وارد", `استلمت ${amount} E-Money من ${from_user_id.slice(0,8)}`]);
+    await execute("INSERT INTO wallet_transactions (id, user_id, amount, type, description, status) VALUES (?, ?, ?, ?, ?, 'completed')", [txToId, to_user_id, amount, "credit", `تحويل من ${fromUser.full_name}`]);
+    const nid1 = uuidv4(); await execute("INSERT INTO notifications (id, user_id, title, message, type) VALUES (?, ?, ?, ?, 'transfer')", [nid1, from_user_id, "💰 تحويل صادر", `تم تحويل ${amount} E-Money إلى ${toUser.full_name}`]);
+    const nid2 = uuidv4(); await execute("INSERT INTO notifications (id, user_id, title, message, type) VALUES (?, ?, ?, ?, 'transfer')", [nid2, to_user_id, "💰 تحويل وارد", `استلمت ${amount} E-Money من ${fromUser.full_name}`]);
     const updatedFrom = await queryOne("SELECT e_money FROM users WHERE id = ?", [from_user_id]);
     const updatedTo = await queryOne("SELECT e_money FROM users WHERE id = ?", [to_user_id]);
     res.json({ success: true, transfer_id: tid, from_balance: updatedFrom.e_money, to_balance: updatedTo.e_money });

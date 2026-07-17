@@ -122,15 +122,19 @@ export default function AffiliatePage() {
   const [profileData, setProfileData] = useState(null);
   const [copied, setCopied] = useState(false);
   const [dbRanks, setDbRanks] = useState([]);
+  const [transferHistory, setTransferHistory] = useState([]);
 
-  useEffect(() => {
+  const loadData = () => {
     if (!user) return;
     api(`/api/mlm/tree?userId=${user.id}`).then(setTree).catch(() => {});
     api(`/api/mlm/commissions?userId=${user.id}`).then(setCommissions).catch(() => {});
     api(`/api/mlm/directs/${user.id}`).then(setDirects).catch(() => {});
     api(`/api/mlm/upline/${user.id}`).then((u) => setUpline(u[0] || null)).catch(() => {});
     api("/api/ranks").then((d) => Array.isArray(d) ? setDbRanks(d) : null).catch(() => {});
-  }, [user]);
+    api(`/api/mlm/transfers/${user.id}`).then(setTransferHistory).catch(() => {});
+  };
+
+  useEffect(() => { loadData(); }, [user]);
 
   const copyCode = () => {
     if (user?.referral_code) {
@@ -355,6 +359,91 @@ export default function AffiliatePage() {
                 )}
               </div>
 
+              {/* Upline - Team Leader */}
+              {upline && (
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    <div style={{ flex: 1, height: 1, background: `${GOLD}33` }} />
+                    <span style={{ fontSize: 10, fontWeight: 700, color: GOLD, letterSpacing: 1, textTransform: "uppercase" }}>
+                      {t("القائد", "Team Leader")}
+                    </span>
+                    <div style={{ flex: 1, height: 1, background: `${GOLD}33` }} />
+                  </div>
+                  <div style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    padding: "12px 16px", borderRadius: 14, marginBottom: 6,
+                    background: `linear-gradient(135deg, ${GOLD}10, ${GOLD}05)`,
+                    border: `1.5px solid ${GOLD}33`,
+                  }}>
+                    <div style={{
+                      width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+                      background: `linear-gradient(135deg, ${GOLD}30, ${GOLD}50)`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontWeight: 800, fontSize: 16, color: "#fff",
+                      border: `2px solid ${GOLD}44`,
+                    }}>
+                      {upline.avatar ? <img src={upline.avatar} alt="" style={{ width: 40, height: 40, borderRadius: 12, objectFit: "cover" }} /> : (upline.full_name || "?")[0]}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontWeight: 700, fontSize: 14, margin: 0, color: c.text }}>{upline.full_name}</p>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                        <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 6, background: `${GOLD}15`, color: GOLD }}>
+                          {(() => { const rk = (dbRanks || []).find(r => r.name === upline.rank); return rk?.image ? <img src={rk.image} alt="" style={{width:12,height:12,borderRadius:3,objectFit:"cover",verticalAlign:"middle",marginRight:3}} /> : (rankIcons[upline.rank] || "⭐"); })()} {upline.rank || "Star"}
+                        </span>
+                        <span style={{ fontSize: 10, color: c.textMuted, fontWeight: 600 }}>{upline.e_money ?? 0} EM</span>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 8, background: `${GOLD}15`, color: GOLD }}>
+                      ↑ {t("سبونسر", "Sponsor")}
+                    </span>
+                  </div>
+                  {/* Connecting line down to you */}
+                  <div style={{ display: "flex", justifyContent: "center", padding: "2px 0" }}>
+                    <div style={{ width: 2, height: 16, background: `${GOLD}44` }} />
+                  </div>
+                </div>
+              )}
+
+              {/* Current User Node */}
+              <div style={{
+                padding: "10px 14px", borderRadius: 14, marginBottom: 8,
+                background: `linear-gradient(135deg, ${GOLD}12, ${GOLD}06)`,
+                border: `2px solid ${GOLD}44`,
+                display: "flex", alignItems: "center", gap: 10,
+              }}>
+                <div style={{
+                  width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                  background: `linear-gradient(135deg, ${GOLD}30, ${GOLD}60)`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontWeight: 800, fontSize: 15, color: "#fff",
+                }}>
+                  {user?.avatar ? <img src={user.avatar} alt="" style={{ width: 38, height: 38, borderRadius: 10, objectFit: "cover" }} /> : (user?.full_name || "Z")[0]}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontWeight: 700, fontSize: 14, margin: 0, color: c.text }}>
+                    {user?.full_name || user?.name}
+                    <span style={{ fontSize: 9, background: GOLD, color: "#111", padding: "1px 6px", borderRadius: 6, marginLeft: 6, fontWeight: 700 }}>
+                      {t("أنت", "YOU")}
+                    </span>
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                    <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 6, background: `${GOLD}15`, color: GOLD }}>
+                      {(() => { if (!user?.rank) return null; const rk = (dbRanks || []).find(r => r.name === user.rank); return rk?.image ? <img src={rk.image} alt="" style={{width:12,height:12,borderRadius:3,objectFit:"cover",verticalAlign:"middle",marginRight:3}} /> : (rankIcons[user.rank] || "⭐"); })()} {user?.rank || "—"}
+                    </span>
+                  </div>
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 8, background: `${GOLD}15`, color: GOLD }}>
+                  {teamCount} {t("عضو", "members")}
+                </span>
+              </div>
+
+              {/* Connecting line down to team */}
+              {tree.length > 0 && (
+                <div style={{ display: "flex", justifyContent: "center", padding: "2px 0" }}>
+                  <div style={{ width: 2, height: 12, background: `rgba(0,0,0,.12)` }} />
+                </div>
+              )}
+
               {/* Level breakdown bar */}
               {tree.length > 0 && (() => {
                 const flat = flattenTree(tree);
@@ -362,7 +451,7 @@ export default function AffiliatePage() {
                 const levelCounts = {};
                 flat.forEach(f => { levelCounts[f._depth] = (levelCounts[f._depth] || 0) + 1; });
                 return (
-                  <div style={{ display: "flex", gap: 4, marginBottom: 16, height: 8, borderRadius: 4, overflow: "hidden" }}>
+                  <div style={{ display: "flex", gap: 4, marginBottom: 12, height: 8, borderRadius: 4, overflow: "hidden" }}>
                     {Array.from({ length: maxDepth }, (_, i) => (
                       <div key={i} style={{ flex: levelCounts[i] || 0, background: getLevelColor(i), borderRadius: 3, minWidth: 4 }}
                         title={`${t("المستوى", "Level")} ${i + 1}: ${levelCounts[i] || 0} ${t("عضو", "members")}`} />
@@ -717,8 +806,10 @@ export default function AffiliatePage() {
                         }),
                       });
                       setTransferAmount("");
+                      setTransferTo("");
                       const u = await api(`/api/users/${user.id}`);
                       if (u) login(u);
+                      api(`/api/mlm/transfers/${user.id}`).then(setTransferHistory).catch(() => {});
                       setTransferMsg(
                         t(
                           `✅ تم التحويل بنجاح! الرصيد الجديد: ${r.from_balance}`,
@@ -768,6 +859,55 @@ export default function AffiliatePage() {
                 </p>
               )}
             </div>
+
+            {/* Transfer History */}
+            {transferHistory.length > 0 && (
+              <div style={{ background: c.bgCard, borderRadius: 18, padding: "18px 16px", marginTop: 16, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
+                <p style={{ fontSize: 13, fontWeight: 700, margin: "0 0 12px", color: c.text, display: "flex", alignItems: "center", gap: 6 }}>
+                  📋 {t("سجل التحويلات", "Transfer History")} ({transferHistory.length})
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {transferHistory.slice(0, 10).map((tx) => {
+                    const isOutgoing = tx.from_user_id === user?.id;
+                    const otherName = isOutgoing ? tx.to_name : tx.from_name;
+                    return (
+                      <div key={tx.id} style={{
+                        display: "flex", alignItems: "center", justifyContent: "space-between",
+                        background: isOutgoing ? "rgba(239,68,68,.04)" : "rgba(34,197,94,.04)",
+                        border: `1px solid ${isOutgoing ? "rgba(239,68,68,.12)" : "rgba(34,197,94,.12)"}`,
+                        borderRadius: 12, padding: "10px 14px",
+                      }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div style={{
+                            width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
+                            background: isOutgoing ? "rgba(239,68,68,.1)" : "rgba(34,197,94,.1)",
+                            fontSize: 14, fontWeight: 700, color: isOutgoing ? "#ef4444" : "#22c55e",
+                          }}>
+                            {isOutgoing ? "↑" : "↓"}
+                          </div>
+                          <div>
+                            <p style={{ fontWeight: 600, fontSize: 12, margin: 0, color: c.text }}>
+                              {isOutgoing ? t("تحويل إلى", "To") : t("تحويل من", "From")} {otherName}
+                            </p>
+                            <p style={{ fontSize: 10, color: c.textMuted, margin: 0 }}>
+                              {tx.created_at?.slice(0, 16) || "—"}
+                            </p>
+                          </div>
+                        </div>
+                        <span style={{
+                          fontWeight: 700, fontSize: 13,
+                          color: isOutgoing ? "#ef4444" : "#22c55e",
+                          background: isOutgoing ? "rgba(239,68,68,.08)" : "rgba(34,197,94,.08)",
+                          padding: "3px 10px", borderRadius: 8,
+                        }}>
+                          {isOutgoing ? "-" : "+"}{tx.amount} EM
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
