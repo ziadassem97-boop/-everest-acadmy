@@ -36,3 +36,38 @@ export async function uploadApi(formData) {
   if (!r.ok) throw new Error("Upload failed");
   return r.json();
 }
+
+const BUNNY_LIBRARY_ID = "707074";
+const BUNNY_API_KEY = "3d6b2748-5547-4c92-af11-1ddbc5a6ea9aa5f2d9a9-54d0-460f-9887-7547180ab9c9";
+const BUNNY_CDN_HOST = `${BUNNY_LIBRARY_ID}.b-cdn.net`;
+
+export async function uploadVideoToBunny(file, onProgress) {
+  const createRes = await fetch(`https://video.bunnycdn.com/library/${BUNNY_LIBRARY_ID}/videos`, {
+    method: "POST",
+    headers: { "ContentKey": BUNNY_API_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ title: file.name }),
+  });
+  if (!createRes.ok) throw new Error("Failed to create video entry");
+  const videoData = await createRes.json();
+  const videoId = videoData.guid;
+
+  await new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.upload.addEventListener("progress", (e) => {
+      if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
+    });
+    xhr.addEventListener("load", () => { if (xhr.status >= 200 && xhr.status < 300) resolve(); else reject(new Error("Upload failed")); });
+    xhr.addEventListener("error", () => reject(new Error("Upload failed")));
+    xhr.open("PUT", `https://video.bunnycdn.com/library/${BUNNY_LIBRARY_ID}/videos/${videoId}`);
+    xhr.setRequestHeader("ContentKey", BUNNY_API_KEY);
+    xhr.setRequestHeader("Content-Type", "application/octet-stream");
+    xhr.send(file);
+  });
+
+  return `https://${BUNNY_CDN_HOST}/${videoId}/playlist.m3u8`;
+}
+
+export function getBunnyMp4Url(m3u8Url) {
+  if (!m3u8Url || !m3u8Url.includes("b-cdn.net")) return m3u8Url;
+  return m3u8Url.replace("/playlist.m3u8", "/360p.mp4");
+}

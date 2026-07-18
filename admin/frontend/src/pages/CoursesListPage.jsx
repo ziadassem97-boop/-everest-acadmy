@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLang } from "../LangContext";
-import { api, uploadApi } from "../api.js";
+import { api, uploadApi, uploadVideoToBunny } from "../api.js";
 
 const statusOpts = [
   { ar: "منشور", en: "Published", val: "published" },
@@ -33,6 +33,8 @@ export default function CoursesListPage() {
   const [newLessonContent, setNewLessonContent] = useState("");
   const [newLessonContentAr, setNewLessonContentAr] = useState("");
   const [newLessonIsFree, setNewLessonIsFree] = useState(false);
+  const [videoUploadPct, setVideoUploadPct] = useState(null);
+  const [uploadingLessonId, setUploadingLessonId] = useState(null);
   const [quizEditor, setQuizEditor] = useState(null); // { type: 'topic'|'lesson'|'final', topicId, lessonId?, quizId? }
   const [quizForm, setQuizForm] = useState({ title: "", questions: [], pass_mark: 50, quiz_type: "mcq" });
 
@@ -412,18 +414,21 @@ export default function CoursesListPage() {
                             setDetail((prev) => ({ ...prev, topics: prev.topics.map((t) => t.id === topic.id
                               ? { ...t, lessons: t.lessons.map((l) => l.id === lesson.id ? upd : l) } : t) }));
                           }} className="flex-1 px-2 py-1 border rounded text-xs" placeholder={t("رابط فيديو (YouTube)...", "Video URL (YouTube)...")} />
-                          <label className="px-3 py-1.5 text-xs bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 whitespace-nowrap font-medium">
-                            {t("رفع فيديو من الجهاز", "Upload Video")}
-                            <input type="file" accept="video/*" className="hidden" onChange={async (e) => {
+                          <label className={`px-3 py-1.5 text-xs text-white rounded-lg cursor-pointer hover:opacity-90 whitespace-nowrap font-medium ${uploadingLessonId ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"}`}>
+                            {uploadingLessonId === lesson.id ? `${videoUploadPct}%` : t("رفع فيديو", "Upload")}
+                            <input type="file" accept="video/*" className="hidden" disabled={!!uploadingLessonId} onChange={async (e) => {
                               const file = e.target.files?.[0]; if (!file) return;
-                              const fd = new FormData(); fd.append("file", file);
-                              const d = await uploadApi(fd);
-                              if (d.url) {
-                                const upd = { ...lesson, video_url: d.url };
+                              try {
+                                setUploadingLessonId(lesson.id);
+                                setVideoUploadPct(0);
+                                const url = await uploadVideoToBunny(file, (pct) => setVideoUploadPct(pct));
+                                const upd = { ...lesson, video_url: url };
                                 setDetail((prev) => ({ ...prev, topics: prev.topics.map((t) => t.id === topic.id
                                   ? { ...t, lessons: t.lessons.map((l) => l.id === lesson.id ? upd : l) } : t) }));
-                                await updateLesson(topic.id, { ...lesson, video_url: d.url });
-                              }
+                                await updateLesson(topic.id, { ...lesson, video_url: url });
+                              } catch (err) { alert(t("فشل رفع الفيديو: ", "Video upload failed: ") + err.message); }
+                              setUploadingLessonId(null);
+                              setVideoUploadPct(null);
                             }} />
                           </label>
                           <button onClick={() => updateLesson(topic.id, lesson)} className="px-3 py-1.5 text-xs bg-everest-600 text-white rounded-lg">💾</button>
@@ -486,13 +491,16 @@ export default function CoursesListPage() {
                             <input value={newLessonVideo} onChange={(e) => setNewLessonVideo(e.target.value)}
                               placeholder={t("رابط فيديو (YouTube)...", "Video URL (YouTube)...")}
                               className="flex-1 px-2 py-1 border rounded text-xs" />
-                            <label className="px-3 py-1.5 text-xs bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 whitespace-nowrap font-medium">
-                              {t("رفع فيديو", "Upload")}
-                              <input type="file" accept="video/*" className="hidden" onChange={async (e) => {
+                            <label className={`px-3 py-1.5 text-xs text-white rounded-lg cursor-pointer hover:opacity-90 whitespace-nowrap font-medium ${videoUploadPct !== null ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"}`}>
+                              {videoUploadPct !== null ? `${videoUploadPct}%` : t("رفع فيديو", "Upload")}
+                              <input type="file" accept="video/*" className="hidden" disabled={videoUploadPct !== null} onChange={async (e) => {
                                 const file = e.target.files?.[0]; if (!file) return;
-                                const fd = new FormData(); fd.append("file", file);
-                                const d = await uploadApi(fd);
-                                if (d.url) { setNewLessonVideo(d.url); }
+                                try {
+                                  setVideoUploadPct(0);
+                                  const url = await uploadVideoToBunny(file, (pct) => setVideoUploadPct(pct));
+                                  setNewLessonVideo(url);
+                                } catch (err) { alert(t("فشل رفع الفيديو: ", "Video upload failed: ") + err.message); }
+                                setVideoUploadPct(null);
                               }} />
                             </label>
                             <label className="flex items-center gap-1.5 px-2 py-1 bg-green-50 border border-green-200 rounded text-xs cursor-pointer select-none">
@@ -662,6 +670,8 @@ export default function CoursesListPage() {
     const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
     return m ? `https://www.youtube.com/embed/${m[1]}` : null;
   };
+  const isBunny = (url) => url && url.includes(".b-cdn.net");
+  const getBunnyEmbed = (url) => { const m = url.match(/\.b-cdn\.net\/([a-f0-9-]+)\//); return m ? `https://video.bunnycdn.com/embed/${url.match(/(\d+)\.b-cdn/)?.[1] || "707074"}/${m[1]}` : url; };
 
   if (viewCourse && viewData) {
     const allLessons = (viewData.topics || []).flatMap((t) => (t.lessons || []).map((l) => ({ ...l, topicTitle: t.title || t.title_ar })));
@@ -670,7 +680,7 @@ export default function CoursesListPage() {
     const idx = allLessons.findIndex((l) => l.id === current?.id);
 
     const videoSrc = current?.video_url
-      ? isYoutube(current.video_url) ? getYoutubeEmbed(current.video_url) : current.video_url
+      ? isYoutube(current.video_url) ? getYoutubeEmbed(current.video_url) : isBunny(current.video_url) ? getBunnyEmbed(current.video_url) : current.video_url
       : null;
 
     return (
@@ -710,8 +720,8 @@ export default function CoursesListPage() {
             <div className="flex-1 flex flex-col">
               <div className="bg-black flex-1 flex items-center justify-center min-h-[300px]">
                 {videoSrc ? (
-                  isYoutube(current.video_url) ? (
-                    <iframe src={videoSrc} className="w-full h-full min-h-[300px]" allowFullScreen title="video" />
+                  isYoutube(current.video_url) || isBunny(current.video_url) ? (
+                    <iframe src={videoSrc} className="w-full h-full min-h-[300px]" allowFullScreen allow="autoplay; encrypted-media" title="video" />
                   ) : (
                     <video src={videoSrc} controls className="w-full h-full max-h-[60vh]" autoPlay />
                   )
