@@ -339,10 +339,20 @@ function DashboardPage({ stats }) {
 
       {detail && (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6" style={{animation:"slideUp 0.3s ease both"}}>
-          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-gray-700">{detailTitles[detail] || detail}</h3>
             <div className="flex items-center gap-3">
               <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-lg">{detailData.length} {t("عنصر", "items")}</span>
+              {(detail === "quiz-pass-rate" || detail === "quizzes-passed") && detailData.length > 0 && (
+                <button onClick={async () => {
+                  if (!confirm(t("هل أنت متأكد من حذف جميع نتائج الاختبارات؟", "Are you sure you want to delete all quiz results?"))) return;
+                  await api("/api/courses/attempts", { method: "DELETE" });
+                  setDetailData([]);
+                  setDetail(null);
+                }} className="text-xs text-red-500 hover:text-red-700 bg-red-50 px-2 py-1 rounded-lg font-medium transition">
+                  🗑️ {t("حذف الكل", "Delete All")}
+                </button>
+              )}
               <button onClick={() => { setDetail(null); setDetailData([]); }} className="text-sm text-gray-400 hover:text-gray-600">{t("إغلاق ✕", "Close ✕")}</button>
             </div>
           </div>
